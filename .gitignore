@@ -7,3 +7,4 @@ next-env.d.ts
 
 AGENTS.md
 .hermes-tmp*
+.zonasi-store.json
