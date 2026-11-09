@@ -27,6 +27,15 @@ export type ApplicationRecord = {
   ai_reasoning_summary: string;
   rejection_reason: string | null;
   created_at: string;
+  kk_issued_date?: string;
+  family_relation?: string;
+  address_text?: string;
+  latitude?: number;
+  longitude?: number;
+  straight_distance_meters?: number;
+  kk_document_url?: string;
+  live_geotag_photo_url?: string | null;
+  updated_at?: string;
 };
 
 const STORE_FILE = path.join(process.cwd(), ".zonasi-store.json");
@@ -162,4 +171,10 @@ export function upsertApplication(record: ApplicationRecord): ApplicationRecord 
   }
   writeApplications(rows);
   return record;
+}
+
+export function findByTrackingId(trackingId: string): ApplicationRecord | undefined {
+  return readApplications().find(
+    (r) => r.tracking_id.toUpperCase() === trackingId.trim().toUpperCase(),
+  );
 }

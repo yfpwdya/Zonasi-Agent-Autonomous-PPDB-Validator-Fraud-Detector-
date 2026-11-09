@@ -84,13 +84,13 @@ export function PublicHeader() {
           </Link>
           <Link
             className="hidden sm:flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading font-label-lg text-label-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)] transition-all"
-            href="/dashboard"
+            href="/login"
           >
             <span className="material-symbols-outlined text-[18px] text-secondary">lock</span>
-            <span>Portal Petugas</span>
+            <span>Login / Register Petugas</span>
           </Link>
           <Link
-            href="/dashboard"
+            href="/login"
             className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"
           >
             <span className="material-symbols-outlined text-on-primary text-[18px]">person</span>

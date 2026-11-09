@@ -1,116 +1,253 @@
-import { NextResponse, after } from "next/server";
-import { runZonasiAgentPipeline, type VerificationStatus } from "@/lib/agent/orchestrator";
-import { readApplications, upsertApplication, writeApplications, type ApplicationRecord } from "@/lib/store";
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { NextRequest, NextResponse, after } from "next/server";
+import {
+  readApplications,
+  findByTrackingId,
+  upsertApplication,
+  type ApplicationRecord,
+} from "@/lib/store";
+import { runZonasiAgentPipeline } from "@/lib/agent/orchestrator";
+import { getSupabaseServer, hasSupabaseConfig } from "@/lib/supabase/server";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const q = (searchParams.get("q") || "").trim().toUpperCase();
-  const rows = readApplications();
-  if (!q) return NextResponse.json({ applications: rows });
-  const match = rows.find(
-    (r) =>
-      r.tracking_id.toUpperCase() === q ||
-      r.student_nik === q ||
-      r.student_name.toUpperCase().includes(q)
-  );
-  return NextResponse.json({ application: match || rows[0], applications: rows });
-}
+// ponytail: read from Supabase PostgreSQL first when configured, falling back to local .zonasi-store.json
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const trackingId = searchParams.get("trackingId");
+  const statusFilter = searchParams.get("status");
+  const q = searchParams.get("q")?.toLowerCase().trim();
 
-export async function POST(request: Request) {
-  const body = await request.json().catch(() => ({}));
-  const student_nik = String(body.student_nik || "").replace(/\D/g, "");
-  const student_name = String(body.student_name || "").trim();
-  const kk_number = String(body.kk_number || "").replace(/\D/g, "");
-  if (student_nik.length !== 16 || kk_number.length !== 16 || !student_name) {
-    return NextResponse.json(
-      { error: "Validasi gagal: NIK dan Nomor KK wajib 16 digit angka serta Nama Siswa wajib diisi." },
-      { status: 400 }
-    );
-  }
+  const localApps = readApplications();
+  let apps: ApplicationRecord[] = localApps;
 
-  const school_name = String(body.school_name || "SMAN 1 Teladan Jakarta");
-  const address = String(body.address || "Jl. Kenanga No. 14, Tebet Barat, Jakarta Selatan");
-  const home_lat = Number(body.home_lat ?? -6.23827);
-  const home_lng = Number(body.home_lng ?? 106.85194);
-  let kk_image_url = String(body.kk_image_url || "kartu_keluarga_ahmad.jpg");
-  const kk_image_base64 = typeof body.kk_image_base64 === "string" ? body.kk_image_base64 : undefined;
-  const overrideRouteMeters = body.real_route_distance_meters ? Number(body.real_route_distance_meters) : undefined;
+  if (hasSupabaseConfig()) {
+    const sb = getSupabaseServer();
+    if (sb) {
+      const { data: sbRows, error } = await sb
+        .from("applications")
+        .select("*")
+        .order("updated_at", { ascending: false });
+      if (!error && sbRows && sbRows.length > 0) {
+        const localByTrack = new Map(localApps.map((a) => [a.tracking_id.toUpperCase(), a]));
+        apps = sbRows.map((row) => {
+          const fallback = localByTrack.get(String(row.tracking_id).toUpperCase());
+          const issueDate = String(
+            row.kk_issued_date || fallback?.kk_issue_date || fallback?.kk_issued_date || "2020-01-01",
+          );
+          const ageYears = Math.max(
+            0,
+            Number(((Date.now() - new Date(issueDate).getTime()) / (365.25 * 86400_000)).toFixed(1)),
+          );
+          const straightMeters = Number(
+            row.straight_distance_meters ?? fallback?.straight_line_distance_meters ?? 0,
+          );
+          const routeMeters = Number(
+            row.real_route_distance_meters ?? fallback?.real_route_distance_meters ?? 0,
+          );
+          const lat = Number(row.latitude ?? fallback?.home_lat ?? -6.2297);
+          const lng = Number(row.longitude ?? fallback?.home_lng ?? 106.8532);
+          const docUrl = String(
+            row.kk_document_url ?? fallback?.kk_image_url ?? fallback?.kk_document_url ?? "",
+          );
+          const addr = String(row.address_text ?? fallback?.address ?? "");
+          const rel = String(row.family_relation ?? "ANAK_KANDUNG");
 
-  const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-  const tracking_id = String(body.tracking_id || `PPDB-2026-${suffix}`);
-
-  // Upload real binary file to Supabase Storage if base64 is provided
-  const sb = getSupabaseServer();
-  if (sb && kk_image_base64) {
-    try {
-      const m = kk_image_base64.match(/^data:([^;]+);base64,(.+)$/);
-      const mime = m ? m[1] : "image/jpeg";
-      const rawB64 = m ? m[2] : kk_image_base64;
-      const buf = Buffer.from(rawB64, "base64");
-      const ext = mime.includes("png") ? "png" : mime.includes("pdf") ? "pdf" : "jpg";
-      const filePath = `${tracking_id.toLowerCase()}-${Date.now()}.${ext}`;
-
-      await sb.storage.from("ppdb-documents").upload(filePath, buf, {
-        contentType: mime,
-        upsert: true,
-      });
-      await sb.storage.from("kk-documents").upload(filePath, buf, {
-        contentType: mime,
-        upsert: true,
-      });
-      const { data: pubData } = sb.storage.from("ppdb-documents").getPublicUrl(filePath);
-      if (pubData?.publicUrl) {
-        kk_image_url = pubData.publicUrl;
+          return {
+            id: String(row.id),
+            tracking_id: String(row.tracking_id),
+            student_nik: String(row.student_nik),
+            student_name: String(row.student_name),
+            kk_number: String(row.kk_number),
+            school_name: fallback?.school_name || "SMAN 1 Teladan Jakarta",
+            address: addr,
+            address_text: addr,
+            home_lat: lat,
+            home_lng: lng,
+            latitude: lat,
+            longitude: lng,
+            straight_line_distance_meters: straightMeters,
+            straight_distance_meters: straightMeters,
+            real_route_distance_meters: routeMeters,
+            kk_image_url: docUrl,
+            kk_document_url: docUrl,
+            live_house_photo_url: row.live_geotag_photo_url ?? fallback?.live_house_photo_url ?? null,
+            live_geotag_photo_url: row.live_geotag_photo_url ?? fallback?.live_house_photo_url ?? null,
+            kk_issue_date: issueDate,
+            kk_issued_date: issueDate,
+            kk_age_label:
+              fallback?.kk_age_label ||
+              (ageYears < 1
+                ? `${Math.max(1, Math.round(ageYears * 12))} Bln (<1 Thn)`
+                : `${ageYears} Thn (Valid)`),
+            kk_age_valid: ageYears >= 1,
+            family_relation_valid: rel === "ANAK_KANDUNG",
+            family_relation: rel,
+            ocr_confidence: Number(row.ocr_confidence ?? fallback?.ocr_confidence ?? 95),
+            detected_building: row.detected_building ?? fallback?.detected_building ?? "RESIDENTIAL",
+            status: row.status,
+            ai_reasoning_summary: String(row.ai_reasoning_summary ?? ""),
+            rejection_reason:
+              row.status === "REJECTED" ? String(row.ai_reasoning_summary ?? "") : null,
+            created_at: String(row.created_at ?? row.updated_at ?? new Date().toISOString()),
+            updated_at: String(row.updated_at ?? new Date().toISOString()),
+          } satisfies ApplicationRecord;
+        });
       }
-    } catch {
-      // keep filename fallback if storage upload fails
     }
   }
 
-  const pipeline = await runZonasiAgentPipeline({
-    kkNumber: kk_number,
-    kkImageName: kk_image_url,
-    kkImageBase64: kk_image_base64,
-    homeLat: home_lat,
-    homeLng: home_lng,
-    schoolLat: -6.23485,
-    schoolLng: 106.85412,
-    addressHint: address,
-    overrideRouteMeters,
+  if (trackingId) {
+    const found =
+      apps.find((a) => a.tracking_id.toUpperCase() === trackingId.toUpperCase()) ||
+      findByTrackingId(trackingId);
+    if (!found) {
+      return NextResponse.json({ error: "Tracking ID tidak ditemukan" }, { status: 404 });
+    }
+    return NextResponse.json({ application: found });
+  }
+
+  if (statusFilter && statusFilter !== "ALL") {
+    if (statusFilter === "FRAUD") {
+      apps = apps.filter((a) => a.status === "REJECTED");
+    } else if (statusFilter === "REVISION") {
+      apps = apps.filter((a) => a.status === "NEEDS_LIVE_PHOTO" || a.status === "NEEDS_REVISION");
+    } else if (statusFilter === "APPROVED") {
+      apps = apps.filter((a) => a.status === "APPROVED");
+    } else {
+      apps = apps.filter((a) => a.status === statusFilter);
+    }
+  }
+
+  if (q) {
+    apps = apps.filter(
+      (a) =>
+        a.tracking_id.toLowerCase().includes(q) ||
+        a.student_name.toLowerCase().includes(q) ||
+        a.student_nik.toLowerCase().includes(q) ||
+        a.kk_number.toLowerCase().includes(q),
+    );
+  }
+
+  return NextResponse.json({
+    applications: apps,
+    total: apps.length,
+    source: hasSupabaseConfig() ? "supabase" : "local",
   });
+}
 
-  const record: ApplicationRecord = {
-    id: crypto.randomUUID(),
-    tracking_id,
-    student_nik,
-    student_name,
-    kk_number,
-    school_name,
-    address,
-    home_lat,
-    home_lng,
-    real_route_distance_meters: pipeline.geo.realRouteMeters,
-    straight_line_distance_meters: pipeline.geo.straightLineMeters,
-    kk_image_url,
-    kk_issue_date: pipeline.ocr.kkIssueDate,
-    kk_age_label: pipeline.ocr.kkAgeValid ? `${pipeline.ocr.kkAgeYears} Tahun` : "Dummy / <1 Thn (ANOMALI)",
-    kk_age_valid: pipeline.ocr.kkAgeValid,
-    family_relation_valid: pipeline.ocr.familyRelationValid,
-    ocr_confidence: pipeline.ocr.ocrConfidence,
-    detected_building: pipeline.vision.detectedBuilding,
-    status: pipeline.decision.status,
-    ai_reasoning_summary: pipeline.decision.aiReasoningSummary,
-    rejection_reason: pipeline.decision.rejectionReason || pipeline.ocr.ocrNotes || null,
-    created_at: new Date().toISOString(),
-  };
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const studentNik = String(body.student_nik || "3171041908070002").trim();
+    const studentName = String(body.student_name || "Calon Siswa PPDB").trim();
+    const kkNumber = String(body.kk_number || "3171040501190008").trim();
+    const kkIssuedDate = String(body.kk_issued_date || "2019-01-12").trim();
+    const addressText = String(body.address_text || "Jl. Tebet Utara Dalam No. 24").trim();
+    const latitude = Number(body.latitude ?? -6.2297);
+    const longitude = Number(body.longitude ?? 106.8532);
+    const kkFileName = String(body.kk_file_name || "kartu_keluarga.jpg");
+    const kkFileBase64 = typeof body.kk_file_base64 === "string" ? body.kk_file_base64 : undefined;
+    const kkMimeType = typeof body.kk_mime_type === "string" ? body.kk_mime_type : "image/jpeg";
+    const fileBuffer = kkFileBase64
+      ? Buffer.from(kkFileBase64.replace(/^data:[^;]+;base64,/, ""), "base64")
+      : undefined;
 
-  upsertApplication(record);
+    const result = await runZonasiAgentPipeline({
+      kkNumber,
+      kkImageName: kkFileName,
+      kkImageBase64: kkFileBase64,
+      kkIssueDateHint: kkIssuedDate,
+      homeLat: latitude,
+      homeLng: longitude,
+      schoolLat: -6.2333,
+      schoolLng: 106.8511,
+      addressHint: addressText,
+    });
 
-  after(async () => {
-    const sbServer = getSupabaseServer();
-    if (sbServer) {
-      const { data: appRow } = await sbServer
+    const trackingId =
+      body.tracking_id ||
+      `PPDB-2026-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+    let uploadedDocUrl = `/uploads/${kkFileName}`;
+    if (hasSupabaseConfig() && fileBuffer) {
+      const sb = getSupabaseServer();
+      if (sb) {
+        const safeName = `${trackingId}-${kkFileName.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        for (const bucket of ["ppdb-documents", "kk-documents"]) {
+          await sb.storage.from(bucket).upload(safeName, fileBuffer, {
+            contentType: kkMimeType,
+            upsert: true,
+          });
+        }
+        const { data: pub } = sb.storage.from("ppdb-documents").getPublicUrl(safeName);
+        if (pub?.publicUrl) {
+          uploadedDocUrl = pub.publicUrl;
+        }
+      }
+    }
+
+    const nowIso = new Date().toISOString();
+    const record: ApplicationRecord = {
+      id: crypto.randomUUID(),
+      tracking_id: trackingId,
+      student_nik: studentNik,
+      student_name: studentName,
+      kk_number: result.ocr.kkNumberDetected || kkNumber,
+      school_name: "SMAN 1 Teladan Jakarta",
+      address: addressText,
+      address_text: addressText,
+      home_lat: latitude,
+      home_lng: longitude,
+      latitude,
+      longitude,
+      straight_line_distance_meters: result.geo.straightLineMeters,
+      straight_distance_meters: result.geo.straightLineMeters,
+      real_route_distance_meters: result.geo.realRouteMeters,
+      kk_image_url: uploadedDocUrl,
+      kk_document_url: uploadedDocUrl,
+      live_house_photo_url: null,
+      live_geotag_photo_url: null,
+      kk_issue_date: result.ocr.kkIssueDate,
+      kk_issued_date: result.ocr.kkIssueDate,
+      kk_age_label:
+        result.ocr.kkAgeYears < 1
+          ? `${Math.max(1, Math.round(result.ocr.kkAgeYears * 12))} Bln (<1 Thn)`
+          : `${result.ocr.kkAgeYears} Thn (Valid)`,
+      kk_age_valid: result.ocr.kkAgeValid,
+      family_relation_valid: result.ocr.familyRelationValid,
+      family_relation: result.ocr.familyRelation,
+      ocr_confidence: result.ocr.ocrConfidence,
+      detected_building: result.vision.detectedBuilding,
+      status: result.decision.status,
+      ai_reasoning_summary: result.decision.aiReasoningSummary,
+      rejection_reason: result.decision.rejectionReason,
+      created_at: nowIso,
+      updated_at: nowIso,
+    };
+
+    upsertApplication(record);
+
+    const auditLogs = [
+      {
+        stepName: "OCR_EXTRACTION",
+        logLevel: result.ocr.ocrConfidence < 80 ? "WARNING" : "SUCCESS",
+        message: `No KK=${record.kk_number}, Tanggal=${record.kk_issued_date}, Confidence=${record.ocr_confidence}% (${result.ocr.ocrNotes || "OK"})`,
+      },
+      {
+        stepName: "POSTGIS_ROUTING",
+        logLevel: "INFO",
+        message: `Euclidean=${record.straight_distance_meters}m, Route=${record.real_route_distance_meters}m`,
+      },
+      {
+        stepName: "FINAL_DECISION",
+        logLevel: record.status === "REJECTED" ? "CRITICAL" : "SUCCESS",
+        message: record.ai_reasoning_summary,
+      },
+    ];
+
+    after(async () => {
+      if (!hasSupabaseConfig()) return;
+      const sb = getSupabaseServer();
+      if (!sb) return;
+      const { data: appRow } = await sb
         .from("applications")
         .upsert(
           {
@@ -118,75 +255,105 @@ export async function POST(request: Request) {
             student_nik: record.student_nik,
             student_name: record.student_name,
             kk_number: record.kk_number,
-            home_lat: record.home_lat,
-            home_lng: record.home_lng,
-            home_location: `SRID=4326;POINT(${record.home_lng} ${record.home_lat})`,
+            kk_issued_date: record.kk_issued_date,
+            family_relation: record.family_relation,
+            address_text: record.address_text,
+            home_location: `SRID=4326;POINT(${record.longitude} ${record.latitude})`,
+            latitude: record.latitude,
+            longitude: record.longitude,
+            straight_distance_meters: record.straight_distance_meters,
             real_route_distance_meters: record.real_route_distance_meters,
-            straight_line_distance_meters: record.straight_line_distance_meters,
-            kk_image_url: record.kk_image_url,
-            kk_issue_date: record.kk_issue_date,
-            kk_age_valid: record.kk_age_valid,
-            family_relation_valid: record.family_relation_valid,
-            ocr_confidence: record.ocr_confidence,
             detected_building: record.detected_building,
+            ocr_confidence: record.ocr_confidence,
             status: record.status,
             ai_reasoning_summary: record.ai_reasoning_summary,
-            rejection_reason: record.rejection_reason,
+            kk_document_url: record.kk_document_url,
           },
-          { onConflict: "tracking_id" }
+          { onConflict: "tracking_id" },
         )
         .select("id")
         .single();
 
       if (appRow?.id) {
-        await sbServer.from("agent_audit_logs").insert([
-          {
+        await sb.from("agent_audit_logs").insert(
+          auditLogs.map((l) => ({
             application_id: appRow.id,
-            step_name: "OCR_CHECK",
-            status: pipeline.ocr.ocrConfidence >= 80 ? "SUCCESS" : "WARNING",
-            detail_message: `Confidence OCR ${pipeline.ocr.ocrConfidence}%, Terbit KK ${pipeline.ocr.kkIssueDate} (${pipeline.ocr.kkAgeYears} thn), Relasi ${pipeline.ocr.familyRelation}. ${pipeline.ocr.ocrNotes || ""}`.trim(),
-          },
-          {
-            application_id: appRow.id,
-            step_name: "ROUTE_CALC",
-            status: "SUCCESS",
-            detail_message: `Jarak garis lurus PostGIS ${pipeline.geo.straightLineMeters}m, rute darat riil ${pipeline.geo.realRouteMeters}m.`,
-          },
-          {
-            application_id: appRow.id,
-            step_name: "VISION_AUDIT",
-            status: pipeline.vision.detectedBuilding === "RESIDENTIAL" ? "SUCCESS" : "WARNING",
-            detail_message: pipeline.vision.summary,
-          },
-          {
-            application_id: appRow.id,
-            step_name: "FINAL_DECISION",
-            status: record.status === "APPROVED" ? "SUCCESS" : "WARNING",
-            detail_message: record.ai_reasoning_summary,
-          },
-        ]);
+            step_name: l.stepName,
+            log_level: l.logLevel,
+            message: l.message,
+          })),
+        );
       }
-    }
-  });
+    });
 
-  return NextResponse.json({ application: record, pipeline }, { status: 201 });
+    return NextResponse.json(
+      {
+        application: record,
+        auditLogs,
+      },
+      { status: 201 },
+    );
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Gagal memproses pendaftaran" },
+      { status: 500 },
+    );
+  }
 }
 
-export async function PATCH(request: Request) {
-  const body = await request.json().catch(() => ({}));
-  const tracking_id = String(body.tracking_id || "");
-  const status = body.status as VerificationStatus | undefined;
-  const note = String(body.note || "");
-  const rows = readApplications();
-  const idx = rows.findIndex((r) => r.tracking_id === tracking_id);
-  if (idx < 0 || !status) {
-    return NextResponse.json({ error: "Berkas tidak ditemukan" }, { status: 404 });
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const trackingId = String(body.tracking_id || "");
+    const nextStatus = body.status as ApplicationRecord["status"] | undefined;
+    const summary = (body.ai_reasoning_summary || body.note) as string | undefined;
+    const actor = String(body.actor || "Panitia PPDB");
+
+    const existing = findByTrackingId(trackingId);
+    const updatedStatus = nextStatus ?? existing?.status ?? "APPROVED";
+    const updatedSummary = summary ?? existing?.ai_reasoning_summary ?? "Status diperbarui oleh Panitia.";
+
+    let updated: ApplicationRecord | null = null;
+    if (existing) {
+      updated = {
+        ...existing,
+        status: updatedStatus,
+        ai_reasoning_summary: updatedSummary,
+        updated_at: new Date().toISOString(),
+      };
+      upsertApplication(updated);
+    }
+
+    if (hasSupabaseConfig()) {
+      const sb = getSupabaseServer();
+      if (sb) {
+        const { data: sbRow } = await sb
+          .from("applications")
+          .update({
+            status: updatedStatus,
+            ai_reasoning_summary: updatedSummary,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("tracking_id", trackingId)
+          .select("*")
+          .single();
+
+        if (sbRow?.id) {
+          await sb.from("agent_audit_logs").insert({
+            application_id: sbRow.id,
+            step_name: "COMMITTEE_OVERRIDE",
+            log_level: updatedStatus === "REJECTED" ? "CRITICAL" : "SUCCESS",
+            message: `[${actor}] Mengubah status berkas ${trackingId} menjadi ${updatedStatus}: ${updatedSummary}`,
+          });
+        }
+      }
+    }
+
+    return NextResponse.json({ application: updated, ok: true });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Gagal memperbarui status" },
+      { status: 500 },
+    );
   }
-  rows[idx] = {
-    ...rows[idx],
-    status,
-    ai_reasoning_summary: note ? `[OVERRIDE PANITIA] ${note}` : rows[idx].ai_reasoning_summary,
-  };
-  writeApplications(rows);
-  return NextResponse.json({ application: rows[idx] });
 }
