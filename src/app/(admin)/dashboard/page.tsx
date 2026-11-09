@@ -574,6 +574,33 @@ export default function DashboardPage() {
                   <h2 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2">
                     <span className="material-symbols-outlined text-secondary text-[22px]">
                       shield_with_heart
+                    </span>
+                    Antrean Validasi Cerdas &amp; Deteksi Fraud
+                  </h2>
+                  <span className="font-body-sm text-body-sm text-text-muted">
+                    Penyaringan otomatis OCR, vision AI bangunan hunian, dan penghitungan jarak PostGIS
+                  </span>
+                </div>
+                <div className="flex items-center gap-space-sm">
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-2.5 text-text-muted text-[18px]">
+                      search
+                    </span>
+                    <input className="pl-9 pr-space-md py-1.5 rounded-lg bg-surface-slate text-body-sm text-text-heading outline-none focus:bg-surface-canvas focus:shadow-sm transition-all w-52 sm:w-64 font-body-sm" placeholder="Cari nama, NIK, ID..." type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                  </div>
+                  <button className="p-2 rounded-lg bg-surface-slate text-on-surface-variant hover:text-text-heading hover:bg-surface-container transition-colors" title="Filter Lanjutan" type="button">
+                    <span className="material-symbols-outlined text-[20px]">
+                      filter_list
+                    </span>
+                  </button>
+                  <button className="p-2 rounded-lg bg-surface-slate text-on-surface-variant hover:text-text-heading hover:bg-surface-container transition-colors" title="Ekspor Data Tabel" type="button">
+                    <span className="material-symbols-outlined text-[20px]">
+                      download
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-between flex-wrap gap-space-sm pt-space-xs">
                 <div className="flex items-center gap-1.5 bg-surface-slate p-1 rounded-xl flex-wrap">
                   <button
                     type="button"
