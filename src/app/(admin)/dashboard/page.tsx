@@ -8,6 +8,12 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "FRAUD" | "REVISION" | "APPROVED">("ALL");
   const [applications, setApplications] = useState<ApplicationRecord[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [sidakScheduled, setSidakScheduled] = useState(false);
+  const [disqualified, setDisqualified] = useState(false);
+  const [notifiedIds, setNotifiedIds] = useState<Record<string, boolean>>({});
+  const [exportLabel, setExportLabel] = useState("Ekspor Berita Acara (PDF/Excel)");
+  const [syncLabel, setSyncLabel] = useState("Sinkronisasi Data Dukcapil");
 
   useEffect(() => {
     fetch("/api/applications")
@@ -32,12 +38,6 @@ export default function DashboardPage() {
     if (statusFilter === "APPROVED") return app.status === "APPROVED";
     return true;
   });
-  const [modalOpen, setModalOpen] = useState(false);
-  const [sidakScheduled, setSidakScheduled] = useState(false);
-  const [disqualified, setDisqualified] = useState(false);
-  const [notifiedIds, setNotifiedIds] = useState<Record<string, boolean>>({});
-  const [exportLabel, setExportLabel] = useState("Ekspor Berita Acara (PDF/Excel)");
-  const [syncLabel, setSyncLabel] = useState("Sinkronisasi Data Dukcapil");
 
   const handleExportBa = () => {
     setExportLabel("Mengemas Berita Acara...");
