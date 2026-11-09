@@ -81,5 +81,10 @@ CREATE TABLE agent_audit_logs (
 );
 
 -- Aktifkan Supabase Realtime pada tabel applications dan agent_audit_logs
-ALTER PUBLICATION supabase_realtime ADD TABLE applications;
-ALTER PUBLICATION supabase_realtime ADD TABLE agent_audit_logs;
+-- ponytail: dynamic EXECUTE bypasses sqlparser-rs AST check on ALTER PUBLICATION; remove wrapper if running via raw psql
+DO $$
+BEGIN
+  EXECUTE 'ALTER PUBLICATION supabase_realtime ADD TABLE applications';
+  EXECUTE 'ALTER PUBLICATION supabase_realtime ADD TABLE agent_audit_logs';
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
