@@ -34,11 +34,13 @@ export async function POST(request: Request) {
   const home_lat = Number(body.home_lat ?? -6.23827);
   const home_lng = Number(body.home_lng ?? 106.85194);
   const kk_image_url = String(body.kk_image_url || "kartu_keluarga_ahmad.jpg");
+  const kk_image_base64 = typeof body.kk_image_base64 === "string" ? body.kk_image_base64 : undefined;
   const overrideRouteMeters = body.real_route_distance_meters ? Number(body.real_route_distance_meters) : undefined;
 
   const pipeline = await runZonasiAgentPipeline({
     kkNumber: kk_number,
     kkImageName: kk_image_url,
+    kkImageBase64: kk_image_base64,
     homeLat: home_lat,
     homeLng: home_lng,
     schoolLat: -6.23485,

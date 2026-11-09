@@ -68,6 +68,7 @@ export function decideVerificationStatus(input: {
 export async function runZonasiAgentPipeline(params: {
   kkNumber: string;
   kkImageName?: string;
+  kkImageBase64?: string;
   kkIssueDateHint?: string;
   homeLat: number;
   homeLng: number;
@@ -106,7 +107,7 @@ export async function runZonasiAgentPipeline(params: {
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
     try {
-      const prompt = `Anda adalah Autonomous PPDB Zonasi-Agent Auditor. Buat 1 kalimat kesimpulan audit formal Bahasa Indonesia (maks 28 kata) untuk pendaftar dengan data: Nomor KK=${params.kkNumber}, Usia KK=${ocr.kkAgeYears} tahun (valid=${ocr.kkAgeValid}), Hubungan=${ocr.familyRelation}, Jarak Rute=${geo.realRouteMeters}m (Garis lurus=${geo.straightLineMeters}m), Bangunan=${vision.detectedBuilding}, Alamat="${params.addressHint || "-"}", Status Keputusan=${decision.status}.`;
+      const prompt = `Anda adalah Autonomous PPDB Zonasi-Agent Auditor. Buat 1 kalimat kesimpulan audit formal Bahasa Indonesia (maks 28 kata) untuk pendaftar dengan data: Nomor KK=${params.kkNumber}, Usia KK=${ocr.kkAgeYears} tahun (valid=${ocr.kkAgeValid}), Hubungan=${ocr.familyRelation}, Jarak Rute=${geo.realRouteMeters}m (Garis lurus=${geo.straightLineMeters}m), Bangunan=${vision.detectedBuilding}, Alamat="${params.addressHint || "-"}", Catatan OCR="${ocr.ocrNotes || "-"}", No KK Terbaca="${ocr.kkNumberDetected || params.kkNumber}", Status Keputusan=${decision.status}.`;
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${geminiKey}`,
         {

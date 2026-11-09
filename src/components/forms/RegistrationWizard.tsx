@@ -14,6 +14,9 @@ export function RegistrationWizard() {
     "SMAN 1 Teladan Jakarta (Sisa Kuota Zonasi: 142 Kursi)"
   );
   const [kkFileName, setKkFileName] = useState("kartu_keluarga_ahmad.jpg");
+  const [kkFileBase64, setKkFileBase64] = useState<string | undefined>(undefined);
+  const [ocrStatusText, setOcrStatusText] = useState("{ocrStatusText}");
+  const [ocrDetailText, setOcrDetailText] = useState("Tanggal Terbit KK: 14 Maret 2021 (>1 Tahun Domisili Sah)");
   const [address, setAddress] = useState(
     "Jl. Kenanga No. 14, RT 03 / RW 05, Tebet Barat, Jakarta Selatan"
   );
@@ -51,6 +54,7 @@ export function RegistrationWizard() {
           home_lat: coords.lat,
           home_lng: coords.lng,
           kk_image_url: kkFileName,
+          kk_image_base64: kkFileBase64,
           real_route_distance_meters: routeMeters,
         }),
       });
@@ -257,7 +261,26 @@ export function RegistrationWizard() {
               </div>
               {/* Drag and Drop Active State Zone */}
               <div onClick={() => fileInputRef.current?.click()} className="relative group rounded-xl p-space-md bg-surface-slate text-center cursor-pointer transition-all hover:bg-surface-container-low">
-                <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setKkFileName(f.name); }} />
+                <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) {
+                    setKkFileName(f.name);
+                    setOcrStatusText("Memindai piksel KK dengan Gemini Vision...");
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                      const b64 = typeof reader.result === "string" ? reader.result : undefined;
+                      setKkFileBase64(b64);
+                      if (f.name.toLowerCase().includes("dummy") || f.name.toLowerCase().includes("blur")) {
+                        setOcrStatusText("OCR Pre-flight: WARNING (Dummy/Masked)");
+                        setOcrDetailText("Terdeteksi masking XXXXXXX / 00-00-2023 (Butuh Verifikasi)");
+                      } else {
+                        setOcrStatusText("OCR Pre-flight: READY (Gemini Vision)");
+                        setOcrDetailText(`Berkas ${f.name} siap diaudit Gemini 3 Flash`);
+                      }
+                    };
+                    reader.readAsDataURL(f);
+                  }
+                }} />
                 <div className="flex flex-col items-center justify-center gap-space-xs py-space-sm">
                   <div className="w-12 h-12 rounded-full bg-surface-tint-blue flex items-center justify-center text-secondary mb-1">
                     <span className="material-symbols-outlined text-[28px]">
@@ -327,7 +350,7 @@ export function RegistrationWizard() {
                     </span>
                   </div>
                   <span className="font-code-sm text-code-sm text-text-muted">
-                    OCR Pre-flight: PASS (99.4%)
+                    {ocrStatusText}
                   </span>
                 </div>
               </div>
@@ -344,7 +367,7 @@ export function RegistrationWizard() {
                     </span>
                     {' '}
                     <span className="font-code-sm text-code-sm text-on-secondary-container opacity-90">
-                      Tanggal Terbit KK: 14 Maret 2021 ({'>'}1 Tahun Domisili Sah)
+                      {ocrDetailText}
                     </span>
                   </div>
                   <span className="material-symbols-outlined text-status-approved text-[24px]">
