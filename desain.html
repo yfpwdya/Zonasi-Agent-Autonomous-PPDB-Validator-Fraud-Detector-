@@ -1,0 +1,2214 @@
+<!-- Beranda Portal Zonasi-Agent -->
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Zonasi-Agent - Autonomous PPDB Validator &amp; Fraud Detector</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary":"#ffffff","on-secondary-container":"#fefcff","on-background":"#131b2e","primary-fixed":"#dde1ff","surface-container-high":"#e2e7ff","surface-canvas":"#FFFFFF","secondary-container":"#316bf3","status-fraud-border":"#FECACA","on-primary-fixed":"#001453","inverse-surface":"#283044","secondary":"#0051d5","surface":"#faf8ff","tertiary-container":"#00489e","primary-fixed-dim":"#b8c4ff","status-fraud-bg":"#FEF2F2","error":"#ba1a1a","text-heading":"#0F172A","surface-container-low":"#f2f3ff","status-revision-bg":"#FFFBEB","surface-bright":"#faf8ff","on-tertiary-container":"#9cbbff","on-tertiary-fixed":"#001a42","surface-card":"#FFFFFF","inverse-primary":"#b8c4ff","status-approved-border":"#A7F3D0","text-muted":"#64748B","surface-container-lowest":"#ffffff","on-secondary-fixed":"#00174b","on-surface":"#131b2e","primary-container":"#1e40af","on-surface-variant":"#444653","on-error-container":"#93000a","primary":"#00288e","status-revision-border":"#FDE68A","status-approved-bg":"#ECFDF5","on-primary-container":"#a8b8ff","on-tertiary-fixed-variant":"#004395","surface-dim":"#d2d9f4","outline-variant":"#c4c5d5","surface-container-highest":"#dae2fd","on-secondary-fixed-variant":"#003ea8","surface-container":"#eaedff","error-container":"#ffdad6","secondary-fixed-dim":"#b4c5ff","status-approved":"#10B981","surface-variant":"#dae2fd","tertiary-fixed-dim":"#adc6ff","outline":"#757684","on-tertiary":"#ffffff","on-secondary":"#ffffff","background":"#faf8ff","secondary-fixed":"#dbe1ff","on-error":"#ffffff","inverse-on-surface":"#eef0ff","surface-tint-blue":"#EFF6FF","on-primary-fixed-variant":"#173bab","border-subtle":"#F1F5F9","text-body":"#334155","surface-tint":"#3755c3","status-fraud":"#EF4444","tertiary":"#003272","surface-slate":"#F8FAFC","tertiary-fixed":"#d8e2ff","border-slate":"#E2E8F0","status-revision":"#F59E0B"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-xl":"2.5rem","space-md":"1rem","gutter-mobile":"1rem","margin-mobile":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"2rem","gutter":"1.5rem","space-lg":"1.5rem"},fontFamily:{"body-md":["Plus Jakarta Sans"],"code-lg":["JetBrains Mono"],"headline-sm":["Plus Jakarta Sans"],"code-md":["JetBrains Mono"],"body-lg":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"code-sm":["JetBrains Mono"]},fontSize:{"body-md":["1rem",{"lineHeight":"1.5rem","letterSpacing":"-0.005em","fontWeight":"400"}],"code-lg":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["1.125rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"400"}],"body-sm":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"400"}],"headline-xl-mobile":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"800"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-xl":["2.5rem",{"lineHeight":"3rem","letterSpacing":"-0.03em","fontWeight":"800"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"headline-lg-mobile":["1.625rem",{"lineHeight":"2.125rem","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["0.75rem",{"lineHeight":"1.0rem","letterSpacing":"0.02em","fontWeight":"600"}],"code-sm":["0.75rem",{"lineHeight":"1rem","fontWeight":"500"}]}}}};</script></head><body class="bg-surface font-body-md text-body antialiased min-h-screen flex flex-col"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-canvas/85 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 max-w-7xl mx-auto px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-sm" href="#"><img alt="Zonasi-Agent Emblem Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP82MliC1pINdpVeIABNsQF3W3U00v866HTudaniST1nlWzh255_xuUrIjrSbxRJEvk0Pce7jfaUQKtq1-SX_b0SDyILpmhDB6ruWazV92FKnpjQ2Tm8HzuLp1NqhDptwKmsP2EIEYQP_GLoZ5rsFCIC8vo3iAXwsCcacUOksxTYkXB8_oG6mHz0IHs0btY3N97OFbnjsLi08felaL4DsUov4iNib8CHaAVGkojrM"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-text-heading leading-tight">Zonasi-Agent</span><span class="font-code-sm text-code-sm px-space-xs py-0.5 rounded-full bg-surface-tint-blue text-secondary">AI-GOV</span></div><span class="font-label-md text-label-md text-text-muted hidden sm:inline-block leading-tight">Kementerian Pendidikan &amp; Dinas Pendidikan</span></div></a></div><nav class="hidden lg:flex items-center gap-space-sm" data-active-classes="bg-surface-tint-blue text-secondary font-headline-sm rounded-lg"><a aria-current="page" class="px-space-md py-space-sm transition-colors bg-surface-tint-blue text-secondary font-headline-sm rounded-lg" data-path="beranda" href="#">Beranda</a><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="pendaftaran-ppdb" href="#">Pendaftaran PPDB</a><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="live-tracking-ai" href="#">Live Tracking AI</a><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="dashboard-panitia" href="#">Dashboard Panitia</a></nav><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-status-approved-bg"><span class="w-2 h-2 rounded-full bg-status-approved animate-pulse"></span><span class="font-code-sm text-code-sm text-status-approved">Supabase Realtime: Terhubung</span></div><button aria-label="Notifikasi Terkini" class="relative p-space-sm rounded-lg hover:bg-surface-slate text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-status-fraud"></span></button><a class="hidden sm:flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading font-label-lg text-label-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)] transition-all" data-path="login-portal" href="#"><span class="material-symbols-outlined text-[18px] text-secondary">lock</span><span>Portal Petugas</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- HERO SECTION -->
+<section class="relative w-full overflow-hidden bg-gradient-to-b from-surface-tint-blue via-surface to-surface-canvas pt-space-xl pb-24">
+<!-- Ambient Sapphire Glow Orbs -->
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[360px] bg-primary/10 rounded-full blur-[110px] pointer-events-none"></div>
+<div class="absolute top-48 right-[-100px] w-80 h-80 bg-secondary/10 rounded-full blur-[90px] pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-margin relative z-10">
+<div class="flex flex-col items-center text-center max-w-4xl mx-auto space-y-space-md">
+<!-- Innovation Badge -->
+<div class="inline-flex items-center gap-space-xs px-space-md py-1.5 rounded-full bg-surface-canvas text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-secondary">verified_user</span>
+<span class="font-code-sm text-code-sm font-semibold tracking-wide">Inovasi Smart Governance PPDB 2026/2027 • Berbasis Agentic AI &amp; Supabase Cloud</span>
+</div>
+<!-- Main Title & Typographic Scale -->
+<h1 class="font-headline-xl text-headline-xl text-text-heading tracking-tight sm:text-5xl font-extrabold max-w-3xl leading-tight">
+          Sistem Zonasi Transparan, Adil, dan <span class="text-primary-container relative inline-block underline decoration-secondary decoration-4 underline-offset-8">Bebas Titip KK</span>
+</h1>
+<!-- Subheadline -->
+<p class="font-body-lg text-body-lg text-text-muted max-w-2xl leading-relaxed">
+          Validasi otomatis integritas Kartu Keluarga, kalkulasi rute darat riil PostGIS berpresisi tinggi, dan audit tata ruang visual Street View dalam hitungan detik.
+        </p>
+<!-- Interactive Quick Tracking Bar -->
+<div class="w-full max-w-2xl mt-4">
+<form class="p-2 rounded-2xl bg-surface-canvas shadow-xl flex flex-col sm:flex-row gap-2" id="trackingForm" onsubmit="event.preventDefault(); window.checkTrackingModal();">
+<div class="relative flex-1 flex items-center pl-3">
+<span class="material-symbols-outlined text-text-muted text-[22px]">search</span>
+<input class="w-full pl-2 pr-3 py-3 bg-transparent text-text-heading font-code-md text-code-md placeholder:text-text-muted/60 focus:outline-none" id="trackingInput" placeholder="Masukkan Tracking ID (cth: PPDB-2026-X89K) atau NIK..." required="" type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-full sm:w-auto px-space-md py-3.5 rounded-xl bg-primary-container text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary transition-all flex items-center justify-center gap-space-xs" type="submit">
+<span>Cek Status AI</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<a class="hidden sm:inline-flex px-space-md py-3.5 rounded-xl bg-surface-container-high text-primary font-label-lg text-label-lg hover:bg-surface-tint-blue transition-all items-center" data-path="pendaftaran-ppdb" href="#">
+                Daftar
+              </a>
+</div>
+</form>
+<!-- Quick Status Indicator -->
+<div class="hidden mt-3 p-3 rounded-xl bg-status-approved-bg text-status-approved text-left flex items-center justify-between shadow-sm" id="quickResult">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+<span class="font-body-sm text-body-sm font-semibold">Berkas ID <span class="font-code-sm">PPDB-2026-X89K</span>: Tervalidasi Sah (Rute Jarak: 842m, Status KK: Memenuhi Syarat &gt;1 Thn)</span>
+</div>
+<span class="font-code-sm text-code-sm bg-surface-canvas px-2 py-0.5 rounded-full shadow-xs">99.4% AI Score</span>
+</div>
+</div>
+<!-- Trust Badges -->
+<div class="pt-space-md flex flex-wrap items-center justify-center gap-y-3 gap-x-6">
+<div class="flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-card shadow-sm text-text-body font-label-md text-label-md">
+<span class="w-2.5 h-2.5 rounded-full bg-status-approved"></span>
+<span class="font-bold text-text-heading">99.8%</span> Deteksi Anomali Dokumen
+          </div>
+<div class="flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-card shadow-sm text-text-body font-label-md text-label-md">
+<span class="w-2.5 h-2.5 rounded-full bg-status-approved"></span>
+<span class="font-bold text-text-heading">0 Toleransi</span> Manipulasi Jarak
+          </div>
+<div class="flex items-center gap-space-xs px-3 py-1.5 rounded-full bg-surface-card shadow-sm text-text-body font-label-md text-label-md">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-bold text-text-heading">100% Realtime</span> WebSocket Audit
+          </div>
+</div>
+</div>
+</div>
+</section>
+<!-- STATISTIK TRANSPARANSI NASIONAL / DAERAH (BENTO METRIC TILES) -->
+<section class="w-full -mt-10 mb-16 relative z-20">
+<div class="max-w-7xl mx-auto px-margin">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<!-- Metric Card 1 -->
+<div class="p-space-lg rounded-2xl bg-surface-canvas shadow-lg hover:shadow-xl transition-all flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-text-muted font-label-md text-label-md uppercase tracking-wider">Audit Berkas</span>
+<div class="w-10 h-10 rounded-xl bg-surface-tint-blue flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">assignment_turned_in</span>
+</div>
+</div>
+<div class="mt-4">
+<span class="font-code-lg text-3xl font-extrabold text-text-heading tracking-tight">142.580+</span>
+<p class="font-body-sm text-body-sm text-text-muted mt-1">Berkas Terverifikasi Otomatis</p>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-status-approved font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span>+18.4% efisiensi dari 2025</span>
+</div>
+</div>
+<!-- Metric Card 2 -->
+<div class="p-space-lg rounded-2xl bg-surface-canvas shadow-lg hover:shadow-xl transition-all flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-text-muted font-label-md text-label-md uppercase tracking-wider">Integritas Wilayah</span>
+<div class="w-10 h-10 rounded-xl bg-status-fraud-bg flex items-center justify-center text-status-fraud">
+<span class="material-symbols-outlined text-[22px]">shield_lock</span>
+</div>
+</div>
+<div class="mt-4">
+<span class="font-code-lg text-3xl font-extrabold text-text-heading tracking-tight">1.824</span>
+<p class="font-body-sm text-body-sm text-text-muted mt-1">Anomali Titip KK &amp; Rute Dicegah</p>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-secondary font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px]">gavel</span>
+<span>Didiskualifikasi objektif AI</span>
+</div>
+</div>
+<!-- Metric Card 3 -->
+<div class="p-space-lg rounded-2xl bg-surface-canvas shadow-lg hover:shadow-xl transition-all flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-text-muted font-label-md text-label-md uppercase tracking-wider">Kecepatan Mesin</span>
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">bolt</span>
+</div>
+</div>
+<div class="mt-4">
+<span class="font-code-lg text-3xl font-extrabold text-text-heading tracking-tight">&lt; 42.8 Detik</span>
+<p class="font-body-sm text-body-sm text-text-muted mt-1">Rata-rata Analisis Lengkap</p>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-text-muted font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>Konfirmasi instan ke pendaftar</span>
+</div>
+</div>
+<!-- Metric Card 4 -->
+<div class="p-space-lg rounded-2xl bg-surface-canvas shadow-lg hover:shadow-xl transition-all flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="text-text-muted font-label-md text-label-md uppercase tracking-wider">Indeks Kepuasan</span>
+<div class="w-10 h-10 rounded-xl bg-status-approved-bg flex items-center justify-center text-status-approved">
+<span class="material-symbols-outlined text-[22px]">sentiment_very_satisfied</span>
+</div>
+</div>
+<div class="mt-4">
+<span class="font-code-lg text-3xl font-extrabold text-text-heading tracking-tight">98.6%</span>
+<p class="font-body-sm text-body-sm text-text-muted mt-1">Kepuasan Wali Murid &amp; Panitia</p>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-status-approved font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>Survei Ombudsman daerah</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- TIGA PILAR VALIDASI AI ZONASI-AGENT -->
+<section class="w-full py-space-xl bg-surface">
+<div class="max-w-7xl mx-auto px-margin">
+<!-- Section Header -->
+<div class="text-center max-w-3xl mx-auto mb-16">
+<span class="font-code-sm text-code-sm uppercase tracking-widest text-secondary font-bold">Multi-Agent Intelligence Architecture</span>
+<h2 class="font-headline-lg text-headline-lg text-text-heading mt-2 font-bold tracking-tight">
+          Tiga Pilar Validasi Otonom Tanpa Intervensi Manual
+        </h2>
+<p class="font-body-md text-body-md text-text-muted mt-3">
+          Setiap permohonan zonasi diproses melalui pipeline tiga lapisan verifikasi berlapis untuk memastikan hak pendidikan tepat sasaran.
+        </p>
+</div>
+<!-- 3 Pillars Cards Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-stretch">
+<!-- Pilar 1 -->
+<div class="rounded-3xl bg-surface-canvas p-space-lg shadow-md hover:shadow-xl transition-all flex flex-col justify-between group">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-surface-tint-blue flex items-center justify-center text-primary-container mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">document_scanner</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-code-sm text-code-sm px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-bold">PILAR 01</span>
+<span class="font-label-md text-label-md text-text-muted">Agentic Vision Reasoning</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading font-bold mb-3">
+              OCR &amp; Penalaran Integritas Kartu Keluarga
+            </h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed mb-6">
+              AI mengekstraksi data Kartu Keluarga dengan analisis relasi biologis. Sistem secara otomatis menolak KK dengan masa terbit di bawah 1 tahun atau yang terindikasi manipulasi scan digital.
+            </p>
+<!-- Sub-features tags -->
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Validasi Masa Tinggal KK ≥ 1 Tahun</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Pendeteksian Barcode QR Dukcapil Asli</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Pencegahan Modus Numpang KK Paman/Kolega</span>
+</div>
+</div>
+</div>
+<!-- Visual Asset: OCR Scan Simulation Card -->
+<div class="relative w-full h-44 rounded-2xl bg-surface-slate overflow-hidden p-3 flex flex-col justify-between">
+<div class="flex items-center justify-between text-text-muted">
+<span class="font-code-sm text-code-sm">KK_DOC_INSPECT.pdf</span>
+<span class="px-2 py-0.5 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-bold">Terverifikasi</span>
+</div>
+<div class="space-y-2 my-auto">
+<div class="h-2 w-3/4 bg-surface-container rounded-full"></div>
+<div class="h-2 w-1/2 bg-surface-container rounded-full"></div>
+<div class="h-2 w-5/6 bg-secondary/30 rounded-full"></div>
+</div>
+<!-- Scanning Line Animation -->
+<div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent animate-pulse"></div>
+<div class="text-right">
+<span class="font-code-sm text-code-sm text-text-muted">OCR Hash: 0x8F92...B4</span>
+</div>
+</div>
+</div>
+<!-- Pilar 2 -->
+<div class="rounded-3xl bg-surface-canvas p-space-lg shadow-md hover:shadow-xl transition-all flex flex-col justify-between group">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-surface-tint-blue flex items-center justify-center text-secondary mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">alt_route</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-code-sm text-code-sm px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-bold">PILAR 02</span>
+<span class="font-label-md text-label-md text-text-muted">PostGIS Spatial Engine</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading font-bold mb-3">
+              Rute Darat Riil Google Routes &amp; PostGIS
+            </h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed mb-6">
+              Meninggalkan metode 'tarik garis lurus' masa lalu yang rawan manipulasi. Zonasi-Agent menghitung jarak tempuh jalan kaki &amp; berkendara riil yang mematuhi batas fisik kota.
+            </p>
+<!-- Sub-features tags -->
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Bukan Euclidean (Garis Lurus Semu)</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Memperhitungkan Halangan Sungai &amp; Tol</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Akurasi Geometri PostGIS Topologis</span>
+</div>
+</div>
+</div>
+<!-- Visual Asset: Map Location Box -->
+<div class="w-full h-44 rounded-2xl bg-surface-slate overflow-hidden relative shadow-inner" data-location="Jakarta, Indonesia" style="">
+<div class="absolute bottom-2 left-2 right-2 p-2 rounded-xl bg-surface-canvas/90 backdrop-blur-sm flex items-center justify-between">
+<span class="font-code-sm text-code-sm font-semibold text-text-heading">Rute Pejalan Kaki: 680 m</span>
+<span class="font-code-sm text-code-sm text-secondary font-bold">12 Menit</span>
+</div>
+</div>
+</div>
+<!-- Pilar 3 -->
+<div class="rounded-3xl bg-surface-canvas p-space-lg shadow-md hover:shadow-xl transition-all flex flex-col justify-between group">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-surface-tint-blue flex items-center justify-center text-primary-container mb-6 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[32px]">streetview</span>
+</div>
+<div class="flex items-center gap-2 mb-2">
+<span class="font-code-sm text-code-sm px-2.5 py-0.5 rounded-full bg-surface-container-high text-primary font-bold">PILAR 03</span>
+<span class="font-label-md text-label-md text-text-muted">Visual Spatial Classifier</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading font-bold mb-3">
+              Audit Tata Ruang Visual Street View
+            </h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed mb-6">
+              AI memindai fasad bangunan pada koordinat terdaftar untuk mendeteksi apakah lokasi benar-benar rumah tinggal keluarga atau kantor palsu/lahan kosong tak berpenghuni.
+            </p>
+<!-- Sub-features tags -->
+<div class="space-y-2 mb-6">
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Klasifikasi: Rumah Tapak vs Ruko Komersial</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Deteksi Lahan Kosong &amp; Properti Hantu</span>
+</div>
+<div class="flex items-center gap-2 p-2 rounded-xl bg-surface-slate">
+<span class="material-symbols-outlined text-status-approved text-[18px]">check</span>
+<span class="font-body-sm text-body-sm text-text-body font-medium">Geo-tagging Validasi Lapangan Otomatis</span>
+</div>
+</div>
+</div>
+<!-- Visual Asset: Street View Inspection Simulation -->
+<div class="w-full h-44 rounded-2xl overflow-hidden relative shadow-inner">
+<img class="w-full h-full object-cover" data-alt="A clean modern residential suburban house in Indonesia under bright daylight with visible gate, tiled roof, and front porch, captured with crisp street view architectural photography, representing verified authentic residential household for school zoning admission." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAivzTrIZf5K7fURhRbM5FrAIb3sMwMnJGzVlHq6fuDQqP1tf1SF-uQP94rMTZ0xATAT0cPAxFoazP9FV3UP8MhNfgOrTAhYftqNDiNvKbCDwRR3KqfzcxWBh3zxNr0_14UytDW-PdvArZ63vPCRaFvT_JoUTDGPeCTidyH9WTRijCkETQ_hNrnds7Nfzu5TZPDd90CHuyyBZZ2Q-XLfV8TZ-B1oGdVt7I9Z0QZFoU"/>
+<div class="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-bold flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">home</span>
+<span>Hunian Asli (99.1%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SIMULASI VISUAL INTERAKTIF: GARIS LURUS VS RUTE DARAT RIIL -->
+<section class="w-full py-space-xl bg-surface-canvas">
+<div class="max-w-7xl mx-auto px-margin">
+<div class="p-space-lg lg:p-space-xl rounded-3xl bg-surface-slate shadow-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+<!-- Explanation Column -->
+<div class="lg:col-span-5 space-y-space-md">
+<span class="font-code-sm text-code-sm px-3 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-bold tracking-wide">
+              Mengapa Sistem Konvensional Gagal?
+            </span>
+<h2 class="font-headline-lg text-headline-lg text-text-heading font-extrabold leading-tight">
+              Garis Lurus Menguntungkan Manipulasi. Rute Darat Riil Mengembalikan Keadilan.
+            </h2>
+<p class="font-body-md text-body-md text-text-muted leading-relaxed">
+              Pada PPDB konvensional, jarak dihitung secara <strong class="text-text-heading font-semibold">Euclidean (garis lurus udara)</strong>. Hal ini memicu kecurangan: sebuah titik seberang sungai atau jalan tol tanpa akses jembatan terlihat seolah 'hanya 350 meter', padahal kenyataannya siswa harus memutar lebih dari 3 kilometer!
+            </p>
+<!-- Comparison Table Component -->
+<div class="space-y-3 pt-2">
+<div class="p-4 rounded-2xl bg-surface-canvas shadow-xs flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-status-fraud"></div>
+<div>
+<span class="font-label-lg text-label-lg text-text-heading block">Sistem Lama (Euclidean)</span>
+<span class="font-body-sm text-body-sm text-text-muted">Abaikan rintangan fisik jalan</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-code-lg text-code-lg text-status-fraud block line-through">420 Meter</span>
+<span class="font-code-sm text-code-sm text-text-muted">Sangat Bias</span>
+</div>
+</div>
+<div class="p-4 rounded-2xl bg-surface-tint-blue shadow-xs flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+<div>
+<span class="font-label-lg text-label-lg text-text-heading font-bold block">Zonasi-Agent (PostGIS Riil)</span>
+<span class="font-body-sm text-body-sm text-text-muted">Jalur tempuh jalan kaki resmi</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-code-lg text-code-lg text-secondary font-bold block">1.850 Meter</span>
+<span class="font-code-sm text-code-sm text-status-approved font-semibold">100% Akurat</span>
+</div>
+</div>
+</div>
+<div class="pt-2">
+<p class="font-body-sm text-body-sm text-text-muted italic">
+                *Algoritma Zonasi-Agent mengisolasi anomali topografi dan secara otomatis memberi kuota pada siswa yang rute tempuhnya benar-benar berdekatan dengan sekolah.
+              </p>
+</div>
+</div>
+<!-- Schematic Interactive Map Visual Column -->
+<div class="lg:col-span-7">
+<div class="relative w-full rounded-2xl bg-surface-canvas p-space-md shadow-md overflow-hidden">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="font-headline-sm text-headline-sm text-text-heading font-bold">Simulasi Interaktif Topologi Rute</span>
+</div>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded-full bg-surface-container-high text-primary font-semibold">Live PostGIS Canvas</span>
+</div>
+<!-- Schematic SVG Map Illustration -->
+<div class="relative w-full h-80 rounded-xl bg-surface-slate overflow-hidden flex items-center justify-center p-4">
+<!-- Grid background lines -->
+<div class="absolute inset-0 opacity-15 bg-[radial-gradient(#1e40af_1px,transparent_1px)] [background-size:16px_16px]"></div>
+<!-- Schematic River/Highway Obstacle -->
+<div class="absolute left-1/2 -translate-x-1/2 w-12 h-full bg-blue-100/60 flex items-center justify-center pointer-events-none">
+<span class="[writing-mode:vertical-rl] font-code-sm text-code-sm text-primary/40 font-bold tracking-widest uppercase">Sungai &amp; Jalan Tol (Tanpa Akses)</span>
+</div>
+<!-- SVG Paths -->
+<svg class="w-full h-full absolute inset-0 pointer-events-none" fill="none" viewbox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+<!-- Straight line (Euclidean - Red Dashed) -->
+<line stroke="#EF4444" stroke-dasharray="6 6" stroke-width="3" x1="90" x2="410" y1="150" y2="150"></line>
+<!-- Real Walking Route (Curved along bridge - Blue Solid) -->
+<path d="M 90 150 L 90 60 L 250 60 L 250 80 L 410 80 L 410 150" stroke="#0051d5" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"></path>
+<!-- Bridge Highlight Indicator -->
+<rect fill="#dde1ff" height="35" rx="4" width="30" x="235" y="45"></rect>
+<text fill="#00288e" font-family="Plus Jakarta Sans" font-size="10" font-weight="bold" x="238" y="40">Jembatan</text>
+</svg>
+<!-- Point A: Siswa House -->
+<div class="absolute left-10 top-1/2 -translate-y-1/2 p-3 rounded-2xl bg-surface-canvas shadow-lg flex flex-col items-center z-10">
+<div class="w-9 h-9 rounded-full bg-status-fraud-bg text-status-fraud flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-[20px]">person_pin_circle</span>
+</div>
+<span class="font-label-md text-label-md font-bold text-text-heading">Rumah Siswa</span>
+<span class="font-code-sm text-code-sm text-text-muted">Titik Koordinat A</span>
+</div>
+<!-- Point B: Sekolah Tujuan -->
+<div class="absolute right-10 top-1/2 -translate-y-1/2 p-3 rounded-2xl bg-surface-canvas shadow-lg flex flex-col items-center z-10">
+<div class="w-9 h-9 rounded-full bg-status-approved-bg text-status-approved flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-[20px]">school</span>
+</div>
+<span class="font-label-md text-label-md font-bold text-text-heading">SMA Negeri 1</span>
+<span class="font-code-sm text-code-sm text-text-muted">Titik Koordinat B</span>
+</div>
+</div>
+<!-- Map Legend Bar -->
+<div class="mt-4 pt-3 flex flex-wrap items-center justify-between gap-2 text-text-body font-body-sm text-body-sm">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-4 h-0.5 bg-status-fraud inline-block"></span>
+<span class="font-code-sm text-code-sm text-text-muted">Garis Lurus (420m - Tidak Valid)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-4 h-1 bg-secondary inline-block rounded-full"></span>
+<span class="font-code-sm text-code-sm text-text-heading font-bold">Rute PostGIS (1.850m - Valid)</span>
+</div>
+</div>
+<span class="font-code-sm text-code-sm text-secondary font-bold">Delta Rute: +1.430 meter</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- PANDUAN ALUR PENDAFTARAN 4 LANGKAH MUDAH BAGI ORANG TUA SISWA -->
+<section class="w-full py-space-xl bg-surface">
+<div class="max-w-7xl mx-auto px-margin">
+<div class="text-center max-w-3xl mx-auto mb-16">
+<span class="font-code-sm text-code-sm uppercase tracking-widest text-secondary font-bold">Panduan Wali Murid</span>
+<h2 class="font-headline-lg text-headline-lg text-text-heading mt-2 font-bold tracking-tight">
+          Empat Langkah Pendaftaran Transparan Tanpa Antre
+        </h2>
+<p class="font-body-md text-body-md text-text-muted mt-3">
+          Seluruh proses pendaftaran dilakukan mandiri dari rumah. Hasil validasi AI dapat diawasi secara terbuka melalui Dashboard Realtime.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-gutter relative">
+<!-- Step 1 -->
+<div class="p-space-lg rounded-3xl bg-surface-canvas shadow-md flex flex-col justify-between relative group hover:-translate-y-1 transition-transform">
+<div>
+<div class="w-12 h-12 rounded-2xl bg-surface-container-high text-primary flex items-center justify-center font-code-lg text-code-lg font-bold mb-6">
+              01
+            </div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading font-bold mb-2">Input NIK &amp; Unggah KK</h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">
+              Masukkan NIK siswa dan foto/scan Kartu Keluarga asli. Sistem OCR akan mendeteksi keabsahan tanggal cetak dan relasi wali secara otomatis.
+            </p>
+</div>
+<div class="mt-6 pt-4 flex items-center gap-2 text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">cloud_upload</span>
+<span>Deteksi Dokumen Instan</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="p-space-lg rounded-3xl bg-surface-canvas shadow-md flex flex-col justify-between relative group hover:-translate-y-1 transition-transform">
+<div>
+<div class="w-12 h-12 rounded-2xl bg-surface-container-high text-primary flex items-center justify-center font-code-lg text-code-lg font-bold mb-6">
+              02
+            </div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading font-bold mb-2">Pin Lokasi Rumah Riil</h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">
+              Tentukan titik letak rumah pada peta presisi tinggi. Mesin Google Street View AI akan mencocokkan visual bangunan dengan alamat domisili.
+            </p>
+</div>
+<div class="mt-6 pt-4 flex items-center gap-2 text-secondary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">pin_drop</span>
+<span>Audit Fasad Bangunan</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="p-space-lg rounded-3xl bg-surface-canvas shadow-md flex flex-col justify-between relative group hover:-translate-y-1 transition-transform">
+<div>
+<div class="w-12 h-12 rounded-2xl bg-surface-container-high text-primary flex items-center justify-center font-code-lg text-code-lg font-bold mb-6">
+              03
+            </div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading font-bold mb-2">Pilih Sekolah Tujuan</h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">
+              Pilih hingga 3 sekolah pilihan dalam zona Anda. Mesin PostGIS akan seketika mengkalkulasi rute jalan kaki resmi ke masing-masing gerbang sekolah.
+            </p>
+</div>
+<div class="mt-6 pt-4 flex items-center gap-2 text-primary font-label-md text-label-md">
+<span class="material-symbols-outlined text-[18px]">straighten</span>
+<span>Jarak Rute Darat Akurat</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="p-space-lg rounded-3xl bg-surface-canvas shadow-md flex flex-col justify-between relative group hover:-translate-y-1 transition-transform">
+<div>
+<div class="w-12 h-12 rounded-2xl bg-status-approved-bg text-status-approved flex items-center justify-center font-code-lg text-code-lg font-bold mb-6">
+              04
+            </div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading font-bold mb-2">Terbit Kode Verifikasi</h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed">
+              Dapatkan Tracking ID unik dan sertifikat audit digital terlindungi enkripsi. Pantau posisi kuota harian Anda secara live tanpa rasa was-was.
+            </p>
+</div>
+<div class="mt-6 pt-4 flex items-center gap-2 text-status-approved font-label-md text-label-md font-bold">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Sertifikat Audit Terbit</span>
+</div>
+</div>
+</div>
+<!-- Action Button CTA -->
+<div class="mt-12 text-center">
+<a class="inline-flex items-center gap-space-xs px-space-xl py-4 rounded-2xl bg-primary text-on-primary font-label-lg text-label-lg shadow-lg hover:bg-primary-container transition-all" data-path="pendaftaran-ppdb" href="#">
+<span>Mulai Pendaftaran Siswa Sekarang</span>
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+</a>
+</div>
+</div>
+</section>
+<!-- FAQ PPDB & LAYANAN PENGADUAN INTEGRASI -->
+<section class="w-full py-space-xl bg-surface-canvas">
+<div class="max-w-7xl mx-auto px-margin">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Left: FAQ Accordion -->
+<div class="lg:col-span-7 space-y-space-md">
+<span class="font-code-sm text-code-sm uppercase tracking-widest text-secondary font-bold">Tanya Jawab Seputar Zonasi-Agent</span>
+<h2 class="font-headline-lg text-headline-lg text-text-heading font-extrabold tracking-tight">
+            Pertanyaan Yang Sering Diajukan
+          </h2>
+<p class="font-body-md text-body-md text-text-muted mb-8">
+            Pahami bagaimana algoritma bekerja demi menjamin keadilan seluruh calon peserta didik.
+          </p>
+<div class="space-y-4" id="faqAccordion">
+<!-- Item 1 -->
+<div class="p-space-md rounded-2xl bg-surface-slate shadow-xs cursor-pointer hover:bg-surface-container-low transition-colors" onclick="this.classList.toggle('active'); const ans = this.querySelector('.faq-ans'); ans.classList.toggle('hidden');">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-text-heading font-semibold text-base sm:text-lg">Bagaimana jika KK saya baru diperbarui karena penambahan anggota keluarga?</span>
+<span class="material-symbols-outlined text-text-muted text-[22px]">expand_more</span>
+</div>
+<p class="faq-ans hidden mt-3 font-body-sm text-body-sm text-text-body leading-relaxed pt-2">
+                Vision AI kami melakukan pengecekan tanggal cetak KK sekaligus riwayat administrasi Dukcapil. Jika pembaruan KK murni karena kelahiran adik baru atau perbaikan ejaan nama, dan alamat utama terbukti sudah ditempati lebih dari 1 tahun, berkas Anda tetap sah dan diverifikasi otomatis.
+              </p>
+</div>
+<!-- Item 2 -->
+<div class="p-space-md rounded-2xl bg-surface-slate shadow-xs cursor-pointer hover:bg-surface-container-low transition-colors" onclick="this.classList.toggle('active'); const ans = this.querySelector('.faq-ans'); ans.classList.toggle('hidden');">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-text-heading font-semibold text-base sm:text-lg">Mengapa jarak saya di Zonasi-Agent lebih jauh daripada Google Maps mobil?</span>
+<span class="material-symbols-outlined text-text-muted text-[22px]">expand_more</span>
+</div>
+<p class="faq-ans hidden mt-3 font-body-sm text-body-sm text-text-body leading-relaxed pt-2">
+                Zonasi-Agent memprioritaskan kalkulasi rute jalan kaki pejalan kaki yang aman (termasuk gang pemukiman yang dapat dilalui pejalan kaki, bukan rute putaran balik kendaraan bermotor di jalan arteri yang memutar jauh). Ini memberi peluang zonasi yang lebih realistis dan adil bagi warga sekitar.
+              </p>
+</div>
+<!-- Item 3 -->
+<div class="p-space-md rounded-2xl bg-surface-slate shadow-xs cursor-pointer hover:bg-surface-container-low transition-colors" onclick="this.classList.toggle('active'); const ans = this.querySelector('.faq-ans'); ans.classList.toggle('hidden');">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-text-heading font-semibold text-base sm:text-lg">Apa yang terjadi jika rumah saya belum ada di Google Street View?</span>
+<span class="material-symbols-outlined text-text-muted text-[22px]">expand_more</span>
+</div>
+<p class="faq-ans hidden mt-3 font-body-sm text-body-sm text-text-body leading-relaxed pt-2">
+                Sistem tidak langsung mendiskualifikasi berkas. AI akan menandai status berkas sebagai 'Review Petugas Lapangan'. Tim verifikator resmi sekolah akan melakukan survei koordinat geolokasi dengan bukti foto geotag terenkripsi tanpa merugikan urutan pendaftaran Anda.
+              </p>
+</div>
+<!-- Item 4 -->
+<div class="p-space-md rounded-2xl bg-surface-slate shadow-xs cursor-pointer hover:bg-surface-container-low transition-colors" onclick="this.classList.toggle('active'); const ans = this.querySelector('.faq-ans'); ans.classList.toggle('hidden');">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-text-heading font-semibold text-base sm:text-lg">Apakah masyarakat bisa melihat bukti kecurangan yang didiskualifikasi?</span>
+<span class="material-symbols-outlined text-text-muted text-[22px]">expand_more</span>
+</div>
+<p class="faq-ans hidden mt-3 font-body-sm text-body-sm text-text-body leading-relaxed pt-2">
+                Ya! Melalui menu Live Tracking AI, publik dapat memantau log audit anonim berisi alasan diskualifikasi (misal: "KK usia 2 bulan terbit", "Titik berada di ruko kosong"). Transparansi ini mengeliminasi praktik titip siswa secara permanen.
+              </p>
+</div>
+</div>
+</div>
+<!-- Right: Integrated Fraud Complaint Center Card -->
+<div class="lg:col-span-5 p-space-lg lg:p-space-xl rounded-3xl bg-surface-tint-blue shadow-lg">
+<div class="w-12 h-12 rounded-2xl bg-surface-canvas text-secondary flex items-center justify-center mb-6 shadow-sm">
+<span class="material-symbols-outlined text-[28px]">support_agent</span>
+</div>
+<span class="font-code-sm text-code-sm px-2.5 py-1 rounded-full bg-surface-canvas text-secondary font-bold">Whistleblower Protection</span>
+<h3 class="font-headline-md text-headline-md text-text-heading font-bold mt-3 mb-2">
+            Posko Aduan Dugaan Pelanggaran Zonasi
+          </h3>
+<p class="font-body-sm text-body-sm text-text-muted leading-relaxed mb-6">
+            Melihat kecurangan titip KK di lingkungan RT/RW Anda? Laporkan secara anonim kepada Satgas PPDB Terpadu. Setiap laporan diproses dengan bukti log geospasial real-time.
+          </p>
+<form class="space-y-3" onsubmit="event.preventDefault(); alert('Laporan Anda berhasil dienkripsi dan dikirimkan ke Satgas PPDB Daerah.'); this.reset();">
+<div>
+<label class="block font-label-md text-label-md text-text-heading font-semibold mb-1">Nama / NIK Terlapor (Bila Ada)</label>
+<input class="w-full px-3 py-2.5 rounded-xl bg-surface-canvas text-text-heading font-body-sm text-body-sm shadow-xs focus:outline-none" placeholder="Masukkan nama atau indikasi siswa..." type="text"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-text-heading font-semibold mb-1">Sekolah yang Dituju</label>
+<select class="w-full px-3 py-2.5 rounded-xl bg-surface-canvas text-text-heading font-body-sm text-body-sm shadow-xs focus:outline-none">
+<option>Pilih Satuan Pendidikan Terkait...</option>
+<option>SMA Negeri 1 Kota</option>
+<option>SMA Negeri 3 Kota</option>
+<option>SMP Negeri 2 Kota</option>
+<option>Lainnya</option>
+</select>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-text-heading font-semibold mb-1">Rincian Dugaan Kejanggalan</label>
+<textarea class="w-full px-3 py-2.5 rounded-xl bg-surface-canvas text-text-heading font-body-sm text-body-sm shadow-xs focus:outline-none" placeholder="Contoh: Terlapor terbukti bertempat tinggal di kecamatan lain, namun mencantumkan alamat kos kosong..." required="" rows="3"></textarea>
+</div>
+<button class="w-full py-3.5 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary-container transition-all flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[18px]">send</span>
+<span>Kirimkan Aduan Terenkripsi</span>
+</button>
+</form>
+<div class="mt-4 pt-3 flex items-center justify-center gap-2 text-text-muted font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px] text-status-approved">verified_user</span>
+<span>Identitas Pelapor Dilindungi UU No. 31/2014</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CALL TO ACTION BANNER -->
+<section class="w-full py-16 bg-gradient-to-r from-primary via-primary-container to-secondary text-on-primary">
+<div class="max-w-7xl mx-auto px-margin text-center space-y-6">
+<h2 class="font-headline-lg text-headline-lg font-extrabold max-w-2xl mx-auto leading-tight">
+        Wujudkan PPDB yang Adil, Setara, dan Berintegritas Bersama Zonasi-Agent
+      </h2>
+<p class="font-body-md text-body-md text-on-primary/80 max-w-xl mx-auto">
+        Kawal masa depan putra-putri bangsa dengan sistem verifikasi otonom tanpa celah manipulasi.
+      </p>
+<div class="flex flex-wrap items-center justify-center gap-4 pt-2">
+<a class="px-space-lg py-3.5 rounded-xl bg-surface-canvas text-primary font-label-lg text-label-lg shadow-xl hover:bg-surface-tint-blue transition-all flex items-center gap-2" data-path="pendaftaran-ppdb" href="#">
+<span>Daftar Siswa Baru Sekarang</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<a class="px-space-lg py-3.5 rounded-xl bg-on-primary/10 hover:bg-on-primary/20 text-on-primary font-label-lg text-label-lg backdrop-blur-sm transition-all flex items-center gap-2" data-path="live-tracking-ai" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span>Buka Papan Audit Publik</span>
+</a>
+</div>
+</div>
+</section>
+<!-- Client-side Interactive Script for Tracking Demo -->
+<script>
+    window.checkTrackingModal = function() {
+      const input = document.getElementById('trackingInput');
+      const result = document.getElementById('quickResult');
+      if (input && result) {
+        result.classList.remove('hidden');
+        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    };
+  </script>
+</div></main><footer class="w-full bg-surface-slate py-space-xl mt-auto"><div class="max-w-7xl mx-auto px-margin"><div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-space-lg"><div class="md:col-span-2 flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><img alt="Zonasi-Agent Emblem Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP82MliC1pINdpVeIABNsQF3W3U00v866HTudaniST1nlWzh255_xuUrIjrSbxRJEvk0Pce7jfaUQKtq1-SX_b0SDyILpmhDB6ruWazV92FKnpjQ2Tm8HzuLp1NqhDptwKmsP2EIEYQP_GLoZ5rsFCIC8vo3iAXwsCcacUOksxTYkXB8_oG6mHz0IHs0btY3N97OFbnjsLi08felaL4DsUov4iNib8CHaAVGkojrM"/><span class="font-headline-sm text-headline-sm text-text-heading">Zonasi-Agent</span></div><p class="font-body-sm text-body-sm text-text-muted max-w-lg">Sistem Verifikasi Berbasis Multi-Agent Geospasial PPDB Mandiri. Mengintegrasikan algoritma inferensi OCR dokumen kependudukan, kalkulasi rute PostGIS, dan validasi visual Google Street View secara berkeadilan, transparan, dan akuntabel.</p><div class="flex flex-wrap items-center gap-space-xs mt-space-sm"><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-status-approved-bg text-status-approved">PostGIS ISO 19125-1</span><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-surface-tint-blue text-secondary">Vision AI Validated</span><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-surface-container-high text-primary">AES-256 Encrypted</span></div></div><div class="flex flex-col gap-space-xs"><span class="font-label-lg text-label-lg text-text-heading">Navigasi Resmi</span><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="beranda" href="#">Beranda Sistem</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="pendaftaran-ppdb" href="#">Formulir Verifikasi NIK</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="live-tracking-ai" href="#">Status Audit Terbuka</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="dashboard-panitia" href="#">Konsol Panitia Wilayah</a></div><div class="flex flex-col gap-space-xs"><span class="font-label-lg text-label-lg text-text-heading">Bantuan &amp; Layanan Sipil</span><p class="font-body-sm text-body-sm text-text-muted">Posko Bantuan PPDB Terpadu</p><span class="font-code-md text-code-md text-text-heading">0800-140-9000 (Toll-Free)</span><span class="font-body-sm text-body-sm text-text-muted">Senin - Jumat: 08:00 - 16:00 WIB</span><span class="font-body-sm text-body-sm text-secondary">helpdesk@zonasi-agent.kemdikbud.go.id</span></div></div><div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm"><p class="font-body-sm text-body-sm text-text-muted text-center sm:text-left">© 2025 Zonasi-Agent. Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi RI bersama Dinas Pendidikan Daerah.</p><div class="flex items-center gap-space-md font-body-sm text-body-sm text-text-muted"><a class="hover:text-on-surface" href="#">Kebijakan Privasi</a><a class="hover:text-on-surface" href="#">Standar Geospasial</a><a class="hover:text-on-surface" href="#">Buku Panduan</a></div></div></div></footer></body></html>
+
+<!-- Pendaftaran PPDB & Geotagging -->
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Zonasi-Agent - Autonomous PPDB Validator &amp; Fraud Detector</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary":"#ffffff","on-secondary-container":"#fefcff","on-background":"#131b2e","primary-fixed":"#dde1ff","surface-container-high":"#e2e7ff","surface-canvas":"#FFFFFF","secondary-container":"#316bf3","status-fraud-border":"#FECACA","on-primary-fixed":"#001453","inverse-surface":"#283044","secondary":"#0051d5","surface":"#faf8ff","tertiary-container":"#00489e","primary-fixed-dim":"#b8c4ff","status-fraud-bg":"#FEF2F2","error":"#ba1a1a","text-heading":"#0F172A","surface-container-low":"#f2f3ff","status-revision-bg":"#FFFBEB","surface-bright":"#faf8ff","on-tertiary-container":"#9cbbff","on-tertiary-fixed":"#001a42","surface-card":"#FFFFFF","inverse-primary":"#b8c4ff","status-approved-border":"#A7F3D0","text-muted":"#64748B","surface-container-lowest":"#ffffff","on-secondary-fixed":"#00174b","on-surface":"#131b2e","primary-container":"#1e40af","on-surface-variant":"#444653","on-error-container":"#93000a","primary":"#00288e","status-revision-border":"#FDE68A","status-approved-bg":"#ECFDF5","on-primary-container":"#a8b8ff","on-tertiary-fixed-variant":"#004395","surface-dim":"#d2d9f4","outline-variant":"#c4c5d5","surface-container-highest":"#dae2fd","on-secondary-fixed-variant":"#003ea8","surface-container":"#eaedff","error-container":"#ffdad6","secondary-fixed-dim":"#b4c5ff","status-approved":"#10B981","surface-variant":"#dae2fd","tertiary-fixed-dim":"#adc6ff","outline":"#757684","on-tertiary":"#ffffff","on-secondary":"#ffffff","background":"#faf8ff","secondary-fixed":"#dbe1ff","on-error":"#ffffff","inverse-on-surface":"#eef0ff","surface-tint-blue":"#EFF6FF","on-primary-fixed-variant":"#173bab","border-subtle":"#F1F5F9","text-body":"#334155","surface-tint":"#3755c3","status-fraud":"#EF4444","tertiary":"#003272","surface-slate":"#F8FAFC","tertiary-fixed":"#d8e2ff","border-slate":"#E2E8F0","status-revision":"#F59E0B"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-xl":"2.5rem","space-md":"1rem","gutter-mobile":"1rem","margin-mobile":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"2rem","gutter":"1.5rem","space-lg":"1.5rem"},fontFamily:{"body-md":["Plus Jakarta Sans"],"code-lg":["JetBrains Mono"],"headline-sm":["Plus Jakarta Sans"],"code-md":["JetBrains Mono"],"body-lg":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"code-sm":["JetBrains Mono"]},fontSize:{"body-md":["1rem",{"lineHeight":"1.5rem","letterSpacing":"-0.005em","fontWeight":"400"}],"code-lg":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["1.125rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"400"}],"body-sm":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"400"}],"headline-xl-mobile":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"800"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-xl":["2.5rem",{"lineHeight":"3rem","letterSpacing":"-0.03em","fontWeight":"800"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"headline-lg-mobile":["1.625rem",{"lineHeight":"2.125rem","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["0.75rem",{"lineHeight":"1.0rem","letterSpacing":"0.02em","fontWeight":"600"}],"code-sm":["0.75rem",{"lineHeight":"1rem","fontWeight":"500"}]}}}};</script></head><body class="bg-surface font-body-md text-body antialiased min-h-screen flex flex-col"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-canvas/85 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 max-w-7xl mx-auto px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-sm" href="#"><img alt="Zonasi-Agent Emblem Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP82MliC1pINdpVeIABNsQF3W3U00v866HTudaniST1nlWzh255_xuUrIjrSbxRJEvk0Pce7jfaUQKtq1-SX_b0SDyILpmhDB6ruWazV92FKnpjQ2Tm8HzuLp1NqhDptwKmsP2EIEYQP_GLoZ5rsFCIC8vo3iAXwsCcacUOksxTYkXB8_oG6mHz0IHs0btY3N97OFbnjsLi08felaL4DsUov4iNib8CHaAVGkojrM"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-text-heading leading-tight">Zonasi-Agent</span><span class="font-code-sm text-code-sm px-space-xs py-0.5 rounded-full bg-surface-tint-blue text-secondary">AI-GOV</span></div><span class="font-label-md text-label-md text-text-muted hidden sm:inline-block leading-tight">Kementerian Pendidikan &amp; Dinas Pendidikan</span></div></a></div><nav class="hidden lg:flex items-center gap-space-sm" data-active-classes="bg-surface-tint-blue text-secondary font-headline-sm rounded-lg"><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="beranda" href="#">Beranda</a><a aria-current="page" class="px-space-md py-space-sm transition-colors bg-surface-tint-blue text-secondary font-headline-sm rounded-lg" data-path="pendaftaran-ppdb" href="#">Pendaftaran PPDB</a><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="live-tracking-ai" href="#">Live Tracking AI</a><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="dashboard-panitia" href="#">Dashboard Panitia</a></nav><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-status-approved-bg"><span class="w-2 h-2 rounded-full bg-status-approved animate-pulse"></span><span class="font-code-sm text-code-sm text-status-approved">Supabase Realtime: Terhubung</span></div><button aria-label="Notifikasi Terkini" class="relative p-space-sm rounded-lg hover:bg-surface-slate text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-status-fraud"></span></button><a class="hidden sm:flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading font-label-lg text-label-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)] transition-all" data-path="login-portal" href="#"><span class="material-symbols-outlined text-[18px] text-secondary">lock</span><span>Portal Petugas</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- Top Progress Bar / Visual Ambient Header -->
+<div class="w-full bg-surface-canvas shadow-sm">
+<div class="max-w-7xl mx-auto px-margin py-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md mb-space-md">
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs text-secondary font-label-md text-label-md uppercase tracking-wider">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span>PPDB Online Jalur Zonasi Mandiri 2025/2026</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-text-heading mt-1">Formulir Pendaftaran &amp; Verifikasi Geospasial</h1>
+<p class="font-body-sm text-body-sm text-text-muted mt-0.5">Lengkapi identitas, berkas kependudukan, dan penandaan titik koordinat domisili riil untuk audit instan AI Agent.</p>
+</div>
+<div class="flex items-center gap-space-sm bg-surface-tint-blue px-space-md py-space-sm rounded-xl">
+<div class="w-10 h-10 rounded-lg bg-surface-canvas flex items-center justify-center text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-secondary">Protokol Keamanan Aktif</span>
+<span class="font-code-sm text-code-sm text-primary font-bold">AES-256 • PostGIS Routing Engine</span>
+</div>
+</div>
+</div>
+<!-- Stepper Navigasi Interaktif -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm pt-space-sm">
+<!-- Step 1 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-xl bg-status-approved-bg transition-all">
+<div class="w-9 h-9 rounded-lg bg-status-approved text-on-primary flex items-center justify-center font-code-md text-code-md shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-status-approved leading-tight">Tahap 01 • Selesai</span>
+<span class="font-headline-sm text-label-lg text-text-heading truncate">Identitas Siswa &amp; Sekolah</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-xl bg-surface-tint-blue shadow-sm transition-all">
+<div class="w-9 h-9 rounded-lg bg-secondary text-on-primary flex items-center justify-center font-code-md text-code-md shrink-0 shadow-md shadow-secondary/25">
+            02
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-secondary leading-tight">Tahap 02 • Sedang Diisi</span>
+<span class="font-headline-sm text-label-lg text-text-heading truncate">Unggah Dokumen KK</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-xl bg-surface-container-low transition-all">
+<div class="w-9 h-9 rounded-lg bg-surface-canvas text-secondary flex items-center justify-center font-code-md text-code-md shrink-0 shadow-sm">
+            03
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-text-muted leading-tight">Tahap 03 • Geolokasi</span>
+<span class="font-headline-sm text-label-lg text-text-heading truncate">Pinpoint &amp; Rute Riil</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-xl bg-surface-container-low transition-all">
+<div class="w-9 h-9 rounded-lg bg-surface-canvas text-text-muted flex items-center justify-center font-code-md text-code-md shrink-0 shadow-sm">
+            04
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-text-muted leading-tight">Tahap 04 • Final</span>
+<span class="font-headline-sm text-label-lg text-text-muted truncate">Kirim ke AI Agent</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Workspace Multi-Step (2 Columns Split Layout) -->
+<div class="max-w-7xl mx-auto px-margin py-space-xl w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- KOLOM KIRI (5 Cols Desktop): Data Input & Dropzone KK -->
+<div class="lg:col-span-5 flex flex-col gap-space-lg">
+<!-- Kartu Identitas Siswa & Pilihan Sekolah -->
+<div class="bg-surface-canvas rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">badge</span>
+<h2 class="font-headline-sm text-headline-sm text-text-heading">Data Pokok Siswa</h2>
+</div>
+<span class="font-code-sm text-code-sm px-space-sm py-0.5 rounded-full bg-status-approved-bg text-status-approved">Dukcapil Valid</span>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div>
+<label class="block font-label-lg text-label-lg text-text-heading mb-1">Nomor Induk Kependudukan (NIK Siswa)</label>
+<div class="relative">
+<input class="w-full px-space-md py-space-sm rounded-lg bg-surface-slate font-code-md text-code-md text-text-heading focus:bg-surface-canvas focus:outline-none focus:ring-2 focus:ring-secondary transition-all" maxlength="16" type="text" value="3171041908070002"/>
+<span class="absolute right-3 top-2.5 material-symbols-outlined text-status-approved text-[20px]">check_circle</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<div>
+<label class="block font-label-lg text-label-lg text-text-heading mb-1">Nama Lengkap</label>
+<input class="w-full px-space-md py-space-sm rounded-lg bg-surface-slate font-body-md text-body-md text-text-heading focus:bg-surface-canvas focus:outline-none focus:ring-2 focus:ring-secondary transition-all" type="text" value="Ahmad Fadhil Prasetyo"/>
+</div>
+<div>
+<label class="block font-label-lg text-label-lg text-text-heading mb-1">Nomor Kartu Keluarga (KK)</label>
+<input class="w-full px-space-md py-space-sm rounded-lg bg-surface-slate font-code-md text-code-md text-text-heading focus:bg-surface-canvas focus:outline-none focus:ring-2 focus:ring-secondary transition-all" maxlength="16" type="text" value="3171042502120005"/>
+</div>
+</div>
+<div>
+<label class="block font-label-lg text-label-lg text-text-heading mb-1">Sekolah Tujuan Terpilih</label>
+<div class="relative">
+<select class="w-full px-space-md py-space-sm rounded-lg bg-surface-slate font-body-md text-body-md text-text-heading focus:bg-surface-canvas focus:outline-none focus:ring-2 focus:ring-secondary appearance-none cursor-pointer">
+<option selected="">SMAN 1 Teladan Jakarta (Sisa Kuota Zonasi: 142 Kursi)</option>
+<option>SMPN 2 Nusantara Jakarta (Sisa Kuota Zonasi: 88 Kursi)</option>
+<option>SMAN 68 Jakarta Pusat (Sisa Kuota Zonasi: 95 Kursi)</option>
+</select>
+<span class="absolute right-3 top-3 material-symbols-outlined text-text-muted pointer-events-none text-[20px]">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Kartu Dropzone KK & OCR Realtime Scan -->
+<div class="bg-surface-canvas rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px]">upload_file</span>
+<h2 class="font-headline-sm text-headline-sm text-text-heading">Unggah Berkas Kartu Keluarga</h2>
+</div>
+<span class="font-code-sm text-code-sm px-space-sm py-0.5 rounded-full bg-surface-tint-blue text-secondary">Wajib PDF / JPG / PNG</span>
+</div>
+<!-- Drag and Drop Active State Zone -->
+<div class="relative group rounded-xl p-space-md bg-surface-slate text-center cursor-pointer transition-all hover:bg-surface-container-low">
+<div class="flex flex-col items-center justify-center gap-space-xs py-space-sm">
+<div class="w-12 h-12 rounded-full bg-surface-tint-blue flex items-center justify-center text-secondary mb-1">
+<span class="material-symbols-outlined text-[28px]">cloud_upload</span>
+</div>
+<p class="font-label-lg text-label-lg text-text-heading">Tarik &amp; Lepaskan scan KK di sini, atau <span class="text-secondary underline">Pilih File</span></p>
+<p class="font-body-sm text-body-sm text-text-muted">Resolusi minimum 300 DPI, maks. 5MB. Pastikan QR code Dukcapil tidak terpotong.</p>
+</div>
+</div>
+<!-- File Uploaded Card (kartu_keluarga_ahmad.jpg) -->
+<div class="rounded-xl p-space-md bg-surface-container-low flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-canvas text-secondary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[24px]">description</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-lg text-label-lg text-text-heading truncate">kartu_keluarga_ahmad.jpg</span>
+<span class="font-code-sm text-code-sm text-text-muted">2.4 MB • Image / JPEG</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<button aria-label="Lihat Pratinjau Berkas" class="p-1.5 rounded-lg text-text-muted hover:text-secondary hover:bg-surface-canvas transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+<button aria-label="Ganti Berkas KK" class="p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-surface-canvas transition-all" type="button">
+<span class="material-symbols-outlined text-[20px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- Storage Destination Badge -->
+<div class="flex items-center gap-space-xs py-1 px-space-sm rounded-lg bg-surface-canvas text-text-muted">
+<span class="material-symbols-outlined text-secondary text-[16px]">lock</span>
+<span class="font-code-sm text-code-sm text-secondary truncate">Terenkripsi ke Supabase Storage (kk-documents)</span>
+</div>
+<!-- OCR Pre-flight Check Status -->
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-status-approved"></span>
+<span class="font-label-md text-label-md text-status-approved">Resolusi Tajam • Teks Terbaca Jelas</span>
+</div>
+<span class="font-code-sm text-code-sm text-text-muted">OCR Pre-flight: PASS (99.4%)</span>
+</div>
+</div>
+<!-- Document Inspection Scan Visual Effect -->
+<div class="relative overflow-hidden rounded-lg bg-text-heading p-space-md text-on-primary">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-0.5">
+<span class="font-label-md text-label-md text-primary-fixed uppercase tracking-wider">AI Inference Agent Output</span>
+<span class="font-code-md text-code-md text-on-primary">NIK Terdeteksi: 3171041908070002 [MATCH]</span>
+<span class="font-code-sm text-code-sm text-on-secondary-container opacity-90">Tanggal Terbit KK: 14 Maret 2021 (&gt;1 Tahun Domisili Sah)</span>
+</div>
+<span class="material-symbols-outlined text-status-approved text-[24px]">verified</span>
+</div>
+<!-- Horizontal Scanning Beam Visual -->
+<div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent animate-pulse"></div>
+</div>
+</div>
+</div>
+<!-- KOLOM KANAN (7 Cols Desktop): Geolocation Picker & Realtime Route Preview -->
+<div class="lg:col-span-7 flex flex-col gap-space-lg">
+<!-- Interactive Geolocation Picker Window -->
+<div class="bg-surface-canvas rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[24px]">pin_drop</span>
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-heading">Pinpoint Geospasial Domisili</h2>
+<p class="font-body-sm text-body-sm text-text-muted">Tentukan atap tempat tinggal kartu keluarga secara presisi</p>
+</div>
+</div>
+<!-- Toggle Mode -->
+<div class="flex items-center bg-surface-slate rounded-lg p-0.5 self-start sm:self-center">
+<button class="px-space-sm py-1 rounded-md bg-surface-canvas font-label-md text-label-md text-text-heading shadow-sm" type="button">Peta Jalan</button>
+<button class="px-space-sm py-1 rounded-md text-text-muted font-label-md text-label-md hover:text-text-heading" type="button">Citra Satelit</button>
+</div>
+</div>
+<!-- Search Bar for Address Pinpoint -->
+<div class="relative">
+<span class="absolute left-3.5 top-3 material-symbols-outlined text-secondary text-[20px]">search</span>
+<input class="w-full pl-11 pr-space-md py-space-sm rounded-lg bg-surface-slate font-body-md text-body-md text-text-heading focus:bg-surface-canvas focus:outline-none focus:ring-2 focus:ring-secondary transition-all" placeholder="Cari Alamat Rumah atau Geser Pin..." type="text" value="Jl. Kenanga No. 14, RT 03 / RW 05, Tebet Barat, Jakarta Selatan"/>
+<button class="absolute right-2 top-2 px-space-sm py-1 bg-surface-tint-blue hover:bg-surface-container text-secondary rounded font-label-md text-label-md transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]">my_location</span>
+<span>GPS Saya</span>
+</button>
+</div>
+<!-- Map View Display Container -->
+<div class="relative w-full h-80 sm:h-96 rounded-xl overflow-hidden shadow-inner bg-surface-slate">
+<!-- Simulated Map Canvas using Static Pipeline placeholder -->
+<div class="w-full h-full bg-cover bg-center" data-location="Jl. Kenanga No. 14 Tebet Barat, Jakarta Selatan" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAXTVdiy1K_7fpP-H0xizMoE8W7PlOvS38WM0VQVWYDCVuPjYWkqfPWBMbe9oJkg84aPmBq32rs0pYkj5sQyg6UJ6H_25pN17vGkY9ThB8oaY2poUz7_uPLTHnGe7EPb16ZOB9ETfz8BFJLXhgniaVRGz4XQJGWrm_DoL0npf2deS0HrJifYdrXagOK8moHZqa2SfQUjjQGGnQBVxUr1HMsXHsOacU7NMlqgjRkvNY')"></div>
+<!-- Ambient Gradient Map Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-text-heading/30 via-transparent to-transparent pointer-events-none"></div>
+<!-- Floating Map Controls -->
+<div class="absolute top-3 right-3 flex flex-col gap-1.5 shadow-md">
+<button aria-label="Zoom Masuk Peta" class="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading flex items-center justify-center font-bold transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+<button aria-label="Zoom Keluar Peta" class="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading flex items-center justify-center font-bold transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<button aria-label="Orientasi Utara" class="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-secondary flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">explore</span>
+</button>
+</div>
+<!-- Marker Info Overlay: Rumah Pendaftar -->
+<div class="absolute top-4 left-4 max-w-xs bg-surface-canvas/95 backdrop-blur-md rounded-xl p-space-sm shadow-md">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px] shrink-0 mt-0.5">home_pin</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-secondary uppercase">Marker Rumah Pendaftar</span>
+<span class="font-body-sm text-body-sm font-semibold text-text-heading truncate">Jl. Kenanga No. 14, RT 03 / RW 05</span>
+<span class="font-code-sm text-code-sm text-text-muted mt-0.5">-6.21462, 106.84513</span>
+</div>
+</div>
+</div>
+<!-- Marker Info Overlay: Sekolah Tujuan -->
+<div class="absolute bottom-4 left-4 max-w-xs bg-surface-canvas/95 backdrop-blur-md rounded-xl p-space-sm shadow-md">
+<div class="flex items-start gap-space-xs">
+<span class="material-symbols-outlined text-status-approved text-[22px] shrink-0 mt-0.5">school</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-status-approved uppercase">Sekolah Tujuan</span>
+<span class="font-body-sm text-body-sm font-semibold text-text-heading truncate">SMAN 1 Teladan Jakarta</span>
+<span class="font-code-sm text-code-sm text-text-muted mt-0.5">-6.21890, 106.84920</span>
+</div>
+</div>
+</div>
+<!-- PostGIS Polygon Radius Flag -->
+<div class="absolute bottom-4 right-4 bg-primary text-on-primary px-space-sm py-1 rounded-full font-code-sm text-code-sm shadow-md flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-status-approved"></span>
+<span>Radius Zonasi: 1.200 m</span>
+</div>
+</div>
+<!-- Dual Telemetry & Distance Comparison Strip -->
+<div class="rounded-xl p-space-md bg-surface-slate flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">alt_route</span>
+<span class="font-label-lg text-label-lg text-text-heading">Hasil Komparasi Telemetri Rute Geospasial</span>
+</div>
+<span class="font-code-sm text-code-sm text-status-approved font-semibold bg-status-approved-bg px-space-sm py-0.5 rounded-full">Aman Dalam Zonasi</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+<!-- Jarak Tempuh Darat Riil -->
+<div class="p-space-sm rounded-lg bg-surface-canvas shadow-sm flex flex-col gap-0.5">
+<span class="font-label-md text-label-md text-text-muted">Jarak Tempuh Darat Riil (Google Routes API)</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-text-heading">820</span>
+<span class="font-code-md text-code-md text-text-muted">meter</span>
+</div>
+<span class="font-body-sm text-body-sm text-status-approved font-medium">Batas Maksimal Kuota Wilayah: 1.200 meter</span>
+</div>
+<!-- Jarak Euclidean -->
+<div class="p-space-sm rounded-lg bg-surface-canvas shadow-sm flex flex-col gap-0.5">
+<span class="font-label-md text-label-md text-text-muted">Jarak Garis Lurus (Euclidean Radius)</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-headline-lg text-headline-lg font-bold text-secondary">540</span>
+<span class="font-code-md text-code-md text-text-muted">meter</span>
+</div>
+<span class="font-body-sm text-body-sm text-text-muted">Koordinat Titik PostGIS ST_Distance</span>
+</div>
+</div>
+<!-- Route Anomaly Explanation Ribbon -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-tint-blue text-secondary">
+<span class="material-symbols-outlined text-[20px] shrink-0">info</span>
+<p class="font-body-sm text-body-sm leading-snug">
+<strong>Selisih Rute +280 meter:</strong> Perhitungan mempertimbangkan jembatan penyeberangan Ciliwung dan akses jalan umum resmi yang dapat dilalui pejalan kaki / kendaraan roda dua.
+              </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sticky Bottom Navigation Bar & Actions -->
+<div class="mt-space-xl p-space-md bg-surface-canvas rounded-xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<!-- Catatan Keamanan Data SIP & PDP -->
+<div class="flex items-center gap-space-sm text-text-muted">
+<span class="material-symbols-outlined text-secondary text-[22px]">gavel</span>
+<p class="font-body-sm text-body-sm">
+          Data Anda dilindungi enkripsi TLS &amp; <strong>UU No. 27 Tahun 2022 tentang Perlindungan Data Pribadi (PDP)</strong>.
+        </p>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-space-sm w-full sm:w-auto justify-end">
+<button class="px-space-md py-space-sm rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading font-label-lg text-label-lg transition-all shadow-sm" type="button">
+          Kembali
+        </button>
+<button class="px-space-md py-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container text-text-heading font-label-lg text-label-lg transition-all" type="button">
+          Simpan Draf
+        </button>
+<button class="flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg bg-secondary hover:bg-primary-container text-on-primary font-label-lg text-label-lg shadow-md shadow-secondary/30 transition-all hover:-translate-y-0.5 active:scale-95" type="button">
+<span>Kirim &amp; Mulai Validasi AI</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-surface-slate py-space-xl mt-auto"><div class="max-w-7xl mx-auto px-margin"><div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-space-lg"><div class="md:col-span-2 flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><img alt="Zonasi-Agent Emblem Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP82MliC1pINdpVeIABNsQF3W3U00v866HTudaniST1nlWzh255_xuUrIjrSbxRJEvk0Pce7jfaUQKtq1-SX_b0SDyILpmhDB6ruWazV92FKnpjQ2Tm8HzuLp1NqhDptwKmsP2EIEYQP_GLoZ5rsFCIC8vo3iAXwsCcacUOksxTYkXB8_oG6mHz0IHs0btY3N97OFbnjsLi08felaL4DsUov4iNib8CHaAVGkojrM"/><span class="font-headline-sm text-headline-sm text-text-heading">Zonasi-Agent</span></div><p class="font-body-sm text-body-sm text-text-muted max-w-lg">Sistem Verifikasi Berbasis Multi-Agent Geospasial PPDB Mandiri. Mengintegrasikan algoritma inferensi OCR dokumen kependudukan, kalkulasi rute PostGIS, dan validasi visual Google Street View secara berkeadilan, transparan, dan akuntabel.</p><div class="flex flex-wrap items-center gap-space-xs mt-space-sm"><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-status-approved-bg text-status-approved">PostGIS ISO 19125-1</span><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-surface-tint-blue text-secondary">Vision AI Validated</span><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-surface-container-high text-primary">AES-256 Encrypted</span></div></div><div class="flex flex-col gap-space-xs"><span class="font-label-lg text-label-lg text-text-heading">Navigasi Resmi</span><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="beranda" href="#">Beranda Sistem</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="pendaftaran-ppdb" href="#">Formulir Verifikasi NIK</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="live-tracking-ai" href="#">Status Audit Terbuka</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="dashboard-panitia" href="#">Konsol Panitia Wilayah</a></div><div class="flex flex-col gap-space-xs"><span class="font-label-lg text-label-lg text-text-heading">Bantuan &amp; Layanan Sipil</span><p class="font-body-sm text-body-sm text-text-muted">Posko Bantuan PPDB Terpadu</p><span class="font-code-md text-code-md text-text-heading">0800-140-9000 (Toll-Free)</span><span class="font-body-sm text-body-sm text-text-muted">Senin - Jumat: 08:00 - 16:00 WIB</span><span class="font-body-sm text-body-sm text-secondary">helpdesk@zonasi-agent.kemdikbud.go.id</span></div></div><div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm"><p class="font-body-sm text-body-sm text-text-muted text-center sm:text-left">© 2025 Zonasi-Agent. Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi RI bersama Dinas Pendidikan Daerah.</p><div class="flex items-center gap-space-md font-body-sm text-body-sm text-text-muted"><a class="hover:text-on-surface" href="#">Kebijakan Privasi</a><a class="hover:text-on-surface" href="#">Standar Geospasial</a><a class="hover:text-on-surface" href="#">Buku Panduan</a></div></div></div></footer></body></html>
+
+<!-- Live Realtime Tracking AI -->
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Zonasi-Agent - Autonomous PPDB Validator &amp; Fraud Detector</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary":"#ffffff","on-secondary-container":"#fefcff","on-background":"#131b2e","primary-fixed":"#dde1ff","surface-container-high":"#e2e7ff","surface-canvas":"#FFFFFF","secondary-container":"#316bf3","status-fraud-border":"#FECACA","on-primary-fixed":"#001453","inverse-surface":"#283044","secondary":"#0051d5","surface":"#faf8ff","tertiary-container":"#00489e","primary-fixed-dim":"#b8c4ff","status-fraud-bg":"#FEF2F2","error":"#ba1a1a","text-heading":"#0F172A","surface-container-low":"#f2f3ff","status-revision-bg":"#FFFBEB","surface-bright":"#faf8ff","on-tertiary-container":"#9cbbff","on-tertiary-fixed":"#001a42","surface-card":"#FFFFFF","inverse-primary":"#b8c4ff","status-approved-border":"#A7F3D0","text-muted":"#64748B","surface-container-lowest":"#ffffff","on-secondary-fixed":"#00174b","on-surface":"#131b2e","primary-container":"#1e40af","on-surface-variant":"#444653","on-error-container":"#93000a","primary":"#00288e","status-revision-border":"#FDE68A","status-approved-bg":"#ECFDF5","on-primary-container":"#a8b8ff","on-tertiary-fixed-variant":"#004395","surface-dim":"#d2d9f4","outline-variant":"#c4c5d5","surface-container-highest":"#dae2fd","on-secondary-fixed-variant":"#003ea8","surface-container":"#eaedff","error-container":"#ffdad6","secondary-fixed-dim":"#b4c5ff","status-approved":"#10B981","surface-variant":"#dae2fd","tertiary-fixed-dim":"#adc6ff","outline":"#757684","on-tertiary":"#ffffff","on-secondary":"#ffffff","background":"#faf8ff","secondary-fixed":"#dbe1ff","on-error":"#ffffff","inverse-on-surface":"#eef0ff","surface-tint-blue":"#EFF6FF","on-primary-fixed-variant":"#173bab","border-subtle":"#F1F5F9","text-body":"#334155","surface-tint":"#3755c3","status-fraud":"#EF4444","tertiary":"#003272","surface-slate":"#F8FAFC","tertiary-fixed":"#d8e2ff","border-slate":"#E2E8F0","status-revision":"#F59E0B"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-xl":"2.5rem","space-md":"1rem","gutter-mobile":"1rem","margin-mobile":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"2rem","gutter":"1.5rem","space-lg":"1.5rem"},fontFamily:{"body-md":["Plus Jakarta Sans"],"code-lg":["JetBrains Mono"],"headline-sm":["Plus Jakarta Sans"],"code-md":["JetBrains Mono"],"body-lg":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"code-sm":["JetBrains Mono"]},fontSize:{"body-md":["1rem",{"lineHeight":"1.5rem","letterSpacing":"-0.005em","fontWeight":"400"}],"code-lg":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["1.125rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"400"}],"body-sm":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"400"}],"headline-xl-mobile":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"800"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-xl":["2.5rem",{"lineHeight":"3rem","letterSpacing":"-0.03em","fontWeight":"800"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"headline-lg-mobile":["1.625rem",{"lineHeight":"2.125rem","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["0.75rem",{"lineHeight":"1.0rem","letterSpacing":"0.02em","fontWeight":"600"}],"code-sm":["0.75rem",{"lineHeight":"1rem","fontWeight":"500"}]}}}};</script></head><body class="bg-surface font-body-md text-body antialiased min-h-screen flex flex-col"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-canvas/85 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-20 max-w-7xl mx-auto px-margin flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-sm" href="#"><img alt="Zonasi-Agent Emblem Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP82MliC1pINdpVeIABNsQF3W3U00v866HTudaniST1nlWzh255_xuUrIjrSbxRJEvk0Pce7jfaUQKtq1-SX_b0SDyILpmhDB6ruWazV92FKnpjQ2Tm8HzuLp1NqhDptwKmsP2EIEYQP_GLoZ5rsFCIC8vo3iAXwsCcacUOksxTYkXB8_oG6mHz0IHs0btY3N97OFbnjsLi08felaL4DsUov4iNib8CHaAVGkojrM"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-text-heading leading-tight">Zonasi-Agent</span><span class="font-code-sm text-code-sm px-space-xs py-0.5 rounded-full bg-surface-tint-blue text-secondary">AI-GOV</span></div><span class="font-label-md text-label-md text-text-muted hidden sm:inline-block leading-tight">Kementerian Pendidikan &amp; Dinas Pendidikan</span></div></a></div><nav class="hidden lg:flex items-center gap-space-sm" data-active-classes="bg-surface-tint-blue text-secondary font-headline-sm rounded-lg"><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="beranda" href="#">Beranda</a><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="pendaftaran-ppdb" href="#">Pendaftaran PPDB</a><a aria-current="page" class="px-space-md py-space-sm transition-colors bg-surface-tint-blue text-secondary font-headline-sm rounded-lg" data-path="live-tracking-ai" href="#">Live Tracking AI</a><a class="px-space-md py-space-sm rounded-lg text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors" data-path="dashboard-panitia" href="#">Dashboard Panitia</a></nav><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-status-approved-bg"><span class="w-2 h-2 rounded-full bg-status-approved animate-pulse"></span><span class="font-code-sm text-code-sm text-status-approved">Supabase Realtime: Terhubung</span></div><button aria-label="Notifikasi Terkini" class="relative p-space-sm rounded-lg hover:bg-surface-slate text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-status-fraud"></span></button><a class="hidden sm:flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading font-label-lg text-label-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)] transition-all" data-path="login-portal" href="#"><span class="material-symbols-outlined text-[18px] text-secondary">lock</span><span>Portal Petugas</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-20 bg-surface flex-1"><div class="flex flex-col w-full">
+<div class="relative w-full overflow-hidden bg-gradient-to-b from-surface-tint-blue/30 via-surface to-surface pb-space-xl">
+<div class="max-w-7xl mx-auto px-margin pt-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-md">
+<div class="flex items-center gap-space-xs text-text-muted">
+<a class="font-body-sm text-body-sm hover:text-primary transition-colors flex items-center gap-1" data-path="beranda" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+            Portal PPDB
+          </a>
+<span>/</span>
+<span class="font-body-sm text-body-sm text-text-heading font-medium">Pelacakan Live Agen AI</span>
+<span>/</span>
+<span class="font-code-sm text-code-sm px-space-xs py-0.5 rounded bg-surface-container text-secondary font-semibold">PPDB-2026-X89K</span>
+</div>
+<div class="flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-canvas shadow-sm">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-approved opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-status-approved"></span>
+</span>
+<span class="font-code-sm text-code-sm text-text-heading font-medium">Supabase Realtime:</span>
+<span class="font-code-sm text-code-sm text-status-approved font-semibold">Terhubung (24ms)</span>
+</div>
+</div>
+<div class="bg-surface-canvas rounded-xl shadow-xl p-space-lg mb-space-xl relative overflow-hidden">
+<div class="absolute -right-16 -top-16 w-64 h-64 bg-secondary-container/10 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-lg relative z-10">
+<div class="space-y-space-xs">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-code-lg text-code-lg text-primary tracking-tight font-bold bg-surface-tint-blue px-space-sm py-1 rounded-lg">
+                PPDB-2026-X89K
+              </span>
+<div class="flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-secondary text-on-secondary font-label-md text-label-md shadow-sm">
+<span class="material-symbols-outlined text-[16px] animate-spin">smart_toy</span>
+<span>SEDANG DIPROSES OLEH AGENTIC AI (Tahap 3/3)</span>
+</div>
+</div>
+<div class="flex flex-wrap items-baseline gap-x-space-md gap-y-1 pt-1">
+<h1 class="font-headline-md text-headline-md text-text-heading">Rafi Alamsyah</h1>
+<div class="flex items-center gap-space-xs text-text-muted font-code-md text-code-md">
+<span>NIK:</span>
+<span class="text-text-heading font-semibold">3174**********02</span>
+</div>
+<div class="flex items-center gap-1 text-text-body font-body-md text-body-md">
+<span class="material-symbols-outlined text-secondary text-[18px]">school</span>
+<span>Pilihan:</span>
+<span class="font-semibold text-text-heading">SMAN 1 Teladan (Zonasi Domisili)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-space-sm w-full sm:w-auto self-end lg:self-center">
+<button class="flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-heading font-label-lg text-label-lg shadow-sm transition-all w-full sm:w-auto" id="btnDownloadReceipt">
+<span class="material-symbols-outlined text-[20px] text-secondary">qr_code_2</span>
+<span>Unduh Tanda Terima Digital</span>
+</button>
+<div class="hidden sm:flex flex-col items-center justify-center p-2 bg-surface-slate rounded-lg shadow-sm">
+<svg class="w-12 h-12 text-primary" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<rect height="16" rx="2" stroke="currentColor" stroke-width="3" width="16" x="4" y="4"></rect>
+<rect fill="currentColor" height="8" width="8" x="8" y="8"></rect>
+<rect height="16" rx="2" stroke="currentColor" stroke-width="3" width="16" x="28" y="4"></rect>
+<rect fill="currentColor" height="8" width="8" x="32" y="8"></rect>
+<rect height="16" rx="2" stroke="currentColor" stroke-width="3" width="16" x="4" y="28"></rect>
+<rect fill="currentColor" height="8" width="8" x="8" y="32"></rect>
+<rect fill="currentColor" height="6" width="6" x="26" y="26"></rect>
+<rect fill="currentColor" height="6" width="6" x="38" y="26"></rect>
+<rect fill="currentColor" height="6" width="6" x="26" y="38"></rect>
+<rect fill="currentColor" height="12" width="6" x="34" y="32"></rect>
+</svg>
+<span class="font-code-sm text-[9px] text-text-muted mt-1 uppercase">SHA-256 Valid</span>
+</div>
+</div>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 mt-space-md overflow-hidden">
+<div class="bg-gradient-to-r from-status-approved via-secondary to-secondary-container h-full rounded-full transition-all duration-700" style="width: 82%;"></div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-space-xl">
+<div class="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 right-0 w-24 h-24 bg-status-approved-bg rounded-bl-full pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-code-sm text-code-sm text-text-muted font-bold tracking-wider">TAHAP 1 DARI 3</span>
+<span class="flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-status-approved-bg text-status-approved font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                SELESAI / VALID
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
+<span class="material-symbols-outlined text-status-approved text-[22px]">document_scanner</span>
+              Penalaran Dokumen KK
+            </h3>
+<p class="font-body-sm text-body-sm text-text-muted mb-space-sm">
+              Ekstraksi metadata Kartu Keluarga, relasi keluarga siswa, dan tanggal penerbitan regulasi.
+            </p>
+</div>
+<div class="bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Tgl Terbit KK:</span>
+<span class="font-semibold text-text-heading">14 Mei 2023</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Masa Domisili:</span>
+<span class="font-bold text-status-approved">2 Thn 10 Bln (≥ 1 Thn)</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Relasi Siswa:</span>
+<span class="text-text-heading font-medium">Anak Kandung</span>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="text-text-muted">OCR Confidence:</span>
+<span class="font-semibold text-secondary">98.4% (Tinggi)</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 right-0 w-24 h-24 bg-status-approved-bg rounded-bl-full pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-code-sm text-code-sm text-text-muted font-bold tracking-wider">TAHAP 2 DARI 3</span>
+<span class="flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-status-approved-bg text-status-approved font-label-md text-label-md font-semibold">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                SELESAI / VALID
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
+<span class="material-symbols-outlined text-status-approved text-[22px]">route</span>
+              Kalkulasi Jarak Darat Riil
+            </h3>
+<p class="font-body-sm text-body-sm text-text-muted mb-space-sm">
+              PostGIS ISO 19125-1 komparasi geofence vs rute riil berjalan kaki/bermotor Google Routes API.
+            </p>
+</div>
+<div class="bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Rute Darat Aktual:</span>
+<span class="font-bold text-status-approved text-[13px]">820 Meter</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Garis Lurus Euclidean:</span>
+<span class="text-text-heading font-medium">540 Meter</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Ambang Batas Zonasi:</span>
+<span class="text-text-muted font-medium">Maksimal 1.200 Meter</span>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="text-text-muted">Status Validasi Zonasi:</span>
+<span class="font-bold text-status-approved">LOLOS ZONA UTAMA</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-tint-blue rounded-bl-full pointer-events-none"></div>
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="font-code-sm text-code-sm text-secondary font-bold tracking-wider">TAHAP 3 DARI 3</span>
+<span class="flex items-center gap-1.5 px-space-xs py-0.5 rounded-full bg-surface-tint-blue text-secondary font-label-md text-label-md font-semibold">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+                SEDANG BERLANGSUNG
+              </span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
+<span class="material-symbols-outlined text-secondary text-[22px] animate-pulse">satellite_alt</span>
+              Audit Visual Tata Ruang
+            </h3>
+<p class="font-body-sm text-body-sm text-text-muted mb-space-sm">
+              Street View &amp; Vision LLM verifikasi fasad hunian fisik (mencegah manipulasi ruko/tanah kosong).
+            </p>
+</div>
+<div class="bg-surface-tint-blue/40 rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Target Geospasial:</span>
+<span class="font-mono text-secondary font-semibold">-6.21462, 106.84513</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Mesin Klasifikasi:</span>
+<span class="font-semibold text-text-heading">Gemini 1.5 Pro Flash</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-text-muted">Deteksi Eksterior:</span>
+<span class="text-secondary font-medium">Rumah Tinggal / Permukiman</span>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="text-text-muted">Progres Audit:</span>
+<span class="font-bold text-secondary">Analisis Piksel Citra 94%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-space-xl items-start">
+<div class="lg:col-span-7 bg-surface-canvas rounded-xl shadow-xl overflow-hidden flex flex-col">
+<div class="p-space-md bg-surface-slate flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">preview</span>
+<h2 class="font-headline-sm text-headline-sm text-text-heading">Pemindaian OCR &amp; Citra Jalan</h2>
+</div>
+<div class="flex items-center gap-1 bg-surface-canvas px-space-xs py-1 rounded shadow-sm">
+<button class="px-space-sm py-0.5 rounded font-label-md text-label-md bg-primary text-on-primary" id="tabScanDoc">Dokumen KK</button>
+<button class="px-space-sm py-0.5 rounded font-label-md text-label-md text-text-muted hover:text-text-heading transition-colors" id="tabScanStreet">Street View Panitia</button>
+</div>
+</div>
+<div class="relative w-full h-[400px] bg-slate-900 flex items-center justify-center overflow-hidden" id="containerDocViewer">
+<div class="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-95"></div>
+<div class="relative w-full max-w-lg h-80 bg-surface-canvas rounded-lg shadow-2xl overflow-hidden p-space-md font-body-sm text-text-heading select-none">
+<div class="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-[scan_3s_ease-in-out_infinite] z-30"></div>
+<div class="flex items-center justify-between pb-2 mb-2">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-700 text-[18px]">verified</span>
+</div>
+<div>
+<p class="font-headline-sm text-[12px] leading-none uppercase font-bold text-slate-800">KARTU KELUARGA</p>
+<p class="font-code-sm text-[10px] text-slate-500">No. 3174092405100091</p>
+</div>
+</div>
+<div class="px-2 py-0.5 bg-emerald-50 rounded text-status-approved font-code-sm text-[10px] font-bold">
+                  TERVERIFIKASI
+                </div>
+</div>
+<div class="relative p-2 bg-emerald-50/60 rounded mb-2 z-10">
+<span class="absolute -top-2 right-2 bg-status-approved text-white font-code-sm text-[9px] px-1.5 rounded uppercase">Bounding Box: Nama Kepala Keluarga</span>
+<p class="font-code-sm text-[11px] text-slate-500 leading-tight">Nama Kepala Keluarga</p>
+<p class="font-body-md text-[13px] font-bold text-slate-900 leading-tight">BAMBANG ALAMSYAH</p>
+</div>
+<div class="grid grid-cols-2 gap-2 mb-2">
+<div class="relative p-2 bg-cyan-50/60 rounded z-10">
+<span class="absolute -top-2 right-1 bg-secondary text-white font-code-sm text-[8px] px-1 rounded uppercase">Nama Terdaftar</span>
+<p class="font-code-sm text-[10px] text-slate-500 leading-tight">Nama Anggota</p>
+<p class="font-body-md text-[12px] font-bold text-slate-900 leading-tight">RAFI ALAMSYAH</p>
+</div>
+<div class="relative p-2 bg-emerald-50/60 rounded z-10">
+<span class="absolute -top-2 right-1 bg-status-approved text-white font-code-sm text-[8px] px-1 rounded uppercase">Hubungan</span>
+<p class="font-code-sm text-[10px] text-slate-500 leading-tight">Status Hubungan</p>
+<p class="font-body-md text-[12px] font-bold text-slate-900 leading-tight">ANAK KANDUNG</p>
+</div>
+</div>
+<div class="relative p-2 bg-blue-50/60 rounded z-10">
+<span class="absolute -top-2 right-2 bg-primary text-white font-code-sm text-[9px] px-1.5 rounded uppercase">Bounding Box: Tanggal Diterbitkan</span>
+<div class="flex justify-between items-center">
+<div>
+<p class="font-code-sm text-[10px] text-slate-500 leading-tight">Dikeluarkan Tanggal</p>
+<p class="font-body-md text-[12px] font-bold text-primary leading-tight">14-05-2023 (Kecamatan Tebet)</p>
+</div>
+<span class="font-code-sm text-[10px] text-status-approved font-bold bg-status-approved-bg px-2 py-0.5 rounded">
+                    VALID ≥ 1 TAHUN
+                  </span>
+</div>
+</div>
+<div class="mt-2 flex items-center justify-between text-slate-400 font-code-sm text-[9px]">
+<span>Tanda Tangan Elektronik Disdukcapil: Tervalidasi</span>
+<span>Resolusi Dokumen: 2400 x 1650 px</span>
+</div>
+</div>
+<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between px-space-sm py-1.5 rounded bg-slate-900/80 backdrop-blur text-white font-code-sm text-code-sm z-30">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[16px]">center_focus_strong</span>
+                Deep-Vision OCR In-Progress (3 Bounding Boxes Lock)
+              </span>
+<span class="text-status-approved">Confidence Score: 98.4%</span>
+</div>
+</div>
+<div class="relative w-full h-[400px] hidden bg-slate-900 overflow-hidden" id="containerStreetViewer">
+<div class="w-full h-full bg-cover bg-center" data-location="Jl. Tebet Timur Dalam VI, Jakarta Selatan" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAu3uRs8QGs--gdj3uuUn-_w6pAldVL_j_PTYJmBVR1_IRtwmDDuFAcpfLXN-1DvTJ2noiwKssq7DSHM7yyNBvqoT6Pj82DLiJWweho8NSeJ_Qu-kdCF98fbfCmCvlUmeiUNywdKoQh0d2SCXKnz-qFjOdm0JWFhLQ0p9IFUD_YQm4T0ozeCideBZAqxDE7SY9XnFumP1GBlwnudlYlH9K2pQbwJJpn15DH0YshdPQ')">
+<div class="w-full h-full bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent p-space-md flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div class="bg-slate-900/85 backdrop-blur px-space-sm py-1 rounded text-white font-code-sm text-code-sm">
+<span>Street View Target: (-6.21462, 106.84513)</span>
+</div>
+<div class="bg-status-approved px-space-sm py-1 rounded text-white font-label-md text-label-md font-semibold">
+                    Objek Fasad: Rumah Tinggal (Bukan Fasum Kosong)
+                  </div>
+</div>
+<div class="bg-slate-900/90 backdrop-blur p-space-sm rounded-lg text-white space-y-1">
+<div class="flex justify-between font-code-sm text-code-sm">
+<span class="text-slate-300">Hasil Visi Mesin Gemini:</span>
+<span class="text-cyan-400 font-semibold">Struktur Rumah 2 Lantai, Nomor Pintu Cocok (#18)</span>
+</div>
+<div class="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
+<div class="bg-cyan-400 h-full rounded-full" style="width: 94%;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-space-sm bg-surface-slate flex flex-wrap items-center justify-between gap-space-xs text-text-muted font-body-sm text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-status-approved text-[18px]">verified_user</span>
+<span>Dokumen diverifikasi secara desentralisasi tanpa manipulasi manual petugas.</span>
+</div>
+<a class="text-secondary font-label-md text-label-md hover:underline" href="#">Periksa Metrik Audit →</a>
+</div>
+</div>
+<div class="lg:col-span-5 bg-surface-canvas rounded-xl shadow-xl flex flex-col h-full overflow-hidden">
+<div class="p-space-md bg-inverse-surface text-inverse-on-surface flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-status-approved animate-pulse"></span>
+<h2 class="font-headline-sm text-headline-sm text-inverse-on-surface font-semibold">Live Agent Reasoning Feed</h2>
+</div>
+<span class="font-code-sm text-code-sm text-slate-400">Terminal Log v2.4</span>
+</div>
+<div class="p-space-md bg-slate-950 text-slate-200 font-code-sm text-code-sm flex-1 space-y-space-sm overflow-y-auto max-h-[380px] leading-relaxed" id="reasoningTerminal">
+<div class="flex items-start gap-2">
+<span class="text-slate-500 font-mono select-none">14:02:11</span>
+<div>
+<span class="text-cyan-400 font-semibold">[AGENT-COORDINATOR]</span>
+<span class="text-slate-300"> Pipeline inisialisasi verifikasi untuk pendaftar: </span>
+<span class="text-amber-300">PPDB-2026-X89K</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="text-slate-500 font-mono select-none">14:02:12</span>
+<div>
+<span class="text-emerald-400 font-semibold">[OCR-ENGINE-TESS]</span>
+<span class="text-slate-300"> Memuat scan KK. Resolusi 300DPI terverifikasi. Ekstraksi bounding boxes selesai.</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="text-slate-500 font-mono select-none">14:02:15</span>
+<div>
+<span class="text-emerald-400 font-semibold">[REASONING-AGENT]</span>
+<span class="text-slate-300"> Tanggal KK: 14/05/2023. Perhitungan delta: 1.031 hari (≥ 365 hari regulasi). </span>
+<span class="text-emerald-300 font-bold">→ STATUS: VALID</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="text-slate-500 font-mono select-none">14:02:18</span>
+<div>
+<span class="text-blue-400 font-semibold">[POSTGIS-GEOROUTE]</span>
+<span class="text-slate-300"> Melakukan snapping koordinat rumah ke jaringan jalan Google OSRM.</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="text-slate-500 font-mono select-none">14:02:22</span>
+<div>
+<span class="text-blue-400 font-semibold">[POSTGIS-GEOROUTE]</span>
+<span class="text-slate-300"> Jarak rute riil berjalan kaki dihitung: </span>
+<span class="text-cyan-300 font-bold">820 meter</span>
+<span class="text-slate-300"> (Threshold: 1.200m). </span>
+<span class="text-emerald-300 font-bold">→ DALAM JANGKAUAN</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="text-slate-500 font-mono select-none">14:02:28</span>
+<div>
+<span class="text-purple-400 font-semibold">[VISION-LLM-AUDITOR]</span>
+<span class="text-slate-300"> Fetching Street View frame koordinat </span>
+<span class="text-slate-400">(-6.21462, 106.84513)...</span>
+</div>
+</div>
+<div class="flex items-start gap-2">
+<span class="text-slate-500 font-mono select-none">14:02:35</span>
+<div>
+<span class="text-purple-400 font-semibold">[VISION-LLM-AUDITOR]</span>
+<span class="text-slate-300"> Gemini 1.5 Pro: Memeriksa fasad properti... Bukan lahan komersial/lahan kosong. Indikasi hunian permanen: </span>
+<span class="text-emerald-400 font-bold">94.2% Positif</span>
+</div>
+</div>
+<div class="flex items-start gap-2 animate-pulse">
+<span class="text-slate-500 font-mono select-none">14:02:41</span>
+<div>
+<span class="text-amber-400 font-semibold">[CONSENSUS-AGGREGATOR]</span>
+<span class="text-slate-300"> Menyatukan seluruh skor pembobotan kepatuhan zonasi... Menunggu finalisasi enkripsi payload.</span>
+</div>
+</div>
+</div>
+<div class="p-space-sm bg-surface-slate flex items-center justify-between text-text-muted font-code-sm text-code-sm">
+<span class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+              Inferensi Berkelanjutan
+            </span>
+<button class="hover:text-primary transition-colors text-text-muted" id="btnClearLog">Bersihkan Tampilan</button>
+</div>
+</div>
+</div>
+<div class="space-y-space-md mb-space-xl">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-heading">Solusi Edge-Case &amp; Pengecualian Lapangan</h2>
+<p class="font-body-sm text-body-sm text-text-muted">Protokol pemulihan mandiri jika algoritma mendeteksi anomali pada pemindaian citra atau rute.</p>
+</div>
+<span class="hidden sm:inline-block font-label-md text-label-md bg-surface-tint-blue text-secondary px-space-sm py-1 rounded-full font-semibold">
+            Prosedur Resmi SKB 3 Menteri
+          </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<div class="bg-surface-canvas rounded-xl shadow-md p-space-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="px-space-xs py-0.5 rounded bg-status-revision-bg text-status-revision font-label-md text-label-md font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                  Mitigasi Dokumen Kurang Jelas
+                </span>
+<span class="font-code-sm text-code-sm text-text-muted">Edge-Case #01</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading mb-space-xs">Unggah Ulang Cepat (Quick Re-verification)</h3>
+<p class="font-body-sm text-body-sm text-text-muted mb-space-md">
+                Bila scan KK memiliki lipatan atau resolusi di bawah 200 DPI, Anda tidak perlu mengisi ulang formulir pendaftaran dari awal.
+              </p>
+<div class="w-full bg-surface-slate rounded-xl p-space-md flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container transition-all mb-space-md" id="dropzoneKK">
+<div class="w-10 h-10 rounded-full bg-surface-tint-blue flex items-center justify-center text-secondary mb-2">
+<span class="material-symbols-outlined text-[24px]">cloud_upload</span>
+</div>
+<p class="font-label-lg text-label-lg text-text-heading mb-0.5">Tarik &amp; Letakkan Berkas KK Baru</p>
+<p class="font-body-sm text-body-sm text-text-muted">Format PDF, JPG, atau PNG (Maks. 8 MB). AI langsung memproses ulang dalam 5 detik.</p>
+<input accept=".pdf,.jpg,.jpeg,.png" class="hidden" id="fileInputKK" type="file"/>
+</div>
+</div>
+<div class="flex items-center justify-between text-text-muted font-body-sm text-body-sm pt-space-xs">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-[16px]">info</span>
+                Riwayat revisi tercatat di log audit
+              </span>
+<button class="font-label-md text-label-md text-secondary hover:underline font-semibold" onclick="document.getElementById('fileInputKK').click()">Pilih Berkas</button>
+</div>
+</div>
+<div class="bg-surface-canvas rounded-xl shadow-md p-space-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<span class="px-space-xs py-0.5 rounded bg-surface-tint-blue text-secondary font-label-md text-label-md font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">location_searching</span>
+                  Mitigasi Gang / Rumah Tidak Terpetakan
+                </span>
+<span class="font-code-sm text-code-sm text-text-muted">Edge-Case #02</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading mb-space-xs">Verifikasi Mandiri Foto Ber-Geotag</h3>
+<p class="font-body-sm text-body-sm text-text-muted mb-space-md">
+                Jika mobil Google Street View terhalang portal gang sempit atau gapura warga, peserta dapat mengirimkan foto depan rumah dengan metadata GPS presisi.
+              </p>
+<div class="bg-surface-slate rounded-xl p-space-md space-y-space-sm mb-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-tint-blue flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[24px]">photo_camera</span>
+</div>
+<div>
+<h4 class="font-label-lg text-label-lg text-text-heading">Kamera Geotagging Otomatis</h4>
+<p class="font-body-sm text-body-sm text-text-muted">Mengaktifkan sensor kamera gawai dengan EXIF latitude &amp; longitude terenkripsi.</p>
+</div>
+</div>
+<div class="flex items-center gap-2 p-2 bg-surface-canvas rounded-lg text-text-heading font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-status-approved text-[18px]">gps_fixed</span>
+<span>Akurasi GPS Tersedia: ±3.2 Meter dari Titik Koordinat KK</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm pt-space-xs">
+<button class="flex-1 flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-primary hover:bg-secondary text-on-primary font-label-lg text-label-lg shadow transition-all" id="btnGeoCamera">
+<span class="material-symbols-outlined text-[18px]">camera</span>
+<span>Aktifkan Kamera Verifikasi Mandiri</span>
+</button>
+<button class="px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-body font-label-md text-label-md transition-all">
+                Panduan Foto Fasad
+              </button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-canvas rounded-xl shadow-lg p-space-lg flex flex-col md:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-full bg-status-approved-bg flex items-center justify-center text-status-approved shrink-0">
+<span class="material-symbols-outlined text-[28px]">verified</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading">Semua Tahapan Mengacu Pada Asas Keadilan Zonasi</h3>
+<p class="font-body-sm text-body-sm text-text-muted">Hasil validasi AI memiliki audit trail kriptografis yang dapat diuji ulang secara terbuka saat masa sanggah PPDB.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm w-full md:w-auto">
+<a class="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-surface-tint-blue text-secondary hover:bg-surface-container-high font-label-lg text-label-lg transition-colors w-full md:w-auto" data-path="live-tracking-ai" href="#">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>Segarkan Status</span>
+</a>
+<a class="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-primary text-on-primary hover:bg-secondary font-label-lg text-label-lg transition-colors w-full md:w-auto" data-path="dashboard-panitia" href="#">
+<span>Konsol Panitia</span>
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function initTrackingUI() {
+    const tabScanDoc = document.getElementById('tabScanDoc');
+    const tabScanStreet = document.getElementById('tabScanStreet');
+    const containerDocViewer = document.getElementById('containerDocViewer');
+    const containerStreetViewer = document.getElementById('containerStreetViewer');
+
+    if (tabScanDoc && tabScanStreet && containerDocViewer && containerStreetViewer) {
+      tabScanDoc.addEventListener('click', function() {
+        tabScanDoc.className = 'px-space-sm py-0.5 rounded font-label-md text-label-md bg-primary text-on-primary';
+        tabScanStreet.className = 'px-space-sm py-0.5 rounded font-label-md text-label-md text-text-muted hover:text-text-heading transition-colors';
+        containerDocViewer.classList.remove('hidden');
+        containerStreetViewer.classList.add('hidden');
+      });
+
+      tabScanStreet.addEventListener('click', function() {
+        tabScanStreet.className = 'px-space-sm py-0.5 rounded font-label-md text-label-md bg-primary text-on-primary';
+        tabScanDoc.className = 'px-space-sm py-0.5 rounded font-label-md text-label-md text-text-muted hover:text-text-heading transition-colors';
+        containerStreetViewer.classList.remove('hidden');
+        containerDocViewer.classList.add('hidden');
+      });
+    }
+
+    const reasoningTerminal = document.getElementById('reasoningTerminal');
+    const mockFeedLogs = [
+      { agent: 'VISION-LLM-AUDITOR', color: 'text-purple-400', msg: 'Analisis segmentasi citra: Pagar terdeteksi, jalan lingkungan selebar 4 meter cocok dengan peta kadastral.' },
+      { agent: 'AGENT-COORDINATOR', color: 'text-cyan-400', msg: 'Memvalidasi hash sertifikat digital Disdukcapil DKI Jakarta... Match confirmed.' },
+      { agent: 'ANTIFRAUD-ENGINE', color: 'text-emerald-400', msg: 'Zero fraud flags detected (Risk Score: 0.02 / Low Risk).' },
+      { agent: 'DECISION-REGISTRY', color: 'text-blue-400', msg: 'Menyiapkan approval block untuk penandatanganan panitia PPDB otomatis.' }
+    ];
+
+    let logIndex = 0;
+    const intervalLog = setInterval(() => {
+      if (!reasoningTerminal || logIndex >= mockFeedLogs.length) {
+        clearInterval(intervalLog);
+        return;
+      }
+      const item = mockFeedLogs[logIndex];
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + 
+                      String(now.getMinutes()).padStart(2, '0') + ':' + 
+                      String(now.getSeconds()).padStart(2, '0');
+
+      const logRow = document.createElement('div');
+      logRow.className = 'flex items-start gap-2 animate-fadeIn';
+      logRow.innerHTML = `
+        <span class="text-slate-500 font-mono select-none">${timeStr}</span>
+        <div>
+          <span class="${item.color} font-semibold">[${item.agent}]</span>
+          <span class="text-slate-300"> ${item.msg}</span>
+        </div>
+      `;
+      reasoningTerminal.appendChild(logRow);
+      reasoningTerminal.scrollTop = reasoningTerminal.scrollHeight;
+      logIndex++;
+    }, 4500);
+
+    const btnClearLog = document.getElementById('btnClearLog');
+    if (btnClearLog && reasoningTerminal) {
+      btnClearLog.addEventListener('click', () => {
+        reasoningTerminal.innerHTML = `
+          <div class="text-slate-500 font-mono text-[12px] italic">Tampilan log dibersihkan. Memantau sinyal WebSocket baru...</div>
+        `;
+      });
+    }
+
+    const dropzone = document.getElementById('dropzoneKK');
+    const fileInput = document.getElementById('fileInputKK');
+    if (dropzone && fileInput) {
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('bg-surface-tint-blue');
+      });
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('bg-surface-tint-blue');
+      });
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('bg-surface-tint-blue');
+        if (e.dataTransfer.files.length > 0) {
+          fileInput.files = e.dataTransfer.files;
+          alert('Berkas ' + e.dataTransfer.files[0].name + ' berhasil diterima. Menjalankan inferensi ulang OCR otomatis...');
+        }
+      });
+      fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+          alert('Berkas ' + fileInput.files[0].name + ' berhasil dimuat. Sistem memulai ulang pemindaian.');
+        }
+      });
+    }
+
+    const btnGeoCamera = document.getElementById('btnGeoCamera');
+    if (btnGeoCamera) {
+      btnGeoCamera.addEventListener('click', () => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              alert('Sensor Geotag Siap! Koordinat saat ini: ' + pos.coords.latitude.toFixed(5) + ', ' + pos.coords.longitude.toFixed(5) + '. Kamera interaktif diaktifkan.');
+            },
+            () => {
+              alert('Izin sensor lokasi diperlukan untuk verifikasi mandiri foto ber-geotag.');
+            }
+          );
+        } else {
+          alert('Perangkat tidak mendukung API Geolocation.');
+        }
+      });
+    }
+
+    const btnDownloadReceipt = document.getElementById('btnDownloadReceipt');
+    if (btnDownloadReceipt) {
+      btnDownloadReceipt.addEventListener('click', () => {
+        alert('Tanda Terima Digital PPDB-2026-X89K (Dilengkapi QR Code Keabsahan & Hash Dokumen) sedang diunduh dalam format PDF.');
+      });
+    }
+  })();
+</script></main><footer class="w-full bg-surface-slate py-space-xl mt-auto"><div class="max-w-7xl mx-auto px-margin"><div class="grid grid-cols-1 md:grid-cols-4 gap-gutter mb-space-lg"><div class="md:col-span-2 flex flex-col gap-space-sm"><div class="flex items-center gap-space-sm"><img alt="Zonasi-Agent Emblem Logo" class="h-7 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP82MliC1pINdpVeIABNsQF3W3U00v866HTudaniST1nlWzh255_xuUrIjrSbxRJEvk0Pce7jfaUQKtq1-SX_b0SDyILpmhDB6ruWazV92FKnpjQ2Tm8HzuLp1NqhDptwKmsP2EIEYQP_GLoZ5rsFCIC8vo3iAXwsCcacUOksxTYkXB8_oG6mHz0IHs0btY3N97OFbnjsLi08felaL4DsUov4iNib8CHaAVGkojrM"/><span class="font-headline-sm text-headline-sm text-text-heading">Zonasi-Agent</span></div><p class="font-body-sm text-body-sm text-text-muted max-w-lg">Sistem Verifikasi Berbasis Multi-Agent Geospasial PPDB Mandiri. Mengintegrasikan algoritma inferensi OCR dokumen kependudukan, kalkulasi rute PostGIS, dan validasi visual Google Street View secara berkeadilan, transparan, dan akuntabel.</p><div class="flex flex-wrap items-center gap-space-xs mt-space-sm"><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-status-approved-bg text-status-approved">PostGIS ISO 19125-1</span><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-surface-tint-blue text-secondary">Vision AI Validated</span><span class="font-code-sm text-code-sm px-space-sm py-1 rounded-full bg-surface-container-high text-primary">AES-256 Encrypted</span></div></div><div class="flex flex-col gap-space-xs"><span class="font-label-lg text-label-lg text-text-heading">Navigasi Resmi</span><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="beranda" href="#">Beranda Sistem</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="pendaftaran-ppdb" href="#">Formulir Verifikasi NIK</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="live-tracking-ai" href="#">Status Audit Terbuka</a><a class="font-body-sm text-body-sm text-text-muted hover:text-on-surface" data-path="dashboard-panitia" href="#">Konsol Panitia Wilayah</a></div><div class="flex flex-col gap-space-xs"><span class="font-label-lg text-label-lg text-text-heading">Bantuan &amp; Layanan Sipil</span><p class="font-body-sm text-body-sm text-text-muted">Posko Bantuan PPDB Terpadu</p><span class="font-code-md text-code-md text-text-heading">0800-140-9000 (Toll-Free)</span><span class="font-body-sm text-body-sm text-text-muted">Senin - Jumat: 08:00 - 16:00 WIB</span><span class="font-body-sm text-body-sm text-secondary">helpdesk@zonasi-agent.kemdikbud.go.id</span></div></div><div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-sm"><p class="font-body-sm text-body-sm text-text-muted text-center sm:text-left">© 2025 Zonasi-Agent. Kementerian Pendidikan, Kebudayaan, Riset, dan Teknologi RI bersama Dinas Pendidikan Daerah.</p><div class="flex items-center gap-space-md font-body-sm text-body-sm text-text-muted"><a class="hover:text-on-surface" href="#">Kebijakan Privasi</a><a class="hover:text-on-surface" href="#">Standar Geospasial</a><a class="hover:text-on-surface" href="#">Buku Panduan</a></div></div></div></footer></body></html>
+
+<!-- Dashboard Panitia & Fraud Detector -->
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><title>Konsol Verifikator Zonasi-Agent</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-primary":"#ffffff","on-secondary-container":"#fefcff","on-background":"#131b2e","primary-fixed":"#dde1ff","surface-container-high":"#e2e7ff","surface-canvas":"#FFFFFF","secondary-container":"#316bf3","status-fraud-border":"#FECACA","on-primary-fixed":"#001453","inverse-surface":"#283044","secondary":"#0051d5","surface":"#faf8ff","tertiary-container":"#00489e","primary-fixed-dim":"#b8c4ff","status-fraud-bg":"#FEF2F2","error":"#ba1a1a","text-heading":"#0F172A","surface-container-low":"#f2f3ff","status-revision-bg":"#FFFBEB","surface-bright":"#faf8ff","on-tertiary-container":"#9cbbff","on-tertiary-fixed":"#001a42","surface-card":"#FFFFFF","inverse-primary":"#b8c4ff","status-approved-border":"#A7F3D0","text-muted":"#64748B","surface-container-lowest":"#ffffff","on-secondary-fixed":"#00174b","on-surface":"#131b2e","primary-container":"#1e40af","on-surface-variant":"#444653","on-error-container":"#93000a","primary":"#00288e","status-revision-border":"#FDE68A","status-approved-bg":"#ECFDF5","on-primary-container":"#a8b8ff","on-tertiary-fixed-variant":"#004395","surface-dim":"#d2d9f4","outline-variant":"#c4c5d5","surface-container-highest":"#dae2fd","on-secondary-fixed-variant":"#003ea8","surface-container":"#eaedff","error-container":"#ffdad6","secondary-fixed-dim":"#b4c5ff","status-approved":"#10B981","surface-variant":"#dae2fd","tertiary-fixed-dim":"#adc6ff","outline":"#757684","on-tertiary":"#ffffff","on-secondary":"#ffffff","background":"#faf8ff","secondary-fixed":"#dbe1ff","on-error":"#ffffff","inverse-on-surface":"#eef0ff","surface-tint-blue":"#EFF6FF","on-primary-fixed-variant":"#173bab","border-subtle":"#F1F5F9","text-body":"#334155","surface-tint":"#3755c3","status-fraud":"#EF4444","tertiary":"#003272","surface-slate":"#F8FAFC","tertiary-fixed":"#d8e2ff","border-slate":"#E2E8F0","status-revision":"#F59E0B"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-xl":"2.5rem","space-md":"1rem","gutter-mobile":"1rem","margin-mobile":"1rem","space-xs":"0.25rem","space-sm":"0.5rem","margin":"2rem","gutter":"1.5rem","space-lg":"1.5rem"},fontFamily:{"body-md":["Plus Jakarta Sans"],"code-lg":["JetBrains Mono"],"headline-sm":["Plus Jakarta Sans"],"code-md":["JetBrains Mono"],"body-lg":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"code-sm":["JetBrains Mono"]},fontSize:{"body-md":["1rem",{"lineHeight":"1.5rem","letterSpacing":"-0.005em","fontWeight":"400"}],"code-lg":["1.125rem",{"lineHeight":"1.5rem","letterSpacing":"-0.02em","fontWeight":"600"}],"headline-sm":["1.25rem",{"lineHeight":"1.75rem","letterSpacing":"-0.015em","fontWeight":"600"}],"code-md":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["1.125rem",{"lineHeight":"1.75rem","letterSpacing":"-0.01em","fontWeight":"400"}],"body-sm":["0.875rem",{"lineHeight":"1.375rem","fontWeight":"400"}],"headline-xl-mobile":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"800"}],"headline-md":["1.5rem",{"lineHeight":"2rem","letterSpacing":"-0.02em","fontWeight":"700"}],"headline-lg":["2rem",{"lineHeight":"2.5rem","letterSpacing":"-0.025em","fontWeight":"700"}],"headline-xl":["2.5rem",{"lineHeight":"3rem","letterSpacing":"-0.03em","fontWeight":"800"}],"label-lg":["0.875rem",{"lineHeight":"1.25rem","letterSpacing":"0.01em","fontWeight":"600"}],"headline-lg-mobile":["1.625rem",{"lineHeight":"2.125rem","letterSpacing":"-0.02em","fontWeight":"700"}],"label-md":["0.75rem",{"lineHeight":"1.0rem","letterSpacing":"0.02em","fontWeight":"600"}],"code-sm":["0.75rem",{"lineHeight":"1.0rem","fontWeight":"500"}]}}}};</script></head><body class="bg-surface font-body-md text-body antialiased min-h-screen"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-canvas shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col pt-space-md pb-space-lg"><div class="px-space-lg mb-space-lg flex items-center gap-space-sm"><img alt="Zonasi-Agent Emblem Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP82MliC1pINdpVeIABNsQF3W3U00v866HTudaniST1nlWzh255_xuUrIjrSbxRJEvk0Pce7jfaUQKtq1-SX_b0SDyILpmhDB6ruWazV92FKnpjQ2Tm8HzuLp1NqhDptwKmsP2EIEYQP_GLoZ5rsFCIC8vo3iAXwsCcacUOksxTYkXB8_oG6mHz0IHs0btY3N97OFbnjsLi08felaL4DsUov4iNib8CHaAVGkojrM"><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-text-heading">Zonasi-Agent</span><span class="font-code-sm text-code-sm text-secondary">Konsol Panitia PPDB</span></div></div><div class="px-space-lg mb-space-sm"><span class="font-code-sm text-code-sm text-text-muted uppercase tracking-wider">Navigasi Audit</span></div><nav class="flex-1 px-space-md flex flex-col gap-1" data-active-classes="bg-surface-tint-blue text-secondary font-headline-sm rounded-lg"><a aria-current="page" class="flex items-center gap-space-sm px-space-md py-space-sm transition-all bg-surface-tint-blue text-secondary font-headline-sm rounded-lg" data-path="dashboard-panitia" href="#"><span class="material-symbols-outlined text-[20px]">space_dashboard</span><span class="font-label-lg text-label-lg">Ringkasan Verifikasi</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all" data-path="antrean-verifikasi" href="#"><span class="material-symbols-outlined text-[20px]">rule</span><span class="font-label-lg text-label-lg">Antrean Validasi AI</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all" data-path="deteksi-anomali-geospasial" href="#"><span class="material-symbols-outlined text-[20px]">explore</span><span class="font-label-lg text-label-lg">Radar Geofence PostGIS</span></a><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all" data-path="log-audit-forensik" href="#"><span class="material-symbols-outlined text-[20px]">history_edu</span><span class="font-label-lg text-label-lg">Log Forensik Dokumen</span></a></nav><div class="px-space-md pt-space-md mt-auto flex flex-col gap-space-xs"><div class="p-space-sm rounded-xl bg-surface-slate flex flex-col gap-1"><div class="flex items-center justify-between"><span class="font-code-sm text-code-sm text-text-muted">PostGIS Engine</span><span class="w-2 h-2 rounded-full bg-status-approved"></span></div><span class="font-code-sm text-code-sm text-text-heading">v3.4.2 Spatial OK</span></div><a class="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-error hover:bg-status-fraud-bg hover:text-error transition-all" data-path="beranda" href="#"><span class="material-symbols-outlined text-[20px]">logout</span><span class="font-label-lg text-label-lg">Keluar Sesi</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-canvas/85 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><span class="font-headline-sm text-headline-sm text-text-heading hidden md:inline-block">Panel Pengawasan Geospasial</span><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-status-approved-bg"><span class="w-2 h-2 rounded-full bg-status-approved animate-pulse"></span><span class="font-code-sm text-code-sm text-status-approved">Supabase Realtime: Terhubung</span></div></div><div class="flex items-center gap-space-md"><button aria-label="Pemberitahuan Anomali" class="relative p-space-sm rounded-lg hover:bg-surface-slate text-on-surface-variant transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-status-fraud"></span></button><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden sm:flex flex-col text-left"><span class="font-label-lg text-label-lg text-text-heading leading-tight">Budi Santoso, S.Kom</span><span class="font-code-sm text-code-sm text-text-muted leading-tight">Auditor Zona 01</span></div></div></div></header><main class="relative pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full gap-space-lg p-space-md lg:p-margin">
+<!-- Header Panel Panitia -->
+<section class="bg-surface-canvas rounded-xl shadow-sm p-space-lg flex flex-col xl:flex-row justify-between items-start xl:items-center gap-space-lg">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="px-space-sm py-0.5 rounded-full bg-surface-container font-code-sm text-code-sm text-secondary">
+          Zonasi-Agent Sentinel v3.4
+        </span>
+<span class="flex items-center gap-1 font-body-sm text-body-sm text-text-muted">
+<span class="material-symbols-outlined text-[16px] text-secondary">domain</span>
+          SMAN 1 Teladan (Wilayah DKI Jakarta)
+        </span>
+</div>
+<h1 class="font-headline-md text-headline-md text-text-heading">
+        Dashboard Pengawas PPDB — Posko Zonasi Cerdas
+      </h1>
+<p class="font-body-sm text-body-sm text-text-muted">
+        Pemantauan anomali geospasial real-time, audit forensik Kartu Keluarga, dan deteksi manipulasi PostGIS.
+      </p>
+</div>
+<!-- Quick Status Pills -->
+<div class="flex flex-wrap items-center gap-space-md w-full xl:w-auto">
+<div class="flex-1 sm:flex-initial bg-surface-slate rounded-lg p-space-md min-w-[200px]">
+<div class="flex items-center justify-between gap-space-sm mb-1">
+<span class="font-label-md text-label-md text-text-muted">Kapasitas Zonasi</span>
+<span class="font-code-sm text-code-sm text-secondary font-semibold">86%</span>
+</div>
+<div class="font-code-lg text-code-lg text-text-heading">
+          172 <span class="font-body-sm text-body-sm text-text-muted">/ 200 Kuota</span>
+</div>
+<div class="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 86%;"></div>
+</div>
+</div>
+<div class="flex-1 sm:flex-initial bg-status-revision-bg rounded-lg p-space-md min-w-[190px]">
+<div class="flex items-center justify-between gap-space-sm mb-1">
+<span class="font-label-md text-label-md text-status-revision">Antrean Panitia</span>
+<span class="w-2 h-2 rounded-full bg-status-revision animate-ping"></span>
+</div>
+<div class="font-code-lg text-code-lg text-text-heading">
+          18 <span class="font-body-sm text-body-sm text-text-muted">Berkas Menunggu</span>
+</div>
+<span class="font-code-sm text-code-sm text-status-revision block mt-2">
+          Prioritas tinjauan manual
+        </span>
+</div>
+</div>
+</section>
+<!-- Metric Analytics Cards -->
+<section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Card 1: Total Pendaftar -->
+<div class="bg-surface-canvas rounded-xl p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-text-muted uppercase tracking-wider">Total Pendaftar</span>
+<div class="w-9 h-9 rounded-lg bg-surface-tint-blue flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">how_to_reg</span>
+</div>
+</div>
+<div class="my-space-md">
+<div class="font-headline-lg text-headline-lg text-text-heading">428</div>
+<span class="font-body-sm text-body-sm text-text-muted">Berkas masuk ke PostGIS layer</span>
+</div>
+<div class="flex items-center gap-space-xs text-status-approved font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px]">trending_up</span>
+<span class="">+14 berkas per jam ini</span>
+</div>
+</div>
+<!-- Card 2: Disetujui AI -->
+<div class="bg-surface-canvas rounded-xl p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-status-approved uppercase tracking-wider">Disetujui Otomatis</span>
+<div class="w-9 h-9 rounded-lg bg-status-approved-bg flex items-center justify-center text-status-approved">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+</div>
+</div>
+<div class="my-space-md">
+<div class="font-headline-lg text-headline-lg text-text-heading">364</div>
+<span class="font-body-sm text-body-sm text-text-muted">Akurasi validasi AI 99.2%</span>
+</div>
+<div class="flex items-center justify-between text-text-muted font-code-sm text-code-sm">
+<span class="">Rasio Lolos Validasi</span>
+<span class="font-semibold text-status-approved">85%</span>
+</div>
+</div>
+<!-- Card 3: Butuh Revisi -->
+<div class="bg-surface-canvas rounded-xl p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-status-revision uppercase tracking-wider">Revisi Dokumen</span>
+<div class="w-9 h-9 rounded-lg bg-status-revision-bg flex items-center justify-center text-status-revision">
+<span class="material-symbols-outlined text-[20px]">document_scanner</span>
+</div>
+</div>
+<div class="my-space-md">
+<div class="font-headline-lg text-headline-lg text-text-heading">26</div>
+<span class="font-body-sm text-body-sm text-text-muted">OCR buram / barcode tidak terbaca</span>
+</div>
+<div class="flex items-center gap-space-xs text-status-revision font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span class="">Perlu unggah ulang KTP/KK</span>
+</div>
+</div>
+<!-- Card 4: Anomali & Fraud -->
+<div class="bg-surface-canvas rounded-xl p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-status-fraud uppercase tracking-wider">Anomali / Fraud</span>
+<div class="w-9 h-9 rounded-lg bg-status-fraud-bg flex items-center justify-center text-status-fraud">
+<span class="material-symbols-outlined text-[20px]">fitbit_jumping_jacks</span>
+</div>
+</div>
+<div class="my-space-md">
+<div class="font-headline-lg text-headline-lg text-status-fraud">14</div>
+<span class="font-body-sm text-body-sm text-text-muted">KK &lt; 1 thn / titik ruko fiktif</span>
+</div>
+<div class="flex items-center gap-space-xs text-status-fraud font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+<span class="">Butuh investigasi lapangan</span>
+</div>
+</div>
+</section>
+<!-- Peta Geospasial PostGIS Interaktif & Visual Telemetry Panel -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg">
+<!-- Map Container -->
+<div class="lg:col-span-8 bg-surface-canvas rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-text-heading">
+            Radar Geospasial PostGIS (Radius Zonasi 1.200m)
+          </h2>
+<span class="font-body-sm text-body-sm text-text-muted">
+            Buffer Poligon ST_DWithin EPSG:3857 — SMAN 1 Teladan Jakarta
+          </span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-slate rounded-lg p-1">
+<button class="px-space-sm py-1 bg-surface-canvas shadow-sm rounded font-label-md text-label-md text-secondary" id="btn-layer-hybrid" type="button">Hybrid</button>
+<button class="px-space-sm py-1 rounded font-label-md text-label-md text-text-muted hover:text-text-heading" id="btn-layer-topo" type="button">Batas RW</button>
+<button class="px-space-sm py-1 rounded font-label-md text-label-md text-text-muted hover:text-text-heading" id="btn-layer-heat" type="button">Heatmap</button>
+</div>
+</div>
+<!-- Map Display with interactive overlay elements -->
+<div class="relative w-full h-[440px] rounded-xl overflow-hidden bg-surface-slate">
+<div class="w-full h-full bg-cover bg-center" data-location="SMAN 1 Jakarta, Jl. Budi Utomo No.7, Jakarta Pusat, Indonesia" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWwev_YZnliq12vwr0z5yg3HvIvupz4Mytg6-9b2VflmYu4GvMmaJGNLvprYkgAuLYDJH5rDsPJt7aMRuU4RafIS5dFqgCEJ3qEBlgymZdgh3yWQwJpqRv2nzqYaAS_KQxXYCGMwrZX9B6AILlHwuQGERO8P4BBMVQ0dtIqNc2LBJggD3ykETuabV0i0onS5qUUg8eZbezEMC6o4UiNuxbIvTzAowWiOvHzulcnB4')"></div>
+<!-- Floating Legend & Coordinate Indicator -->
+<div class="absolute top-space-md left-space-md bg-surface-canvas/90 backdrop-blur-md rounded-lg p-space-sm shadow-md flex flex-col gap-1 max-w-xs">
+<div class="flex items-center gap-space-xs font-code-sm text-code-sm text-text-heading font-semibold">
+<span class="material-symbols-outlined text-[16px] text-secondary">explore</span>
+            -6.168524, 106.837491 (Pusat Sekolah)
+          </div>
+<span class="font-body-sm text-body-sm text-text-muted text-[11px] leading-tight">
+            Toleransi elevasi geodesik WGS84: ± 1.5m
+          </span>
+</div>
+<!-- Simulated Pin Markers Overlay for visual fidelity -->
+<div class="absolute inset-0 pointer-events-none p-space-lg flex flex-col justify-between">
+<!-- Top right pin: Fraud -->
+<div class="self-end flex items-center gap-2 bg-status-fraud-bg/95 backdrop-blur px-2.5 py-1.5 rounded-full shadow-md pointer-events-auto cursor-pointer hover:scale-105 transition-transform">
+<span class="w-2.5 h-2.5 rounded-full bg-status-fraud"></span>
+<span class="font-code-sm text-code-sm text-status-fraud font-semibold">Pin #238: Ruko Fiktif (310m)</span>
+</div>
+<!-- Center area: School Core Marker -->
+<div class="self-center flex flex-col items-center">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-xl animate-pulse">
+<span class="material-symbols-outlined text-[20px]">school</span>
+</div>
+<span class="bg-surface-canvas px-2 py-0.5 rounded shadow text-[11px] font-label-md text-text-heading mt-1">SMAN 1 Teladan</span>
+</div>
+<!-- Bottom left pins: Valid & Verification -->
+<div class="flex items-center gap-space-sm pointer-events-auto">
+<div class="flex items-center gap-1.5 bg-status-approved-bg/95 backdrop-blur px-2.5 py-1 rounded-full shadow cursor-pointer">
+<span class="w-2.5 h-2.5 rounded-full bg-status-approved"></span>
+<span class="font-code-sm text-code-sm text-status-approved font-semibold">#102 Valid (820m)</span>
+</div>
+<div class="flex items-center gap-1.5 bg-status-revision-bg/95 backdrop-blur px-2.5 py-1 rounded-full shadow cursor-pointer">
+<span class="w-2.5 h-2.5 rounded-full bg-status-revision"></span>
+<span class="font-code-sm text-code-sm text-status-revision font-semibold">#144 Foto Mandiri (950m)</span>
+</div>
+</div>
+</div>
+<!-- Map Quick Legend Bottom Right -->
+<div class="absolute bottom-space-md right-space-md bg-surface-canvas/90 backdrop-blur-md rounded-lg p-space-sm shadow-md flex items-center gap-space-md text-[12px]">
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-status-approved"></span>
+<span class="font-body-sm text-body-sm text-text-body">Hunian Valid</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-status-revision"></span>
+<span class="font-body-sm text-body-sm text-text-body">Verifikasi Fisik</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2.5 h-2.5 rounded-full bg-status-fraud"></span>
+<span class="font-body-sm text-body-sm text-text-body">Anomali Terdeteksi</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Inspector Telemetry & Live Incident Mini-feed -->
+<div class="lg:col-span-4 bg-surface-canvas rounded-xl shadow-sm p-space-lg flex flex-col justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<h3 class="font-headline-sm text-headline-sm text-text-heading">Inspeksi Anomali Kritis</h3>
+<span class="px-2 py-0.5 rounded bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm">Live Alert</span>
+</div>
+<p class="font-body-sm text-body-sm text-text-muted mb-space-md">
+          PostGIS ST_Contains mendeteksi inkonsistensi koordinat vs. basis data Disdukcapil DKI.
+        </p>
+<!-- Selected Case Card -->
+<div class="bg-surface-slate rounded-xl p-space-md flex flex-col gap-space-sm mb-space-md">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-text-heading">Budi Santoso</span>
+<span class="font-code-sm text-code-sm text-text-muted">NIK: 3171032801080004</span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-status-fraud-bg font-code-sm text-code-sm text-status-fraud">
+              Skor Risiko 92%
+            </span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs text-[12px]">
+<div class="bg-surface-canvas p-space-sm rounded">
+<span class="text-text-muted block">Jarak Euclidean</span>
+<span class="font-code-md text-code-md text-text-heading font-semibold">310 meter</span>
+</div>
+<div class="bg-surface-canvas p-space-sm rounded">
+<span class="text-text-muted block">Masa Tinggal KK</span>
+<span class="font-code-md text-code-md text-status-fraud font-semibold">4 Bulan</span>
+</div>
+</div>
+<!-- Street View Preview Thumbnail -->
+<div class="relative w-full h-32 rounded-lg overflow-hidden mt-1">
+<img class="w-full h-full object-cover" data-alt="A realistic Google Street View perspective in central Jakarta showing a commercial shophouse with roll-up metal doors and advertising banners, captured under bright tropical daylight, clear institutional audit evidence quality" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD75CPTSZdgWu9WF_nHJaeeHib3XrpB4JyzRic5A75T6XlQEDgVyhZormvYb62S--pOL6GtwUG1ulLWoWE4MmNMpOjJq7R2ZEJBqlMjGmvSlZwBlTfGd8uyEekhzXdCZASpBOAfva7aK1ggH6e3YRQFvytukxiYe6akl-cTDXkHRFj96caHBvKxZA-imjPuKdG6ed1vLPI2hnObIpCgxog8ro5h7GvDOhCWD79c3Us">
+<div class="absolute bottom-2 left-2 bg-surface-canvas/90 px-2 py-0.5 rounded text-[11px] font-label-md text-status-fraud flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">store</span>
+              AI Vision: Kawasan Komersial (Bukan Hunian)
+            </div>
+</div>
+</div>
+<!-- Audit Log Micro-bullet -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-[12px] text-text-muted">
+<span class="w-1.5 h-1.5 rounded-full bg-status-fraud"></span>
+<span class="">Rute ST_ShortestPath menyimpang dari jalan setapak legal</span>
+</div>
+<div class="flex items-center gap-2 text-[12px] text-text-muted">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="">Dukcapil API: Kepala Keluarga baru dimutasi Maret 2024</span>
+</div>
+</div>
+</div>
+<!-- Action Button for Selected Case -->
+<div class="flex items-center gap-space-sm pt-space-sm">
+<button class="flex-1 py-2 px-space-sm rounded-lg bg-status-fraud text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-[18px]">block</span>
+          Diskualifikasi Berkas
+        </button>
+<button class="py-2 px-space-md rounded-lg bg-surface-container font-label-md text-label-md text-secondary hover:bg-surface-slate transition-colors" type="button">
+          Audit Lapangan
+        </button>
+</div>
+</div>
+</section>
+<!-- Tabel Antrean Verifikasi & Fraud Detector -->
+<section class="bg-surface-canvas rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex flex-col gap-space-md border-b border-border-slate pb-space-md"><div class="flex flex-col md:flex-row md:items-center justify-between gap-space-sm"><div><h2 class="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-[22px]">shield_with_heart</span>Antrean Validasi Cerdas &amp; Deteksi Fraud</h2><span class="font-body-sm text-body-sm text-text-muted">Penyaringan otomatis OCR, vision AI bangunan hunian, dan penghitungan jarak PostGIS</span></div><div class="flex items-center gap-space-sm"><div class="relative"><span class="material-symbols-outlined absolute left-3 top-2.5 text-text-muted text-[18px]">search</span><input class="pl-9 pr-space-md py-1.5 rounded-lg bg-surface-slate text-body-sm text-text-heading outline-none focus:bg-surface-canvas focus:shadow-sm transition-all w-52 sm:w-64 font-body-sm" placeholder="Cari nama, NIK, ID..." type="text"></div><button class="p-2 rounded-lg bg-surface-slate text-on-surface-variant hover:text-text-heading hover:bg-surface-container transition-colors" title="Filter Lanjutan" type="button"><span class="material-symbols-outlined text-[20px]">filter_list</span></button><button class="p-2 rounded-lg bg-surface-slate text-on-surface-variant hover:text-text-heading hover:bg-surface-container transition-colors" title="Ekspor Data Tabel" type="button"><span class="material-symbols-outlined text-[20px]">download</span></button></div></div><div class="flex items-center justify-between flex-wrap gap-space-sm pt-space-xs"><div class="flex items-center gap-1.5 bg-surface-slate p-1 rounded-xl flex-wrap"><button type="button" class="px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-text-heading transition-all flex items-center gap-1.5"><span class="">Semua Status</span><span class="px-1.5 py-0.5 rounded-full bg-surface-container text-text-muted font-code-sm text-code-sm">428</span></button><button type="button" class="px-3 py-1.5 rounded-lg font-label-md text-label-md bg-surface-canvas text-status-fraud font-bold shadow-sm border border-status-fraud-border transition-all flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-status-fraud animate-pulse"></span><span class="">🚨 Kritis / Fraud</span><span class="px-1.5 py-0.5 rounded-full bg-status-fraud text-on-primary font-code-sm text-code-sm font-bold shadow-sm">14</span></button><button type="button" class="px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-revision hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5"><span class="">⚠️ Sedang / Verifikasi</span><span class="px-1.5 py-0.5 rounded-full bg-status-revision-bg text-status-revision font-code-sm text-code-sm font-semibold">26</span></button><button type="button" class="px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-approved hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5"><span class="">✅ Bersih / Lolos</span><span class="px-1.5 py-0.5 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-semibold">364</span></button></div><div class="flex items-center gap-2 text-text-muted font-code-sm text-code-sm"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-status-fraud"></span>Filter Aktif: <strong class="text-status-fraud">Kritis / Fraud (14 Kasus)</strong></span></div></div></div>
+<!-- Smart Table Container -->
+<div class="overflow-x-auto rounded-lg">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-slate text-text-muted font-label-md text-label-md">
+<th class="py-space-md px-space-md">No</th>
+<th class="py-space-md px-space-md">Tracking ID</th>
+<th class="py-space-md px-space-md">Nama Calon Siswa</th>
+<th class="py-space-md px-space-md">NIK</th>
+<th class="py-space-md px-space-md">Jarak (m)</th>
+<th class="py-space-md px-space-md">Usia KK</th>
+<th class="py-space-md px-space-md">Deteksi Bangunan</th>
+<th class="py-space-md px-space-md">Status AI</th>
+<th class="py-space-md px-space-md text-right">Tindakan Panitia</th>
+</tr>
+</thead>
+<tbody class="divide-y-0 text-text-body font-body-sm text-body-sm">
+<!-- Row 1: Valid -->
+<tr class="hover:bg-surface-slate/70 transition-colors">
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">01</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-secondary font-semibold">PPDB-2024-0891</td>
+<td class="py-space-md px-space-md font-semibold text-text-heading">Rafi Alamsyah</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">3171021406080001</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm font-semibold">820 m</td>
+<td class="py-space-md px-space-md">
+<span class="font-code-sm text-code-sm text-status-approved">2.8 Tahun</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">home</span>
+                RESIDENSIAL
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-label-md text-label-md inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                APPROVED
+              </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container text-secondary font-label-md text-label-md hover:bg-secondary hover:text-on-secondary transition-all" type="button">
+                Lihat Detail
+              </button>
+</td>
+</tr>
+<!-- Row 2: Fraud Detected -->
+<tr class="hover:bg-status-fraud-bg/40 transition-colors bg-status-fraud-bg/10">
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">02</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-status-fraud font-semibold">PPDB-2024-1142</td>
+<td class="py-space-md px-space-md font-semibold text-text-heading">Budi Santoso</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">3171032801080004</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm font-semibold text-status-fraud">310 m</td>
+<td class="py-space-md px-space-md">
+<span class="px-2 py-0.5 rounded bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm font-bold">
+                4 Bln (ANOMALI)
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">storefront</span>
+                KOMERSIAL/RUKO
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-label-md text-label-md font-bold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">dangerous</span>
+                REJECTED - FRAUD
+              </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="px-space-md py-1.5 rounded-lg bg-status-fraud text-on-primary font-label-md text-label-md hover:bg-error transition-all shadow-sm" type="button" onclick="const m = document.getElementById('modal-forensic-investigation'); if(m){ m.style.display='flex'; }">
+                Investigasi / Override
+              </button>
+</td>
+</tr>
+<!-- Row 3: Edge Case / Needs Photo -->
+<tr class="hover:bg-status-revision-bg/40 transition-colors">
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">03</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-secondary font-semibold">PPDB-2024-0419</td>
+<td class="py-space-md px-space-md font-semibold text-text-heading">Siti Rahma</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">3171015509080002</td>
+<td class="py-space-md px-space-md font-code-sm text-code-sm font-semibold">950 m</td>
+<td class="py-space-md px-space-md">
+<span class="font-code-sm text-code-sm text-status-approved">3.1 Tahun</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-surface-slate text-text-muted font-code-sm text-code-sm inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">alt_route</span>
+                GANG SEMPIT (BLIND SPOT)
+              </span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="px-2.5 py-1 rounded-full bg-status-revision-bg text-status-revision font-label-md text-label-md font-semibold inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">add_a_photo</span>
+                NEEDS_LIVE_PHOTO
+              </span>
+</td>
+<td class="py-space-md px-space-md text-right">
+<button class="px-space-md py-1.5 rounded-lg bg-surface-slate hover:bg-surface-container text-secondary font-label-md text-label-md transition-all" type="button">
+                Kirim Notifikasi
+              </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination & Meta -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-sm pt-space-sm text-text-muted font-body-sm text-body-sm">
+<span class="">Menampilkan 3 dari 18 kasus aktif yang memerlukan tindakan panitia</span>
+<div class="flex items-center gap-space-xs">
+<button class="p-1.5 rounded bg-surface-slate hover:bg-surface-container text-text-heading transition-colors" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<span class="px-2 font-code-sm text-code-sm font-semibold text-text-heading">Halaman 1 / 6</span>
+<button class="p-1.5 rounded bg-surface-slate hover:bg-surface-container text-text-heading transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Panel Aksi Cepat Panitia (Quick Action Toolbar) -->
+<section class="bg-surface-canvas rounded-xl shadow-sm p-space-lg flex flex-col md:flex-row items-stretch md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-tint-blue flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[26px]">security</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-text-heading">Aksi Otoritas &amp; Integritas Panitia</h3>
+<p class="font-body-sm text-body-sm text-text-muted">
+          Penyelarasan basis data nasional dan penerbitan berkas berita acara berkekuatan hukum.
+        </p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Action 1: Export BA -->
+<button class="flex-1 sm:flex-initial px-space-lg py-2.5 rounded-lg bg-surface-slate hover:bg-surface-container text-text-heading font-label-lg text-label-lg transition-all flex items-center justify-center gap-2" id="btn-export-ba" type="button">
+<span class="material-symbols-outlined text-[20px] text-text-muted">file_download</span>
+<span class="">Ekspor Berita Acara (PDF/Excel)</span>
+</button>
+<!-- Action 2: Sync Dukcapil -->
+<button class="flex-1 sm:flex-initial px-space-lg py-2.5 rounded-lg bg-surface-container hover:bg-surface-tint-blue text-secondary font-label-lg text-label-lg transition-all flex items-center justify-center gap-2" id="btn-sync-dukcapil" type="button">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+<span class="">Sinkronisasi Data Dukcapil</span>
+</button>
+<!-- Action 3: Override Berkas -->
+<button class="flex-1 sm:flex-initial px-space-lg py-2.5 rounded-lg bg-secondary hover:bg-primary text-on-secondary font-label-lg text-label-lg shadow-sm transition-all flex items-center justify-center gap-2" id="btn-override-manual" type="button">
+<span class="material-symbols-outlined text-[20px]">edit_note</span>
+<span class="">Override Manual Berkas</span>
+</button>
+</div>
+</section>
+<!-- Interactive Feedback Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const syncBtn = document.getElementById('btn-sync-dukcapil');
+      const exportBtn = document.getElementById('btn-export-ba');
+      const overrideBtn = document.getElementById('btn-override-manual');
+
+      if (syncBtn) {
+        syncBtn.addEventListener('click', () => {
+          const originalText = syncBtn.innerHTML;
+          syncBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-spin">refresh</span><span>Menyinkronkan 428 NIK...</span>';
+          setTimeout(() => {
+            syncBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] text-status-approved">done</span><span>Tersinkronisasi (0 Anomali Baru)</span>';
+            setTimeout(() => {
+              syncBtn.innerHTML = originalText;
+            }, 3000);
+          }, 1200);
+        });
+      }
+
+      if (exportBtn) {
+        exportBtn.addEventListener('click', () => {
+          exportBtn.classList.add('opacity-75');
+          const originalText = exportBtn.innerHTML;
+          exportBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] animate-bounce">download</span><span>Mengemas Berita Acara...</span>';
+          setTimeout(() => {
+            exportBtn.innerHTML = '<span class="material-symbols-outlined text-[20px] text-status-approved">check_circle</span><span>BA-PPDB-SMAN1.pdf Diunduh</span>';
+            exportBtn.classList.remove('opacity-75');
+            setTimeout(() => {
+              exportBtn.innerHTML = originalText;
+            }, 3000);
+          }, 1000);
+        });
+      }
+
+      if (overrideBtn) {
+        overrideBtn.addEventListener('click', () => {
+          const cat = prompt('Masukkan Catatan Integritas Panitia untuk Override Berkas:', 'Dispensasi SK Domisili Resmi Kecamatan No: 412/DOM/2024');
+          if (cat) {
+            alert('Override integritas berhasil dicatat dalam audit trail forensik dengan hashing SHA-256.');
+          }
+        });
+      }
+    });
+  </script>
+</div></main></div>
+
+<!-- Modal Dialog Investigasi Forensik Kecurangan AI -->
+<div id="modal-forensic-investigation" class="fixed inset-0 z-50 flex items-center justify-center p-space-md sm:p-space-lg bg-on-surface/60 backdrop-blur-sm overflow-y-auto animate-fade-in">
+  <div class="bg-surface-canvas rounded-xl shadow-xl w-full max-w-5xl my-auto overflow-hidden flex flex-col border border-border-slate transition-all max-h-[92vh]">
+    
+    <!-- Header Modal -->
+    <div class="px-space-lg py-space-md bg-surface-slate border-b border-border-slate flex items-start justify-between gap-space-md shrink-0">
+      <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-space-sm flex-wrap">
+          <span class="font-code-md text-code-md text-text-heading font-bold flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-status-fraud text-[20px]">gavel</span>
+            Berkas Investigasi Forensik Kecurangan AI #FRD-2024-0142
+          </span>
+          <span class="px-2.5 py-0.5 rounded-full bg-status-fraud text-on-primary font-code-sm text-code-sm font-bold flex items-center gap-1 shadow-sm">
+            <span class="material-symbols-outlined text-[14px]">warning</span>
+            SKOR RISIKO FRAUD: 94% (KRITIS)
+          </span>
+        </div>
+        <div class="flex items-center gap-space-md text-[13px] text-text-muted flex-wrap pt-0.5">
+          <span class=""><strong class="text-text-heading">Nama Siswa:</strong> Budi Santoso</span>
+          <span class=""><strong class="text-text-heading">NIK:</strong> 3171032801080004</span>
+          <span class=""><strong class="text-text-heading">Sekolah Tujuan:</strong> SMAN 1 Teladan Jakarta</span>
+          <span class="font-code-sm text-secondary bg-surface-tint-blue px-2 py-0.5 rounded font-semibold">PostGIS ID: #238-TIK</span>
+        </div>
+      </div>
+      <button type="button" onclick="document.getElementById('modal-forensic-investigation').style.display='none'" class="p-1.5 rounded-lg text-text-muted hover:text-text-heading hover:bg-surface-container transition-colors shrink-0" aria-label="Tutup Modal">
+        <span class="material-symbols-outlined text-[22px]">close</span>
+      </button>
+    </div>
+
+    <!-- Body Konten Bukti Forensik Multi-Modal (Scrollable) -->
+    <div class="p-space-lg overflow-y-auto flex flex-col gap-space-lg space-y-2">
+      
+      <!-- Summary Banner Alert -->
+      <div class="p-space-md rounded-xl bg-status-fraud-bg border border-status-fraud-border flex items-start gap-space-md">
+        <div class="w-9 h-9 rounded-lg bg-status-fraud text-on-primary flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-[20px]">policy</span>
+        </div>
+        <div class="flex-1">
+          <h4 class="font-label-lg text-label-lg text-status-fraud font-bold">Deteksi Anomali Multi-Layer Aktif</h4>
+          <p class="font-body-sm text-body-sm text-text-body mt-0.5">
+            Algoritma PostGIS Geofence &amp; Vision AI menemukan manipulasi titik koordinat domisili dan pemutakhiran KK tidak wajar guna memenuhi ambang batas zonasi (1.200 meter).
+          </p>
+        </div>
+      </div>
+
+      <!-- Grid 3 Bukti Forensik -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+        
+        <!-- Bukti 1: Forensik Visual Citra Fasad Jalanan -->
+        <div class="bg-surface-slate rounded-xl p-space-md border border-border-slate flex flex-col justify-between hover:shadow-sm transition-shadow">
+          <div class="flex flex-col gap-space-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-label-md text-label-md text-secondary font-semibold uppercase tracking-wider">Bukti 1 • Visual Fasad</span>
+              <span class="material-symbols-outlined text-secondary text-[18px]">store</span>
+            </div>
+            <h5 class="font-label-lg text-label-lg text-text-heading font-bold">Analisis Tata Ruang Visual (Gemini 1.5 Pro)</h5>
+            
+            <!-- Image Preview with Detection Badge -->
+            <div class="relative w-full h-40 rounded-lg overflow-hidden my-space-xs border border-status-fraud-border">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuD75CPTSZdgWu9WF_nHJaeeHib3XrpB4JyzRic5A75T6XlQEDgVyhZormvYb62S--pOL6GtwUG1ulLWoWE4MmNMpOjJq7R2ZEJBqlMjGmvSlZwBlTfGd8uyEekhzXdCZASpBOAfva7aK1ggH6e3YRQFvytukxiYe6akl-cTDXkHRFj96caHBvKxZA-imjPuKdG6ed1vLPI2hnObIpCgxog8ro5h7GvDOhCWD79c3Us" alt="Visual Citra Fasad Ruko Komersial" class="w-full h-full object-cover">
+              <div class="absolute top-2 left-2 bg-status-fraud text-on-primary px-2 py-0.5 rounded text-[11px] font-code-sm font-bold shadow">
+                Bukan Hunian Warga (Komersial 98.4%)
+              </div>
+              <div class="absolute bottom-2 left-2 right-2 bg-surface-canvas/90 backdrop-blur px-2 py-1 rounded text-[11px] font-label-md text-text-heading flex items-center justify-between">
+                <span class="">Ruko Sentra Niaga / Ekspedisi</span>
+                <span class="text-status-fraud font-bold">Non-Residensial</span>
+              </div>
+            </div>
+
+            <p class="font-body-sm text-body-sm text-text-muted text-[13px] leading-relaxed">
+              Titik koordinat terdaftar berada di unit ruko ekspedisi komersial bertingkat dua. Tidak ditemukan ventilasi kamar tidur keluarga atau aktivitas pemukiman siswa.
+            </p>
+          </div>
+          <div class="mt-space-sm pt-space-xs border-t border-border-slate flex items-center justify-between font-code-sm text-code-sm text-status-fraud font-semibold">
+            <span class="">Verifikasi Citra:</span>
+            <span class="">ANOMALI TINGGI</span>
+          </div>
+        </div>
+
+        <!-- Bukti 2: Forensik Dokumen Kartu Keluarga -->
+        <div class="bg-surface-slate rounded-xl p-space-md border border-border-slate flex flex-col justify-between hover:shadow-sm transition-shadow">
+          <div class="flex flex-col gap-space-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-label-md text-label-md text-secondary font-semibold uppercase tracking-wider">Bukti 2 • Kronologis KK</span>
+              <span class="material-symbols-outlined text-secondary text-[18px]">badge</span>
+            </div>
+            <h5 class="font-label-lg text-label-lg text-text-heading font-bold">Audit Kronologis Terbit KK (OCR &amp; Dukcapil)</h5>
+            
+            <!-- Timeline Data Details -->
+            <div class="bg-surface-canvas rounded-lg p-space-sm border border-border-slate my-space-xs flex flex-col gap-2">
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Tanggal Terbit KK:</span>
+                <span class="font-code-sm text-text-heading font-bold">12 Maret 2024</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Masa Berlaku KK:</span>
+                <span class="font-code-sm text-status-fraud font-bold bg-status-fraud-bg px-1.5 py-0.5 rounded">3 Bln 12 Hari (&lt; 1 Thn)</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Status Hubungan:</span>
+                <span class="font-label-md text-text-heading font-bold">"Famili Lain" (Bukan Anak)</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Sinkron Dukcapil:</span>
+                <span class="font-code-sm text-status-fraud font-bold">Mutasi Kilat (90 Hari)</span>
+              </div>
+            </div>
+
+            <p class="font-body-sm text-body-sm text-text-muted text-[13px] leading-relaxed">
+              Kepala Keluarga baru memutasi NIK ini 90 hari sebelum pendaftaran PPDB dibuka. Pola sinkronisasi mengindikasikan modus <em>"Titip KK Kerabat"</em> tanpa kepindahan riil orang tua.
+            </p>
+          </div>
+          <div class="mt-space-sm pt-space-xs border-t border-border-slate flex items-center justify-between font-code-sm text-code-sm text-status-fraud font-semibold">
+            <span class="">Uji Permendikbud:</span>
+            <span class="">TIDAK MEMENUHI SYARAT</span>
+          </div>
+        </div>
+
+        <!-- Bukti 3: Forensik Geospasial Rute Darat PostGIS -->
+        <div class="bg-surface-slate rounded-xl p-space-md border border-border-slate flex flex-col justify-between hover:shadow-sm transition-shadow">
+          <div class="flex flex-col gap-space-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-label-md text-label-md text-secondary font-semibold uppercase tracking-wider">Bukti 3 • Geometri Jalan</span>
+              <span class="material-symbols-outlined text-secondary text-[18px]">route</span>
+            </div>
+            <h5 class="font-label-lg text-label-lg text-text-heading font-bold">Topologi Akses Jalan &amp; Geometri Geodesik</h5>
+            
+            <!-- Metric Comparison Box -->
+            <div class="bg-surface-canvas rounded-lg p-space-sm border border-border-slate my-space-xs flex flex-col gap-2">
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Garis Lurus (Euclidean):</span>
+                <span class="font-code-sm text-text-heading font-bold">310 m (Semu)</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Rute Darat (ST_ShortestPath):</span>
+                <span class="font-code-sm text-status-fraud font-bold">1.840 meter</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Deviasi Geospasial:</span>
+                <span class="font-code-sm text-status-fraud font-bold bg-status-fraud-bg px-1.5 py-0.5 rounded">+1.530 m (&gt; 1.200m)</span>
+              </div>
+              <div class="flex items-center justify-between text-[12px]">
+                <span class="text-text-muted">Kendala Rute:</span>
+                <span class="text-text-muted font-label-md">Terhalang Sungai &amp; Tol</span>
+              </div>
+            </div>
+
+            <p class="font-body-sm text-body-sm text-text-muted text-[13px] leading-relaxed">
+              Rute lurus melintasi sungai tanpa akses jembatan umum dan terhalang separator jalan tol. Rute jalan kaki legal yang sebenarnya adalah 1,84 km, melampaui radius zonasi 1.200 m.
+            </p>
+          </div>
+          <div class="mt-space-sm pt-space-xs border-t border-border-slate flex items-center justify-between font-code-sm text-code-sm text-status-fraud font-semibold">
+            <span class="">Batas Zonasi Maks:</span>
+            <span class="">1.200 m (TERLANGGAR)</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Rekomendasi Keputusan AI Formal -->
+      <div class="p-space-md rounded-xl bg-surface-slate border-l-4 border-status-fraud flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+        <div class="flex flex-col">
+          <span class="font-code-sm text-code-sm text-text-muted uppercase tracking-wider font-semibold">Rekomendasi Keputusan Sistem</span>
+          <p class="font-label-lg text-label-lg text-text-heading font-bold mt-0.5">
+            Rekomendasi Diskualifikasi Otomatis (Pelanggaran Permendikbud No. 1/2021 &amp; Juknis PPDB DKI)
+          </p>
+          <span class="text-[12px] text-text-muted font-body-sm">
+            Bukti pelanggaran tersimpan permanen dalam immutable audit trail dengan hash SHA-256 terverifikasi.
+          </span>
+        </div>
+        <div class="shrink-0 flex items-center gap-1.5 bg-status-fraud-bg px-3 py-1.5 rounded-lg border border-status-fraud-border text-status-fraud font-code-sm font-bold">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          <span class="">Keputusan Akurasi: 99.4%</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Actions Panitia -->
+    <div class="px-space-lg py-space-md bg-surface-slate border-t border-border-slate flex flex-col sm:flex-row items-center justify-between gap-space-sm shrink-0">
+      <button type="button" onclick="document.getElementById('modal-forensic-investigation').style.display='none'" class="w-full sm:w-auto px-space-lg py-2 rounded-lg bg-surface-canvas border border-border-slate text-text-heading font-label-md text-label-md hover:bg-surface-container transition-colors">
+        Tutup / Tinjau Nanti
+      </button>
+      <div class="w-full sm:w-auto flex flex-wrap items-center gap-space-sm justify-end">
+        <button type="button" onclick="alert('Jadwal tim inspektorat posko telah dikirim ke pengawas lapangan!')" class="flex-1 sm:flex-initial px-space-md py-2 rounded-lg bg-surface-container text-secondary font-label-md text-label-md hover:bg-surface-tint-blue transition-colors flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">local_shipping</span>
+          <span class="">Jadwalkan Sidak Verifikasi Lapangan (Posko)</span>
+        </button>
+        <button type="button" onclick="alert('Berkas siswa Budi Santoso berhasil didiskualifikasi! Berita Acara BA-DISKUALIFIKASI-142.pdf telah dicetak secara otomatis.'); document.getElementById('modal-forensic-investigation').style.display='none';" class="flex-1 sm:flex-initial px-space-lg py-2 rounded-lg bg-status-fraud text-on-primary font-label-md text-label-md hover:opacity-95 shadow transition-all flex items-center justify-center gap-1.5">
+          <span class="material-symbols-outlined text-[18px]">gavel</span>
+          <span class="">Konfirmasi Diskualifikasi &amp; Terbitkan Berita Acara</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div></body></html>
