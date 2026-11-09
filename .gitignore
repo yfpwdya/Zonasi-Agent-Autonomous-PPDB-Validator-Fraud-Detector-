@@ -4,3 +4,6 @@ node_modules
 .zonasi-store.json
 next-env.d.ts
 *.tsbuildinfo
+
+AGENTS.md
+.hermes-tmp*
