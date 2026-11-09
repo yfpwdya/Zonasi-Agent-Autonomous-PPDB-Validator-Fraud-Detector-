@@ -33,9 +33,40 @@ export async function POST(request: Request) {
   const address = String(body.address || "Jl. Kenanga No. 14, Tebet Barat, Jakarta Selatan");
   const home_lat = Number(body.home_lat ?? -6.23827);
   const home_lng = Number(body.home_lng ?? 106.85194);
-  const kk_image_url = String(body.kk_image_url || "kartu_keluarga_ahmad.jpg");
+  let kk_image_url = String(body.kk_image_url || "kartu_keluarga_ahmad.jpg");
   const kk_image_base64 = typeof body.kk_image_base64 === "string" ? body.kk_image_base64 : undefined;
   const overrideRouteMeters = body.real_route_distance_meters ? Number(body.real_route_distance_meters) : undefined;
+
+  const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const tracking_id = String(body.tracking_id || `PPDB-2026-${suffix}`);
+
+  // Upload real binary file to Supabase Storage if base64 is provided
+  const sb = getSupabaseServer();
+  if (sb && kk_image_base64) {
+    try {
+      const m = kk_image_base64.match(/^data:([^;]+);base64,(.+)$/);
+      const mime = m ? m[1] : "image/jpeg";
+      const rawB64 = m ? m[2] : kk_image_base64;
+      const buf = Buffer.from(rawB64, "base64");
+      const ext = mime.includes("png") ? "png" : mime.includes("pdf") ? "pdf" : "jpg";
+      const filePath = `${tracking_id.toLowerCase()}-${Date.now()}.${ext}`;
+
+      await sb.storage.from("ppdb-documents").upload(filePath, buf, {
+        contentType: mime,
+        upsert: true,
+      });
+      await sb.storage.from("kk-documents").upload(filePath, buf, {
+        contentType: mime,
+        upsert: true,
+      });
+      const { data: pubData } = sb.storage.from("ppdb-documents").getPublicUrl(filePath);
+      if (pubData?.publicUrl) {
+        kk_image_url = pubData.publicUrl;
+      }
+    } catch {
+      // keep filename fallback if storage upload fails
+    }
+  }
 
   const pipeline = await runZonasiAgentPipeline({
     kkNumber: kk_number,
@@ -48,9 +79,6 @@ export async function POST(request: Request) {
     addressHint: address,
     overrideRouteMeters,
   });
-
-  const suffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-  const tracking_id = body.tracking_id || `PPDB-2026-${suffix}`;
 
   const record: ApplicationRecord = {
     id: crypto.randomUUID(),
@@ -66,23 +94,23 @@ export async function POST(request: Request) {
     straight_line_distance_meters: pipeline.geo.straightLineMeters,
     kk_image_url,
     kk_issue_date: pipeline.ocr.kkIssueDate,
-    kk_age_label: pipeline.ocr.kkAgeValid ? `${pipeline.ocr.kkAgeYears} Tahun` : "4 Bln (ANOMALI)",
+    kk_age_label: pipeline.ocr.kkAgeValid ? `${pipeline.ocr.kkAgeYears} Tahun` : "Dummy / <1 Thn (ANOMALI)",
     kk_age_valid: pipeline.ocr.kkAgeValid,
     family_relation_valid: pipeline.ocr.familyRelationValid,
     ocr_confidence: pipeline.ocr.ocrConfidence,
     detected_building: pipeline.vision.detectedBuilding,
     status: pipeline.decision.status,
     ai_reasoning_summary: pipeline.decision.aiReasoningSummary,
-    rejection_reason: pipeline.decision.rejectionReason,
+    rejection_reason: pipeline.decision.rejectionReason || pipeline.ocr.ocrNotes || null,
     created_at: new Date().toISOString(),
   };
 
   upsertApplication(record);
 
   after(async () => {
-    const sb = getSupabaseServer();
-    if (sb) {
-      const { data: appRow } = await sb
+    const sbServer = getSupabaseServer();
+    if (sbServer) {
+      const { data: appRow } = await sbServer
         .from("applications")
         .upsert(
           {
@@ -111,12 +139,12 @@ export async function POST(request: Request) {
         .single();
 
       if (appRow?.id) {
-        await sb.from("agent_audit_logs").insert([
+        await sbServer.from("agent_audit_logs").insert([
           {
             application_id: appRow.id,
             step_name: "OCR_CHECK",
             status: pipeline.ocr.ocrConfidence >= 80 ? "SUCCESS" : "WARNING",
-            detail_message: `Confidence OCR ${pipeline.ocr.ocrConfidence}%, Terbit KK ${pipeline.ocr.kkIssueDate} (${pipeline.ocr.kkAgeYears} thn), Relasi ${pipeline.ocr.familyRelation}.`,
+            detail_message: `Confidence OCR ${pipeline.ocr.ocrConfidence}%, Terbit KK ${pipeline.ocr.kkIssueDate} (${pipeline.ocr.kkAgeYears} thn), Relasi ${pipeline.ocr.familyRelation}. ${pipeline.ocr.ocrNotes || ""}`.trim(),
           },
           {
             application_id: appRow.id,

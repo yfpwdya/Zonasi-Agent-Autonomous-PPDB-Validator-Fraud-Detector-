@@ -265,17 +265,39 @@ export function RegistrationWizard() {
                   const f = e.target.files?.[0];
                   if (f) {
                     setKkFileName(f.name);
-                    setOcrStatusText("Memindai piksel KK dengan Gemini Vision...");
+                    setOcrStatusText("Memindai piksel KK dengan Gemini 3 Flash Vision...");
+                    setOcrDetailText("Mengekstrak Nomor KK, Tanggal Terbit, dan Status Hubungan...");
                     const reader = new FileReader();
-                    reader.onload = () => {
+                    reader.onload = async () => {
                       const b64 = typeof reader.result === "string" ? reader.result : undefined;
                       setKkFileBase64(b64);
-                      if (f.name.toLowerCase().includes("dummy") || f.name.toLowerCase().includes("blur")) {
-                        setOcrStatusText("OCR Pre-flight: WARNING (Dummy/Masked)");
-                        setOcrDetailText("Terdeteksi masking XXXXXXX / 00-00-2023 (Butuh Verifikasi)");
-                      } else {
-                        setOcrStatusText("OCR Pre-flight: READY (Gemini Vision)");
-                        setOcrDetailText(`Berkas ${f.name} siap diaudit Gemini 3 Flash`);
+                      try {
+                        const r = await fetch("/api/ocr-preview", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            kk_number: kkNumber,
+                            kk_image_name: f.name,
+                            kk_image_base64: b64,
+                          }),
+                        });
+                        const d = await r.json();
+                        if (d?.ocr) {
+                          const conf = d.ocr.ocrConfidence ?? 95;
+                          const valid = d.ocr.kkAgeValid && d.ocr.familyRelationValid && conf >= 80;
+                          setOcrStatusText(
+                            valid
+                              ? `OCR Pre-flight: PASS (${conf}%)`
+                              : `OCR Pre-flight: ANOMALI / DUMMY (${conf}%)`
+                          );
+                          setOcrDetailText(
+                            d.ocr.ocrNotes
+                              ? `Hasil Gemini: ${d.ocr.ocrNotes}`
+                              : `Terbit KK: ${d.ocr.kkIssueDate} (${d.ocr.kkAgeYears} Thn • ${d.ocr.familyRelation})`
+                          );
+                        }
+                      } catch {
+                        setOcrStatusText("OCR Pre-flight: Siap Diaudit");
                       }
                     };
                     reader.readAsDataURL(f);

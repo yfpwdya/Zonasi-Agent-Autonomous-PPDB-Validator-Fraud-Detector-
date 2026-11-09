@@ -2,6 +2,7 @@
 import { use, useEffect, useRef, useState } from "react";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import type { ApplicationRecord } from "@/lib/store";
 
 const FEED_LOGS = [
   {
@@ -34,6 +35,7 @@ export default function TrackPage({
   const resolved = use(params);
   const trackingId = decodeURIComponent(resolved.trackingId || "PPDB-2026-X89K");
   const kkInputRef = useRef<HTMLInputElement | null>(null);
+  const [appData, setAppData] = useState<ApplicationRecord | null>(null);
   const [studentName, setStudentName] = useState("Rafi Alamsyah");
   const [activeTab, setActiveTab] = useState<"doc" | "street">("doc");
   const [extraLogs, setExtraLogs] = useState<
@@ -43,29 +45,103 @@ export default function TrackPage({
   const [receiptDownloaded, setReceiptDownloaded] = useState(false);
   const [reuploadStatus, setReuploadStatus] = useState("");
   const [geoStatus, setGeoStatus] = useState("");
+  const [scanningOcr, setScanningOcr] = useState(false);
+  const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/applications?q=${encodeURIComponent(trackingId)}`)
       .then((r) => r.json())
       .then((d) => {
-        if (d?.application?.student_name) {
-          setStudentName(d.application.student_name);
-        }
-        if (d?.application?.ai_reasoning_summary) {
+        if (d?.application) {
+          const app: ApplicationRecord = d.application;
+          setAppData(app);
+          setStudentName(app.student_name);
+          if (app.kk_image_url?.startsWith("http")) {
+            setUploadedPreviewUrl(app.kk_image_url);
+          }
           const now = new Date().toTimeString().slice(0, 8);
-          setExtraLogs((prev) => [
+          setExtraLogs([
+            {
+              time: now,
+              agent: "OCR-VISION-GEMINI",
+              color: app.ocr_confidence >= 80 ? "text-emerald-400" : "text-amber-400",
+              msg: `Confidence OCR: ${app.ocr_confidence}% | No. KK: ${app.kk_number} | Terbit: ${app.kk_issue_date} (${app.kk_age_label})`,
+            },
+            {
+              time: now,
+              agent: "POSTGIS-GEOROUTE",
+              color: "text-blue-400",
+              msg: `Garis lurus Euclidean: ${app.straight_line_distance_meters}m | Rute darat aktual: ${app.real_route_distance_meters}m (${app.real_route_distance_meters <= 1200 ? "LOLOS ZONA" : "MELEBIHI BATAS"})`,
+            },
+            {
+              time: now,
+              agent: "STREETVIEW-AUDITOR",
+              color: app.detected_building === "RESIDENTIAL" ? "text-purple-400" : "text-rose-400",
+              msg: `Koordinat (${app.home_lat.toFixed(5)}, ${app.home_lng.toFixed(5)}) -> Klasifikasi: ${app.detected_building}`,
+            },
             {
               time: now,
               agent: "GEMINI-3-FLASH",
-              color: "text-emerald-400",
-              msg: `${d.application.ai_reasoning_summary} (Status: ${d.application.status})`,
+              color: app.status === "APPROVED" ? "text-emerald-400" : "text-amber-300",
+              msg: `${app.ai_reasoning_summary} [STATUS: ${app.status}]`,
             },
-            ...prev,
           ]);
         }
       })
       .catch(() => {});
   }, [trackingId]);
+
+  const handleLiveReuploadKK = (file: File) => {
+    setReuploadStatus(`Memindai ${file.name} dengan Gemini 3 Flash...`);
+    setScanningOcr(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const b64 = typeof reader.result === "string" ? reader.result : undefined;
+      if (b64) setUploadedPreviewUrl(b64);
+      try {
+        const res = await fetch("/api/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tracking_id: trackingId,
+            student_nik: appData?.student_nik || "3171041908070002",
+            student_name: appData?.student_name || studentName,
+            kk_number: appData?.kk_number || "3171042502120005",
+            school_name: appData?.school_name || "SMAN 1 Teladan Jakarta",
+            address: appData?.address || "Jl. Kenanga No. 14, Tebet Barat",
+            home_lat: appData?.home_lat ?? -6.2284,
+            home_lng: appData?.home_lng ?? 106.8492,
+            kk_image_url: file.name,
+            kk_image_base64: b64,
+          }),
+        });
+        const data = await res.json();
+        if (data?.application) {
+          const updated: ApplicationRecord = data.application;
+          setAppData(updated);
+          if (updated.kk_image_url?.startsWith("http")) {
+            setUploadedPreviewUrl(updated.kk_image_url);
+          }
+          setReuploadStatus(`Selesai Dipindai (${updated.ocr_confidence}% • ${updated.status}) ✓`);
+          const now = new Date().toTimeString().slice(0, 8);
+          setExtraLogs((prev) => [
+            {
+              time: now,
+              agent: "LIVE-REUPLOAD-OCR",
+              color: updated.ocr_confidence >= 80 ? "text-emerald-400" : "text-rose-400",
+              msg: `Hasil pindai ulang ${file.name}: Confidence ${updated.ocr_confidence}%, Status=${updated.status}. ${updated.rejection_reason || updated.ai_reasoning_summary}`,
+            },
+            ...prev,
+          ]);
+        }
+      } catch {
+        setReuploadStatus("Gagal memproses berkas");
+      } finally {
+        setScanningOcr(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     let idx = 0;
@@ -181,50 +257,74 @@ export default function TrackPage({
                   <span className="font-code-lg text-code-lg text-primary tracking-tight font-bold bg-surface-tint-blue px-space-sm py-1 rounded-lg">
                     {trackingId}
                   </span>
-                  <div className="flex items-center gap-1.5 px-space-sm py-1 rounded-full bg-secondary text-on-secondary font-label-md text-label-md shadow-sm">
-                    <span className="material-symbols-outlined text-[16px] animate-spin">
-                      smart_toy
-                    </span>
-                    {' '}
+                  <div
+                    className={`flex items-center gap-1.5 px-space-sm py-1 rounded-full font-label-md text-label-md shadow-sm ${
+                      appData?.status === "APPROVED"
+                        ? "bg-status-approved text-on-primary"
+                        : appData?.status === "REJECTED"
+                        ? "bg-status-fraud text-on-primary"
+                        : appData?.status === "NEEDS_REVISION" || appData?.status === "NEEDS_LIVE_PHOTO"
+                        ? "bg-status-revision text-on-primary"
+                        : "bg-secondary text-on-secondary"
+                    }`}
+                  >
+                    <span className={`material-symbols-outlined text-[16px] ${scanningOcr ? "animate-spin" : ""}`}>
+                      {appData?.status === "APPROVED"
+                        ? "verified"
+                        : appData?.status === "REJECTED"
+                        ? "dangerous"
+                        : appData?.status === "NEEDS_REVISION" || appData?.status === "NEEDS_LIVE_PHOTO"
+                        ? "warning"
+                        : "smart_toy"}
+                    </span>{' '}
                     <span>
-                      SEDANG DIPROSES OLEH AGENTIC AI (Tahap 3/3)
+                      {scanningOcr
+                        ? "MEMINDAI ULANG BERKAS KK DENGAN GEMINI 3 FLASH..."
+                        : appData?.status === "APPROVED"
+                        ? "LOLOS VERIFIKASI ZONASI OTOMATIS (APPROVED)"
+                        : appData?.status === "REJECTED"
+                        ? "DITOLAK OTOMATIS — INDIKASI ANOMALI / FRAUD"
+                        : appData?.status === "NEEDS_REVISION"
+                        ? "BUTUH REVISI DOKUMEN KK (NEEDS_REVISION)"
+                        : appData?.status === "NEEDS_LIVE_PHOTO"
+                        ? "BUTUH FOTO FASAD BER-GEOTAG (NEEDS_LIVE_PHOTO)"
+                        : "SEDANG DIPROSES OLEH AGENTIC AI (Tahap 3/3)"}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-baseline gap-x-space-md gap-y-1 pt-1">
                   <h1 className="font-headline-md text-headline-md text-text-heading">
-                    {studentName}
+                    {appData?.student_name || studentName}
                   </h1>
                   <div className="flex items-center gap-space-xs text-text-muted font-code-md text-code-md">
-                    <span>
-                      NIK:
-                    </span>
-                    {' '}
+                    <span>NIK:</span>{' '}
                     <span className="text-text-heading font-semibold">
-                      3174**********02
+                      {appData?.student_nik
+                        ? `${appData.student_nik.slice(0, 4)}**********${appData.student_nik.slice(-2)}`
+                        : "3174**********02"}
                     </span>
                   </div>
                   <div className="flex items-center gap-1 text-text-body font-body-md text-body-md">
                     <span className="material-symbols-outlined text-secondary text-[18px]">
                       school
-                    </span>
-                    {' '}
-                    <span>
-                      Pilihan:
-                    </span>
-                    {' '}
+                    </span>{' '}
+                    <span>Pilihan:</span>{' '}
                     <span className="font-semibold text-text-heading">
-                      SMAN 1 Teladan (Zonasi Domisili)
+                      {appData?.school_name || "SMAN 1 Teladan (Zonasi Domisili)"}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-space-sm w-full sm:w-auto self-end lg:self-center">
-                <button className="flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-heading font-label-lg text-label-lg shadow-sm transition-all w-full sm:w-auto" id="btnDownloadReceipt" type="button" onClick={handleDownloadReceipt}>
+                <button
+                  className="flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-heading font-label-lg text-label-lg shadow-sm transition-all w-full sm:w-auto"
+                  id="btnDownloadReceipt"
+                  type="button"
+                  onClick={handleDownloadReceipt}
+                >
                   <span className="material-symbols-outlined text-[20px] text-secondary">
                     qr_code_2
-                  </span>
-                  {' '}
+                  </span>{' '}
                   <span>
                     {receiptDownloaded ? "Tanda Terima PDF Terunduh ✓" : "Unduh Tanda Terima Digital"}
                   </span>
@@ -249,346 +349,429 @@ export default function TrackPage({
               </div>
             </div>
             <div className="w-full bg-surface-container rounded-full h-1.5 mt-space-md overflow-hidden">
-              <div className="bg-gradient-to-r from-status-approved via-secondary to-secondary-container h-full rounded-full transition-all duration-700" style={{width: "82%"}} />
+              <div
+                className="bg-gradient-to-r from-status-approved via-secondary to-secondary-container h-full rounded-full transition-all duration-700"
+                style={{ width: appData?.status === "APPROVED" ? "100%" : "88%" }}
+              />
             </div>
           </div>
+
+          {/* 3 TAHAP PIPELINE CARDS (Dynamic & Non-overlapping z-10) */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-space-xl">
+            {/* TAHAP 1: OCR KK */}
             <div className="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-status-approved-bg rounded-bl-full pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between mb-space-sm">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-status-approved-bg/35 rounded-bl-full pointer-events-none z-0" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-2 mb-space-sm">
                   <span className="font-code-sm text-code-sm text-text-muted font-bold tracking-wider">
                     TAHAP 1 DARI 3
                   </span>
-                  {' '}
-                  <span className="flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-status-approved-bg text-status-approved font-label-md text-label-md font-semibold">
+                  <span
+                    className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-md text-label-md font-semibold shadow-sm ${
+                      (appData?.ocr_confidence ?? 98.4) >= 80 && (appData?.kk_age_valid ?? true)
+                        ? "bg-status-approved-bg text-status-approved"
+                        : "bg-status-revision-bg text-status-revision"
+                    }`}
+                  >
                     <span className="material-symbols-outlined text-[14px]">
-                      check_circle
+                      {(appData?.ocr_confidence ?? 98.4) >= 80 && (appData?.kk_age_valid ?? true)
+                        ? "check_circle"
+                        : "warning"}
                     </span>
-                    {' '}SELESAI / VALID
+                    {(appData?.ocr_confidence ?? 98.4) >= 80 && (appData?.kk_age_valid ?? true)
+                      ? "SELESAI / VALID"
+                      : "ANOMALI / REVISI"}
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
                   <span className="material-symbols-outlined text-status-approved text-[22px]">
                     document_scanner
                   </span>
-                  {' '}Penalaran Dokumen KK
+                  Penalaran Dokumen KK
                 </h3>
                 <p className="font-body-sm text-body-sm text-text-muted mb-space-sm">
-                  Ekstraksi metadata Kartu Keluarga, relasi keluarga siswa, dan tanggal penerbitan regulasi.
+                  Ekstraksi multimodal Gemini 3 Flash untuk nomor KK, masa domisili, dan relasi siswa.
                 </p>
               </div>
-              <div className="bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
+              <div className="relative z-10 bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Tgl Terbit KK:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Tgl Terbit KK:</span>
                   <span className="font-semibold text-text-heading">
-                    14 Mei 2023
+                    {appData?.kk_issue_date || "2018-02-12"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Masa Domisili:
-                  </span>
-                  {' '}
-                  <span className="font-bold text-status-approved">
-                    2 Thn 10 Bln (≥ 1 Thn)
+                  <span className="text-text-muted">Masa Domisili:</span>
+                  <span
+                    className={`font-bold ${
+                      (appData?.kk_age_valid ?? true) ? "text-status-approved" : "text-status-fraud"
+                    }`}
+                  >
+                    {appData?.kk_age_label || "6.0 Tahun (≥ 1 Thn)"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Relasi Siswa:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Relasi Siswa:</span>
                   <span className="text-text-heading font-medium">
-                    Anak Kandung
+                    {(appData?.family_relation_valid ?? true)
+                      ? "Anak Kandung (Sah)"
+                      : "Famili Lain / Masked (Anomali)"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-1">
-                  <span className="text-text-muted">
-                    OCR Confidence:
-                  </span>
-                  {' '}
-                  <span className="font-semibold text-secondary">
-                    98.4% (Tinggi)
+                  <span className="text-text-muted">OCR Confidence:</span>
+                  <span
+                    className={`font-semibold ${
+                      (appData?.ocr_confidence ?? 98.4) >= 80 ? "text-secondary" : "text-status-revision"
+                    }`}
+                  >
+                    {appData?.ocr_confidence ?? 98.4}% ({(appData?.ocr_confidence ?? 98.4) >= 80 ? "Tinggi" : "Rendah / Dummy"})
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* TAHAP 2: GEOSPATIAL POSTGIS */}
             <div className="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-status-approved-bg rounded-bl-full pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between mb-space-sm">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-status-approved-bg/35 rounded-bl-full pointer-events-none z-0" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-2 mb-space-sm">
                   <span className="font-code-sm text-code-sm text-text-muted font-bold tracking-wider">
                     TAHAP 2 DARI 3
                   </span>
-                  {' '}
-                  <span className="flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-status-approved-bg text-status-approved font-label-md text-label-md font-semibold">
-                    <span className="material-symbols-outlined text-[14px]">
-                      check_circle
-                    </span>
-                    {' '}SELESAI / VALID
+                  <span
+                    className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-md text-label-md font-semibold shadow-sm ${
+                      (appData?.real_route_distance_meters ?? 820) <= 1200
+                        ? "bg-status-approved-bg text-status-approved"
+                        : "bg-status-revision-bg text-status-revision"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                    {(appData?.real_route_distance_meters ?? 820) <= 1200 ? "SELESAI / VALID" : "LUAR RADIUS"}
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
                   <span className="material-symbols-outlined text-status-approved text-[22px]">
                     route
                   </span>
-                  {' '}Kalkulasi Jarak Darat Riil
+                  Kalkulasi Jarak Darat Riil
                 </h3>
                 <p className="font-body-sm text-body-sm text-text-muted mb-space-sm">
-                  PostGIS ISO 19125-1 komparasi geofence vs rute riil berjalan kaki/bermotor Google Routes API.
+                  Komparasi jarak garis lurus PostGIS (ST_Distance) terhadap rute jalan darat aktual.
                 </p>
               </div>
-              <div className="bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
+              <div className="relative z-10 bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Rute Darat Aktual:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Rute Darat Aktual:</span>
                   <span className="font-bold text-status-approved text-[13px]">
-                    820 Meter
+                    {appData?.real_route_distance_meters ?? 820} Meter
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Garis Lurus Euclidean:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Garis Lurus Euclidean:</span>
                   <span className="text-text-heading font-medium">
-                    540 Meter
+                    {appData?.straight_line_distance_meters ?? 540} Meter
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Ambang Batas Zonasi:
-                  </span>
-                  {' '}
-                  <span className="text-text-muted font-medium">
-                    Maksimal 1.200 Meter
-                  </span>
+                  <span className="text-text-muted">Ambang Batas Zonasi:</span>
+                  <span className="text-text-muted font-medium">Maksimal 1.200 Meter</span>
                 </div>
                 <div className="flex justify-between items-center pt-1">
-                  <span className="text-text-muted">
-                    Status Validasi Zonasi:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Status Validasi Zonasi:</span>
                   <span className="font-bold text-status-approved">
-                    LOLOS ZONA UTAMA
+                    {(appData?.real_route_distance_meters ?? 820) <= 1200
+                      ? "LOLOS ZONA UTAMA"
+                      : "ZONA REGULER (>1.2 KM)"}
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* TAHAP 3: VISION TATA RUANG */}
             <div className="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-surface-tint-blue rounded-bl-full pointer-events-none" />
-              <div>
-                <div className="flex items-center justify-between mb-space-sm">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-surface-tint-blue/40 rounded-bl-full pointer-events-none z-0" />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between gap-2 mb-space-sm">
                   <span className="font-code-sm text-code-sm text-secondary font-bold tracking-wider">
                     TAHAP 3 DARI 3
                   </span>
-                  {' '}
-                  <span className="flex items-center gap-1.5 px-space-xs py-0.5 rounded-full bg-surface-tint-blue text-secondary font-label-md text-label-md font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-secondary animate-ping" />
-                    {' '}SEDANG BERLANGSUNG
+                  <span
+                    className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-md text-label-md font-semibold shadow-sm ${
+                      appData?.detected_building === "COMMERCIAL" || appData?.detected_building === "EMPTY_LAND"
+                        ? "bg-status-fraud-bg text-status-fraud"
+                        : appData?.detected_building === "NO_STREET_VIEW"
+                        ? "bg-status-revision-bg text-status-revision"
+                        : "bg-status-approved-bg text-status-approved"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">
+                      {appData?.detected_building === "COMMERCIAL"
+                        ? "storefront"
+                        : appData?.detected_building === "NO_STREET_VIEW"
+                        ? "add_a_photo"
+                        : "verified"}
+                    </span>
+                    {appData?.detected_building === "COMMERCIAL"
+                      ? "ANOMALI RUKO"
+                      : appData?.detected_building === "NO_STREET_VIEW"
+                      ? "BLIND SPOT GANG"
+                      : "SELESAI / HUNIAN"}
                   </span>
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
-                  <span className="material-symbols-outlined text-secondary text-[22px] animate-pulse">
+                  <span className="material-symbols-outlined text-secondary text-[22px]">
                     satellite_alt
                   </span>
-                  {' '}Audit Visual Tata Ruang
+                  Audit Visual Tata Ruang
                 </h3>
                 <p className="font-body-sm text-body-sm text-text-muted mb-space-sm">
-                  Street View & Vision LLM verifikasi fasad hunian fisik (mencegah manipulasi ruko/tanah kosong).
+                  Verifikasi fasad hunian fisik via Vision AI (mencegah manipulasi ruko atau lahan kosong).
                 </p>
               </div>
-              <div className="bg-surface-tint-blue/40 rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
+              <div className="relative z-10 bg-surface-tint-blue/40 rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Target Geospasial:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Target Geospasial:</span>
                   <span className="font-mono text-secondary font-semibold">
-                    -6.21462, 106.84513
+                    {appData
+                      ? `${appData.home_lat.toFixed(5)}, ${appData.home_lng.toFixed(5)}`
+                      : "-6.23827, 106.85194"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Mesin Klasifikasi:
-                  </span>
-                  {' '}
-                  <span className="font-semibold text-text-heading">
-                    Gemini 1.5 Pro Flash
-                  </span>
+                  <span className="text-text-muted">Mesin Klasifikasi:</span>
+                  <span className="font-semibold text-text-heading">Gemini 3 Flash Vision</span>
                 </div>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">
-                    Deteksi Eksterior:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Deteksi Eksterior:</span>
                   <span className="text-secondary font-medium">
-                    Rumah Tinggal / Permukiman
+                    {appData?.detected_building === "COMMERCIAL"
+                      ? "Ruko / Bangunan Komersial"
+                      : appData?.detected_building === "NO_STREET_VIEW"
+                      ? "Gang Sempit (Butuh Foto Geotag)"
+                      : "Rumah Tinggal / Permukiman"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-1">
-                  <span className="text-text-muted">
-                    Progres Audit:
-                  </span>
-                  {' '}
+                  <span className="text-text-muted">Keputusan Akhir:</span>
                   <span className="font-bold text-secondary">
-                    Analisis Piksel Citra 94%
+                    {appData?.status || "APPROVED"}
                   </span>
                 </div>
               </div>
             </div>
           </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-space-xl items-start">
             <div className="lg:col-span-7 bg-surface-canvas rounded-xl shadow-xl overflow-hidden flex flex-col">
-              <div className="p-space-md bg-surface-slate flex items-center justify-between">
+              <div className="p-space-md bg-surface-slate flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-space-xs">
                   <span className="material-symbols-outlined text-secondary text-[20px]">
                     preview
                   </span>
                   <h2 className="font-headline-sm text-headline-sm text-text-heading">
-                    Pemindaian OCR & Citra Jalan
+                    Pemindaian OCR Interaktif &amp; Citra Jalan
                   </h2>
                 </div>
-                <div className="flex items-center gap-1 bg-surface-canvas px-space-xs py-1 rounded shadow-sm">
-                  <button type="button" onClick={() => setActiveTab("doc")} className={activeTab === "doc" ? "px-space-sm py-0.5 rounded font-label-md text-label-md bg-primary text-on-primary" : "px-space-sm py-0.5 rounded font-label-md text-label-md text-text-muted hover:text-text-heading transition-colors"} id="tabScanDoc">
-                    Dokumen KK
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => kkInputRef.current?.click()}
+                    className="px-2.5 py-1 rounded bg-secondary text-on-secondary font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center gap-1 shadow-sm"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">upload_file</span>
+                    {scanningOcr ? "Memindai..." : "Pindai File KK Baru"}
                   </button>
-                  <button type="button" onClick={() => setActiveTab("street")} className={activeTab === "street" ? "px-space-sm py-0.5 rounded font-label-md text-label-md bg-primary text-on-primary" : "px-space-sm py-0.5 rounded font-label-md text-label-md text-text-muted hover:text-text-heading transition-colors"} id="tabScanStreet">
-                    Street View Panitia
-                  </button>
+                  <div className="flex items-center gap-1 bg-surface-canvas px-space-xs py-1 rounded shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("doc")}
+                      className={
+                        activeTab === "doc"
+                          ? "px-space-sm py-0.5 rounded font-label-md text-label-md bg-primary text-on-primary"
+                          : "px-space-sm py-0.5 rounded font-label-md text-label-md text-text-muted hover:text-text-heading transition-colors"
+                      }
+                      id="tabScanDoc"
+                    >
+                      Dokumen KK
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("street")}
+                      className={
+                        activeTab === "street"
+                          ? "px-space-sm py-0.5 rounded font-label-md text-label-md bg-primary text-on-primary"
+                          : "px-space-sm py-0.5 rounded font-label-md text-label-md text-text-muted hover:text-text-heading transition-colors"
+                      }
+                      id="tabScanStreet"
+                    >
+                      Street View Panitia
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className={`relative w-full h-[400px] bg-slate-900 flex items-center justify-center overflow-hidden ${activeTab === "doc" ? "" : "hidden"}`} id="containerDocViewer">
+              <div
+                className={`relative w-full h-[400px] bg-slate-900 flex items-center justify-center overflow-hidden ${
+                  activeTab === "doc" ? "" : "hidden"
+                }`}
+                id="containerDocViewer"
+              >
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-95" />
-                <div className="relative w-full max-w-lg h-80 bg-surface-canvas rounded-lg shadow-2xl overflow-hidden p-space-md font-body-sm text-text-heading select-none">
-                  <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-[scan_3s_ease-in-out_infinite] z-30" />
-                  <div className="flex items-center justify-between pb-2 mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-slate-700 text-[18px]">
-                          verified
+                {uploadedPreviewUrl ? (
+                  <div className="relative w-full h-full flex flex-col items-center justify-center p-4 z-10">
+                    <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-pulse z-30 top-1/2" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={uploadedPreviewUrl}
+                      alt="Scan Kartu Keluarga"
+                      className="max-h-[300px] w-auto object-contain rounded-lg border-2 border-cyan-400/60 shadow-2xl bg-white"
+                    />
+                    <div className="mt-2 px-3 py-1 rounded bg-slate-950/90 text-cyan-300 font-code-sm text-[11px] border border-cyan-500/30">
+                      Sumber Storage: {appData?.kk_image_url?.startsWith("http") ? "Supabase Storage (ppdb-documents)" : appData?.kk_image_url}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative w-full max-w-lg h-80 bg-surface-canvas rounded-lg shadow-2xl overflow-hidden p-space-md font-body-sm text-text-heading select-none z-10">
+                    <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-[scan_3s_ease-in-out_infinite] z-30" />
+                    <div className="flex items-center justify-between pb-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                          <span className="material-symbols-outlined text-slate-700 text-[18px]">
+                            verified
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-headline-sm text-[12px] leading-none uppercase font-bold text-slate-800">
+                            KARTU KELUARGA
+                          </p>
+                          <p className="font-code-sm text-[10px] text-slate-500">
+                            No. {appData?.kk_number || "3171042502120005"}
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        className={`px-2 py-0.5 rounded font-code-sm text-[10px] font-bold ${
+                          (appData?.ocr_confidence ?? 98.4) >= 80
+                            ? "bg-emerald-50 text-status-approved"
+                            : "bg-amber-50 text-status-revision"
+                        }`}
+                      >
+                        {(appData?.ocr_confidence ?? 98.4) >= 80 ? "TERVERIFIKASI" : "PERLU REVISI / DUMMY"}
+                      </div>
+                    </div>
+                    <div className="relative p-2 bg-emerald-50/60 rounded mb-2 z-10">
+                      <span className="absolute -top-2 right-2 bg-status-approved text-white font-code-sm text-[9px] px-1.5 rounded uppercase">
+                        Bounding Box: Domisili KK
+                      </span>
+                      <p className="font-code-sm text-[11px] text-slate-500 leading-tight">
+                        Alamat Domisili Terbaca
+                      </p>
+                      <p className="font-body-md text-[13px] font-bold text-slate-900 leading-tight truncate">
+                        {appData?.address || "Jl. Kenanga No. 14, Tebet Barat, Jakarta Selatan"}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="relative p-2 bg-cyan-50/60 rounded z-10">
+                        <span className="absolute -top-2 right-1 bg-secondary text-white font-code-sm text-[8px] px-1 rounded uppercase">
+                          Nama Terdaftar
+                        </span>
+                        <p className="font-code-sm text-[10px] text-slate-500 leading-tight">
+                          Nama Calon Siswa
+                        </p>
+                        <p className="font-body-md text-[12px] font-bold text-slate-900 leading-tight truncate">
+                          {appData?.student_name || studentName}
+                        </p>
+                      </div>
+                      <div className="relative p-2 bg-emerald-50/60 rounded z-10">
+                        <span className="absolute -top-2 right-1 bg-status-approved text-white font-code-sm text-[8px] px-1 rounded uppercase">
+                          Hubungan
+                        </span>
+                        <p className="font-code-sm text-[10px] text-slate-500 leading-tight">
+                          Status Hubungan
+                        </p>
+                        <p className="font-body-md text-[12px] font-bold text-slate-900 leading-tight">
+                          {(appData?.family_relation_valid ?? true) ? "ANAK KANDUNG" : "FAMILI LAIN / DUMMY"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="relative p-2 bg-blue-50/60 rounded z-10">
+                      <span className="absolute -top-2 right-2 bg-primary text-white font-code-sm text-[9px] px-1.5 rounded uppercase">
+                        Bounding Box: Tanggal Diterbitkan
+                      </span>
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-code-sm text-[10px] text-slate-500 leading-tight">
+                            Dikeluarkan Tanggal
+                          </p>
+                          <p className="font-body-md text-[12px] font-bold text-primary leading-tight">
+                            {appData?.kk_issue_date || "2018-02-12"} ({appData?.kk_age_label || "6 Tahun"})
+                          </p>
+                        </div>
+                        <span
+                          className={`font-code-sm text-[10px] font-bold px-2 py-0.5 rounded ${
+                            (appData?.kk_age_valid ?? true)
+                              ? "text-status-approved bg-status-approved-bg"
+                              : "text-status-fraud bg-status-fraud-bg"
+                          }`}
+                        >
+                          {(appData?.kk_age_valid ?? true) ? "VALID ≥ 1 TAHUN" : "ANOMALI < 1 THN"}
                         </span>
                       </div>
-                      <div>
-                        <p className="font-headline-sm text-[12px] leading-none uppercase font-bold text-slate-800">
-                          KARTU KELUARGA
-                        </p>
-                        <p className="font-code-sm text-[10px] text-slate-500">
-                          No. 3174092405100091
-                        </p>
-                      </div>
                     </div>
-                    <div className="px-2 py-0.5 bg-emerald-50 rounded text-status-approved font-code-sm text-[10px] font-bold">
-                      TERVERIFIKASI
+                    <div className="mt-2 flex items-center justify-between text-slate-400 font-code-sm text-[9px]">
+                      <span>Berkas: {appData?.kk_image_url || "kartu_keluarga.jpg"}</span>
+                      <span>Engine: Gemini 3 Flash Vision</span>
                     </div>
                   </div>
-                  <div className="relative p-2 bg-emerald-50/60 rounded mb-2 z-10">
-                    <span className="absolute -top-2 right-2 bg-status-approved text-white font-code-sm text-[9px] px-1.5 rounded uppercase">
-                      Bounding Box: Nama Kepala Keluarga
-                    </span>
-                    <p className="font-code-sm text-[11px] text-slate-500 leading-tight">
-                      Nama Kepala Keluarga
-                    </p>
-                    <p className="font-body-md text-[13px] font-bold text-slate-900 leading-tight">
-                      BAMBANG ALAMSYAH
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    <div className="relative p-2 bg-cyan-50/60 rounded z-10">
-                      <span className="absolute -top-2 right-1 bg-secondary text-white font-code-sm text-[8px] px-1 rounded uppercase">
-                        Nama Terdaftar
-                      </span>
-                      <p className="font-code-sm text-[10px] text-slate-500 leading-tight">
-                        Nama Anggota
-                      </p>
-                      <p className="font-body-md text-[12px] font-bold text-slate-900 leading-tight">
-                        RAFI ALAMSYAH
-                      </p>
-                    </div>
-                    <div className="relative p-2 bg-emerald-50/60 rounded z-10">
-                      <span className="absolute -top-2 right-1 bg-status-approved text-white font-code-sm text-[8px] px-1 rounded uppercase">
-                        Hubungan
-                      </span>
-                      <p className="font-code-sm text-[10px] text-slate-500 leading-tight">
-                        Status Hubungan
-                      </p>
-                      <p className="font-body-md text-[12px] font-bold text-slate-900 leading-tight">
-                        ANAK KANDUNG
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative p-2 bg-blue-50/60 rounded z-10">
-                    <span className="absolute -top-2 right-2 bg-primary text-white font-code-sm text-[9px] px-1.5 rounded uppercase">
-                      Bounding Box: Tanggal Diterbitkan
-                    </span>
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-code-sm text-[10px] text-slate-500 leading-tight">
-                          Dikeluarkan Tanggal
-                        </p>
-                        <p className="font-body-md text-[12px] font-bold text-primary leading-tight">
-                          14-05-2023 (Kecamatan Tebet)
-                        </p>
-                      </div>
-                      <span className="font-code-sm text-[10px] text-status-approved font-bold bg-status-approved-bg px-2 py-0.5 rounded">
-                        VALID ≥ 1 TAHUN
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-2 flex items-center justify-between text-slate-400 font-code-sm text-[9px]">
-                    <span>
-                      Tanda Tangan Elektronik Disdukcapil: Tervalidasi
-                    </span>
-                    {' '}
-                    <span>
-                      Resolusi Dokumen: 2400 x 1650 px
-                    </span>
-                  </div>
-                </div>
+                )}
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-space-sm py-1.5 rounded bg-slate-900/80 backdrop-blur text-white font-code-sm text-code-sm z-30">
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 truncate pr-2">
                     <span className="material-symbols-outlined text-secondary text-[16px]">
                       center_focus_strong
                     </span>
-                    {' '}Deep-Vision OCR In-Progress (3 Bounding Boxes Lock)
+                    {scanningOcr
+                      ? "Memindai Piksel Dokumen KK dengan Gemini 3 Flash..."
+                      : appData?.ai_reasoning_summary || "Gemini 3 Flash OCR Ready"}
                   </span>
-                  {' '}
-                  <span className="text-status-approved">
-                    Confidence Score: 98.4%
+                  <span className="text-status-approved shrink-0">
+                    Confidence: {appData?.ocr_confidence ?? 98.4}%
                   </span>
                 </div>
               </div>
-              <div className={`relative w-full h-[400px] bg-slate-900 overflow-hidden ${activeTab === "street" ? "" : "hidden"}`} id="containerStreetViewer">
-                <div className="w-full h-full bg-cover bg-center" data-location="Jl. Tebet Timur Dalam VI, Jakarta Selatan" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAu3uRs8QGs--gdj3uuUn-_w6pAldVL_j_PTYJmBVR1_IRtwmDDuFAcpfLXN-1DvTJ2noiwKssq7DSHM7yyNBvqoT6Pj82DLiJWweho8NSeJ_Qu-kdCF98fbfCmCvlUmeiUNywdKoQh0d2SCXKnz-qFjOdm0JWFhLQ0p9IFUD_YQm4T0ozeCideBZAqxDE7SY9XnFumP1GBlwnudlYlH9K2pQbwJJpn15DH0YshdPQ')"}}>
+              <div
+                className={`relative w-full h-[400px] bg-slate-900 overflow-hidden ${
+                  activeTab === "street" ? "" : "hidden"
+                }`}
+                id="containerStreetViewer"
+              >
+                <div
+                  className="w-full h-full bg-cover bg-center"
+                  data-location={appData?.address || "Jl. Tebet Timur Dalam VI, Jakarta Selatan"}
+                  style={{
+                    backgroundImage:
+                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAu3uRs8QGs--gdj3uuUn-_w6pAldVL_j_PTYJmBVR1_IRtwmDDuFAcpfLXN-1DvTJ2noiwKssq7DSHM7yyNBvqoT6Pj82DLiJWweho8NSeJ_Qu-kdCF98fbfCmCvlUmeiUNywdKoQh0d2SCXKnz-qFjOdm0JWFhLQ0p9IFUD_YQm4T0ozeCideBZAqxDE7SY9XnFumP1GBlwnudlYlH9K2pQbwJJpn15DH0YshdPQ')",
+                  }}
+                >
                   <div className="w-full h-full bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent p-space-md flex flex-col justify-between">
                     <div className="flex items-center justify-between">
                       <div className="bg-slate-900/85 backdrop-blur px-space-sm py-1 rounded text-white font-code-sm text-code-sm">
                         <span>
-                          Street View Target: (-6.21462, 106.84513)
+                          Street View Target: ({appData ? `${appData.home_lat.toFixed(5)}, ${appData.home_lng.toFixed(5)}` : "-6.23827, 106.85194"})
                         </span>
                       </div>
                       <div className="bg-status-approved px-space-sm py-1 rounded text-white font-label-md text-label-md font-semibold">
-                        Objek Fasad: Rumah Tinggal (Bukan Fasum Kosong)
+                        Objek Fasad: {appData?.detected_building || "RESIDENTIAL"}
                       </div>
                     </div>
                     <div className="bg-slate-900/90 backdrop-blur p-space-sm rounded-lg text-white space-y-1">
                       <div className="flex justify-between font-code-sm text-code-sm">
-                        <span className="text-slate-300">
-                          Hasil Visi Mesin Gemini:
-                        </span>
-                        {' '}
+                        <span className="text-slate-300">Hasil Visi Mesin Gemini 3 Flash:</span>
                         <span className="text-cyan-400 font-semibold">
-                          Struktur Rumah 2 Lantai, Nomor Pintu Cocok (#18)
+                          {appData?.address || "Hunian Warga Terverifikasi"}
                         </span>
                       </div>
                       <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-cyan-400 h-full rounded-full" style={{width: "94%"}} />
+                        <div className="bg-cyan-400 h-full rounded-full" style={{ width: `${appData?.ocr_confidence ?? 94}%` }} />
                       </div>
                     </div>
                   </div>
@@ -832,7 +1015,7 @@ export default function TrackPage({
                     <p className="font-body-sm text-body-sm text-text-muted">
                       Format PDF, JPG, atau PNG (Maks. 8 MB). AI langsung memproses ulang dalam 5 detik.
                     </p>
-                    <input ref={kkInputRef} accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="fileInputKK" type="file" onChange={(e) => { const f = e.target.files?.[0]; if (f) setReuploadStatus(`Berkas ${f.name} diterima ✓`); }} />
+                    <input ref={kkInputRef} accept=".pdf,.jpg,.jpeg,.png" className="hidden" id="fileInputKK" type="file" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleLiveReuploadKK(f); }} />
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-text-muted font-body-sm text-body-sm pt-space-xs">
