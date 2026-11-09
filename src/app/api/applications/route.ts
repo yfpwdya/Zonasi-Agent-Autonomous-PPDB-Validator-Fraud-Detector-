@@ -87,6 +87,7 @@ export async function POST(request: Request) {
         kk_number: record.kk_number,
         home_lat: record.home_lat,
         home_lng: record.home_lng,
+        home_location: `SRID=4326;POINT(${record.home_lng} ${record.home_lat})`,
         real_route_distance_meters: record.real_route_distance_meters,
         straight_line_distance_meters: record.straight_line_distance_meters,
         kk_image_url: record.kk_image_url,
@@ -98,7 +99,7 @@ export async function POST(request: Request) {
         status: record.status,
         ai_reasoning_summary: record.ai_reasoning_summary,
         rejection_reason: record.rejection_reason,
-      });
+      }, { onConflict: "tracking_id" });
     }
   });
 
