@@ -101,5 +101,33 @@ export async function runZonasiAgentPipeline(params: {
     detectedBuilding: vision.detectedBuilding,
     realRouteMeters: geo.realRouteMeters,
   });
+
+  // Real Gemini LLM reasoning synthesis when GEMINI_API_KEY is configured
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey) {
+    try {
+      const prompt = `Anda adalah Autonomous PPDB Zonasi-Agent Auditor. Buat 1 kalimat kesimpulan audit formal Bahasa Indonesia (maks 28 kata) untuk pendaftar dengan data: Nomor KK=${params.kkNumber}, Usia KK=${ocr.kkAgeYears} tahun (valid=${ocr.kkAgeValid}), Hubungan=${ocr.familyRelation}, Jarak Rute=${geo.realRouteMeters}m (Garis lurus=${geo.straightLineMeters}m), Bangunan=${vision.detectedBuilding}, Alamat="${params.addressHint || "-"}", Status Keputusan=${decision.status}.`;
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+          }),
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (text) {
+          decision.aiReasoningSummary = `[Gemini-3-Flash] ${text}`;
+        }
+      }
+    } catch {
+      // keep deterministic reasoning on network timeout
+    }
+  }
+
   return { ocr, geo, vision, decision };
 }

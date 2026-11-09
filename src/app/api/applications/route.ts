@@ -80,26 +80,62 @@ export async function POST(request: Request) {
   after(async () => {
     const sb = getSupabaseServer();
     if (sb) {
-      await sb.from("applications").upsert({
-        tracking_id: record.tracking_id,
-        student_nik: record.student_nik,
-        student_name: record.student_name,
-        kk_number: record.kk_number,
-        home_lat: record.home_lat,
-        home_lng: record.home_lng,
-        home_location: `SRID=4326;POINT(${record.home_lng} ${record.home_lat})`,
-        real_route_distance_meters: record.real_route_distance_meters,
-        straight_line_distance_meters: record.straight_line_distance_meters,
-        kk_image_url: record.kk_image_url,
-        kk_issue_date: record.kk_issue_date,
-        kk_age_valid: record.kk_age_valid,
-        family_relation_valid: record.family_relation_valid,
-        ocr_confidence: record.ocr_confidence,
-        detected_building: record.detected_building,
-        status: record.status,
-        ai_reasoning_summary: record.ai_reasoning_summary,
-        rejection_reason: record.rejection_reason,
-      }, { onConflict: "tracking_id" });
+      const { data: appRow } = await sb
+        .from("applications")
+        .upsert(
+          {
+            tracking_id: record.tracking_id,
+            student_nik: record.student_nik,
+            student_name: record.student_name,
+            kk_number: record.kk_number,
+            home_lat: record.home_lat,
+            home_lng: record.home_lng,
+            home_location: `SRID=4326;POINT(${record.home_lng} ${record.home_lat})`,
+            real_route_distance_meters: record.real_route_distance_meters,
+            straight_line_distance_meters: record.straight_line_distance_meters,
+            kk_image_url: record.kk_image_url,
+            kk_issue_date: record.kk_issue_date,
+            kk_age_valid: record.kk_age_valid,
+            family_relation_valid: record.family_relation_valid,
+            ocr_confidence: record.ocr_confidence,
+            detected_building: record.detected_building,
+            status: record.status,
+            ai_reasoning_summary: record.ai_reasoning_summary,
+            rejection_reason: record.rejection_reason,
+          },
+          { onConflict: "tracking_id" }
+        )
+        .select("id")
+        .single();
+
+      if (appRow?.id) {
+        await sb.from("agent_audit_logs").insert([
+          {
+            application_id: appRow.id,
+            step_name: "OCR_CHECK",
+            status: pipeline.ocr.ocrConfidence >= 80 ? "SUCCESS" : "WARNING",
+            detail_message: `Confidence OCR ${pipeline.ocr.ocrConfidence}%, Terbit KK ${pipeline.ocr.kkIssueDate} (${pipeline.ocr.kkAgeYears} thn), Relasi ${pipeline.ocr.familyRelation}.`,
+          },
+          {
+            application_id: appRow.id,
+            step_name: "ROUTE_CALC",
+            status: "SUCCESS",
+            detail_message: `Jarak garis lurus PostGIS ${pipeline.geo.straightLineMeters}m, rute darat riil ${pipeline.geo.realRouteMeters}m.`,
+          },
+          {
+            application_id: appRow.id,
+            step_name: "VISION_AUDIT",
+            status: pipeline.vision.detectedBuilding === "RESIDENTIAL" ? "SUCCESS" : "WARNING",
+            detail_message: pipeline.vision.summary,
+          },
+          {
+            application_id: appRow.id,
+            step_name: "FINAL_DECISION",
+            status: record.status === "APPROVED" ? "SUCCESS" : "WARNING",
+            detail_message: record.ai_reasoning_summary,
+          },
+        ]);
+      }
     }
   });
 

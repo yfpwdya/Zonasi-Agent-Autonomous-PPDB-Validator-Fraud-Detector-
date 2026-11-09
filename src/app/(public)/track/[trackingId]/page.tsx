@@ -51,6 +51,18 @@ export default function TrackPage({
         if (d?.application?.student_name) {
           setStudentName(d.application.student_name);
         }
+        if (d?.application?.ai_reasoning_summary) {
+          const now = new Date().toTimeString().slice(0, 8);
+          setExtraLogs((prev) => [
+            {
+              time: now,
+              agent: "GEMINI-3-FLASH",
+              color: "text-emerald-400",
+              msg: `${d.application.ai_reasoning_summary} (Status: ${d.application.status})`,
+            },
+            ...prev,
+          ]);
+        }
       })
       .catch(() => {});
   }, [trackingId]);
