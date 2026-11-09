@@ -1,10 +1,37 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { ApplicationRecord } from "@/lib/store";
 import Link from "next/link";
 
 export default function DashboardPage() {
   const [mapLayer, setMapLayer] = useState<"hybrid" | "topo" | "heat">("hybrid");
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "FRAUD" | "REVISION" | "APPROVED">("ALL");
+  const [applications, setApplications] = useState<ApplicationRecord[]>([]);
+
+  useEffect(() => {
+    fetch("/api/applications")
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d?.applications)) setApplications(d.applications);
+      })
+      .catch(() => {});
+  }, [disqualified]);
+
+  const filteredApps = applications.filter((app) => {
+    const q = searchQuery.trim().toLowerCase();
+    const matchSearch =
+      !q ||
+      app.student_name.toLowerCase().includes(q) ||
+      app.student_nik.toLowerCase().includes(q) ||
+      app.tracking_id.toLowerCase().includes(q);
+    if (!matchSearch) return false;
+    if (statusFilter === "FRAUD") return app.status === "REJECTED";
+    if (statusFilter === "REVISION")
+      return app.status === "NEEDS_LIVE_PHOTO" || app.status === "NEEDS_REVISION";
+    if (statusFilter === "APPROVED") return app.status === "APPROVED";
+    return true;
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const [sidakScheduled, setSidakScheduled] = useState(false);
   const [disqualified, setDisqualified] = useState(false);
@@ -547,51 +574,81 @@ export default function DashboardPage() {
                   <h2 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2">
                     <span className="material-symbols-outlined text-secondary text-[22px]">
                       shield_with_heart
+                <div className="flex items-center gap-1.5 bg-surface-slate p-1 rounded-xl flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter("ALL")}
+                    className={
+                      statusFilter === "ALL"
+                        ? "px-3 py-1.5 rounded-lg font-label-md text-label-md bg-surface-canvas text-secondary font-bold shadow-sm border border-border-slate transition-all flex items-center gap-1.5"
+                        : "px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-text-heading transition-all flex items-center gap-1.5"
+                    }
+                  >
+                    <span>Semua Status</span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-surface-container text-text-muted font-code-sm text-code-sm">
+                      {applications.length || 428}
                     </span>
-                    Antrean Validasi Cerdas & Deteksi Fraud
-                  </h2>
-                  <span className="font-body-sm text-body-sm text-text-muted">
-                    Penyaringan otomatis OCR, vision AI bangunan hunian, dan penghitungan jarak PostGIS
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter("FRAUD")}
+                    className={
+                      statusFilter === "FRAUD"
+                        ? "px-3 py-1.5 rounded-lg font-label-md text-label-md bg-surface-canvas text-status-fraud font-bold shadow-sm border border-status-fraud-border transition-all flex items-center gap-1.5"
+                        : "px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-fraud hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5"
+                    }
+                  >
+                    <span className="w-2 h-2 rounded-full bg-status-fraud animate-pulse" />
+                    <span>🚨 Kritis / Fraud</span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-status-fraud text-on-primary font-code-sm text-code-sm font-bold shadow-sm">
+                      {applications.filter((a) => a.status === "REJECTED").length || 14}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter("REVISION")}
+                    className={
+                      statusFilter === "REVISION"
+                        ? "px-3 py-1.5 rounded-lg font-label-md text-label-md bg-surface-canvas text-status-revision font-bold shadow-sm border border-status-revision-border transition-all flex items-center gap-1.5"
+                        : "px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-revision hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5"
+                    }
+                  >
+                    <span>⚠️ Sedang / Verifikasi</span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-status-revision-bg text-status-revision font-code-sm text-code-sm font-semibold">
+                      {applications.filter((a) => a.status === "NEEDS_LIVE_PHOTO" || a.status === "NEEDS_REVISION").length || 26}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStatusFilter("APPROVED")}
+                    className={
+                      statusFilter === "APPROVED"
+                        ? "px-3 py-1.5 rounded-lg font-label-md text-label-md bg-surface-canvas text-status-approved font-bold shadow-sm border border-status-approved-border transition-all flex items-center gap-1.5"
+                        : "px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-approved hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5"
+                    }
+                  >
+                    <span>✅ Bersih / Lolos</span>
+                    <span className="px-1.5 py-0.5 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-semibold">
+                      {applications.filter((a) => a.status === "APPROVED").length || 364}
+                    </span>
+                  </button>
+                </div>
+                <div className="flex items-center gap-2 text-text-muted font-code-sm text-code-sm">
+                  <span className="flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-secondary" />
+                    Filter Aktif:{' '}
+                    <strong className="text-text-heading">
+                      {statusFilter === "ALL"
+                        ? `Semua Status (${filteredApps.length} Berkas)`
+                        : statusFilter === "FRAUD"
+                        ? `Kritis / Fraud (${filteredApps.length} Kasus)`
+                        : statusFilter === "REVISION"
+                        ? `Verifikasi (${filteredApps.length} Berkas)`
+                        : `Bersih / Lolos (${filteredApps.length} Berkas)`}
+                    </strong>
                   </span>
                 </div>
-                <div className="flex items-center gap-space-sm">
-                  <div className="relative">
-                    <span className="material-symbols-outlined absolute left-3 top-2.5 text-text-muted text-[18px]">
-                      search
-                    </span>
-                    <input className="pl-9 pr-space-md py-1.5 rounded-lg bg-surface-slate text-body-sm text-text-heading outline-none focus:bg-surface-canvas focus:shadow-sm transition-all w-52 sm:w-64 font-body-sm" placeholder="Cari nama, NIK, ID..." type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                  </div>
-                  <button className="p-2 rounded-lg bg-surface-slate text-on-surface-variant hover:text-text-heading hover:bg-surface-container transition-colors" title="Filter Lanjutan" type="button">
-                    <span className="material-symbols-outlined text-[20px]">
-                      filter_list
-                    </span>
-                  </button>
-                  <button className="p-2 rounded-lg bg-surface-slate text-on-surface-variant hover:text-text-heading hover:bg-surface-container transition-colors" title="Ekspor Data Tabel" type="button">
-                    <span className="material-symbols-outlined text-[20px]">
-                      download
-                    </span>
-                  </button>
-                </div>
               </div>
-              <div className="flex items-center justify-between flex-wrap gap-space-sm pt-space-xs">
-                <div className="flex items-center gap-1.5 bg-surface-slate p-1 rounded-xl flex-wrap">
-                  <button type="button" className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-text-heading transition-all flex items-center gap-1.5">
-                    <span className="">
-                      Semua Status
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded-full bg-surface-container text-text-muted font-code-sm text-code-sm">
-                      428
-                    </span>
-                  </button>
-                  <button type="button" className="px-3 py-1.5 rounded-lg font-label-md text-label-md bg-surface-canvas text-status-fraud font-bold shadow-sm border border-status-fraud-border transition-all flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-status-fraud animate-pulse" />
-                    <span className="">
-                      🚨 Kritis / Fraud
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded-full bg-status-fraud text-on-primary font-code-sm text-code-sm font-bold shadow-sm">
-                      14
-                    </span>
-                  </button>
                   <button type="button" className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-revision hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5">
                     <span className="">
                       ⚠️ Sedang / Verifikasi
@@ -655,138 +712,123 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y-0 text-text-body font-body-sm text-body-sm">
-                  {/* Row 1: Valid */}
-                  <tr className="hover:bg-surface-slate/70 transition-colors">
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
-                      01
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-secondary font-semibold">
-                      PPDB-2024-0891
-                    </td>
-                    <td className="py-space-md px-space-md font-semibold text-text-heading">
-                      Rafi Alamsyah
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
-                      3171021406080001
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm font-semibold">
-                      820 m
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="font-code-sm text-code-sm text-status-approved">
-                        2.8 Tahun
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-semibold inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">
-                          home
-                        </span>
-                        {' '}RESIDENSIAL
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-label-md text-label-md inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">
-                          check_circle
-                        </span>
-                        {' '}APPROVED
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md text-right">
-                      <Link href="/track/PPDB-2024-0891" className="px-space-md py-1.5 rounded-lg bg-surface-container text-secondary font-label-md text-label-md hover:bg-secondary hover:text-on-secondary transition-all inline-block">
-                        Lihat Detail
-                      </Link>
-                    </td>
-                  </tr>
-                  {/* Row 2: Fraud Detected */}
-                  <tr className="hover:bg-status-fraud-bg/40 transition-colors bg-status-fraud-bg/10">
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
-                      02
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-status-fraud font-semibold">
-                      PPDB-2024-1142
-                    </td>
-                    <td className="py-space-md px-space-md font-semibold text-text-heading">
-                      Budi Santoso
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
-                      3171032801080004
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm font-semibold text-status-fraud">
-                      310 m
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="px-2 py-0.5 rounded bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm font-bold">
-                        4 Bln (ANOMALI)
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm font-semibold inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">
-                          storefront
-                        </span>
-                        {' '}KOMERSIAL/RUKO
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-label-md text-label-md font-bold inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">
-                          dangerous
-                        </span>
-                        {' '}REJECTED - FRAUD
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md text-right">
-                      <button onClick={() => setModalOpen(true)} className="px-space-md py-1.5 rounded-lg bg-status-fraud text-on-primary font-label-md text-label-md hover:bg-error transition-all shadow-sm" type="button">
-                        Investigasi / Override
-                      </button>
-                    </td>
-                  </tr>
-                  {/* Row 3: Edge Case / Needs Photo */}
-                  <tr className="hover:bg-status-revision-bg/40 transition-colors">
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
-                      03
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-secondary font-semibold">
-                      PPDB-2024-0419
-                    </td>
-                    <td className="py-space-md px-space-md font-semibold text-text-heading">
-                      Siti Rahma
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
-                      3171015509080002
-                    </td>
-                    <td className="py-space-md px-space-md font-code-sm text-code-sm font-semibold">
-                      950 m
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="font-code-sm text-code-sm text-status-approved">
-                        3.1 Tahun
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="px-2.5 py-1 rounded-full bg-surface-slate text-text-muted font-code-sm text-code-sm inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">
-                          alt_route
-                        </span>
-                        {' '}GANG SEMPIT (BLIND SPOT)
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md">
-                      <span className="px-2.5 py-1 rounded-full bg-status-revision-bg text-status-revision font-label-md text-label-md font-semibold inline-flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">
-                          add_a_photo
-                        </span>
-                        {' '}NEEDS_LIVE_PHOTO
-                      </span>
-                    </td>
-                    <td className="py-space-md px-space-md text-right">
-                      <button onClick={() => setNotifiedIds((p) => ({ ...p, "PPDB-2024-0419": true }))} className="px-space-md py-1.5 rounded-lg bg-surface-slate hover:bg-surface-container text-secondary font-label-md text-label-md transition-all" type="button">
-                        {notifiedIds["PPDB-2024-0419"] ? "Notifikasi Terkirim ✓" : "Kirim Notifikasi"}
-                      </button>
-                    </td>
-                  </tr>
+                  {filteredApps.map((app, i) => {
+                    const isFraud = app.status === "REJECTED";
+                    const isRev = app.status === "NEEDS_LIVE_PHOTO" || app.status === "NEEDS_REVISION";
+                    return (
+                      <tr
+                        key={app.id}
+                        className={
+                          isFraud
+                            ? "hover:bg-status-fraud-bg/40 transition-colors bg-status-fraud-bg/10"
+                            : isRev
+                            ? "hover:bg-status-revision-bg/40 transition-colors"
+                            : "hover:bg-surface-slate/70 transition-colors"
+                        }
+                      >
+                        <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
+                          {String(i + 1).padStart(2, "0")}
+                        </td>
+                        <td
+                          className={`py-space-md px-space-md font-code-sm text-code-sm font-semibold ${
+                            isFraud ? "text-status-fraud" : "text-secondary"
+                          }`}
+                        >
+                          {app.tracking_id}
+                        </td>
+                        <td className="py-space-md px-space-md font-semibold text-text-heading">
+                          {app.student_name}
+                        </td>
+                        <td className="py-space-md px-space-md font-code-sm text-code-sm text-text-muted">
+                          {app.student_nik}
+                        </td>
+                        <td
+                          className={`py-space-md px-space-md font-code-sm text-code-sm font-semibold ${
+                            isFraud ? "text-status-fraud" : ""
+                          }`}
+                        >
+                          {app.real_route_distance_meters} m
+                        </td>
+                        <td className="py-space-md px-space-md">
+                          {isFraud ? (
+                            <span className="px-2 py-0.5 rounded bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm font-bold">
+                              {app.kk_age_label}
+                            </span>
+                          ) : (
+                            <span className="font-code-sm text-code-sm text-status-approved">
+                              {app.kk_age_label}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-space-md px-space-md">
+                          {app.detected_building === "COMMERCIAL" ? (
+                            <span className="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm font-semibold inline-flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">storefront</span>{' '}
+                              KOMERSIAL/RUKO
+                            </span>
+                          ) : app.detected_building === "NO_STREET_VIEW" ? (
+                            <span className="px-2.5 py-1 rounded-full bg-surface-slate text-text-muted font-code-sm text-code-sm inline-flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">alt_route</span>{' '}
+                              GANG SEMPIT (BLIND SPOT)
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-semibold inline-flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">home</span>{' '}
+                              RESIDENSIAL
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-space-md px-space-md">
+                          {isFraud ? (
+                            <span className="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-label-md text-label-md font-bold inline-flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">dangerous</span>{' '}
+                              REJECTED - FRAUD
+                            </span>
+                          ) : isRev ? (
+                            <span className="px-2.5 py-1 rounded-full bg-status-revision-bg text-status-revision font-label-md text-label-md font-semibold inline-flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">add_a_photo</span>{' '}
+                              {app.status}
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-label-md text-label-md inline-flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[14px]">check_circle</span>{' '}
+                              APPROVED
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-space-md px-space-md text-right">
+                          {isFraud ? (
+                            <button
+                              onClick={() => setModalOpen(true)}
+                              className="px-space-md py-1.5 rounded-lg bg-status-fraud text-on-primary font-label-md text-label-md hover:bg-error transition-all shadow-sm"
+                              type="button"
+                            >
+                              Investigasi / Override
+                            </button>
+                          ) : isRev ? (
+                            <button
+                              onClick={() =>
+                                setNotifiedIds((p) => ({ ...p, [app.tracking_id]: true }))
+                              }
+                              className="px-space-md py-1.5 rounded-lg bg-surface-slate hover:bg-surface-container text-secondary font-label-md text-label-md transition-all"
+                              type="button"
+                            >
+                              {notifiedIds[app.tracking_id]
+                                ? "Notifikasi Terkirim ✓"
+                                : "Kirim Notifikasi"}
+                            </button>
+                          ) : (
+                            <Link
+                              href={`/track/${encodeURIComponent(app.tracking_id)}`}
+                              className="px-space-md py-1.5 rounded-lg bg-surface-container text-secondary font-label-md text-label-md hover:bg-secondary hover:text-on-secondary transition-all inline-block"
+                            >
+                              Lihat Detail
+                            </Link>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
