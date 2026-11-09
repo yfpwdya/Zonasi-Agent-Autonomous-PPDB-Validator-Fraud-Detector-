@@ -649,33 +649,6 @@ export default function DashboardPage() {
                   </span>
                 </div>
               </div>
-                  <button type="button" className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-revision hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5">
-                    <span className="">
-                      ⚠️ Sedang / Verifikasi
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded-full bg-status-revision-bg text-status-revision font-code-sm text-code-sm font-semibold">
-                      26
-                    </span>
-                  </button>
-                  <button type="button" className="px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-approved hover:bg-surface-canvas/60 transition-all flex items-center gap-1.5">
-                    <span className="">
-                      ✅ Bersih / Lolos
-                    </span>
-                    <span className="px-1.5 py-0.5 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-semibold">
-                      364
-                    </span>
-                  </button>
-                </div>
-                <div className="flex items-center gap-2 text-text-muted font-code-sm text-code-sm">
-                  <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-status-fraud" />
-                    Filter Aktif:{' '}
-                    <strong className="text-status-fraud">
-                      Kritis / Fraud (14 Kasus)
-                    </strong>
-                  </span>
-                </div>
-              </div>
             </div>
             {/* Smart Table Container */}
             <div className="overflow-x-auto rounded-lg">
