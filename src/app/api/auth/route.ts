@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { getSupabaseServer } from "@/server/supabase";
 
 // ponytail: use Supabase Admin createUser({ email_confirm: true }) so panitia can register & login immediately without SMTP setup
 export async function POST(req: NextRequest) {

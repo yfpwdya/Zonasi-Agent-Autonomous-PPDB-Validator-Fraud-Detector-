@@ -4,9 +4,9 @@ import {
   findByTrackingId,
   upsertApplication,
   type ApplicationRecord,
-} from "@/lib/store";
-import { runZonasiAgentPipeline } from "@/lib/agent/orchestrator";
-import { getSupabaseServer, hasSupabaseConfig } from "@/lib/supabase/server";
+} from "@/server/store";
+import { runZonasiAgentPipeline } from "@/server/agent/orchestrator";
+import { getSupabaseServer, hasSupabaseConfig } from "@/server/supabase";
 
 // ponytail: read from Supabase PostgreSQL first when configured, falling back to local .zonasi-store.json
 export async function GET(req: NextRequest) {

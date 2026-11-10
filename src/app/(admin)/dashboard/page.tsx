@@ -1,23 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import type { ApplicationRecord } from "@/lib/store";
+import type { ApplicationRecord, AuthUser } from "@/types";
+import { useApplications, useUpdateApplication } from "@/hooks/useApplications";
 import Link from "next/link";
-
-type AuthUser = {
-  id: string;
-  email: string;
-  full_name: string;
-  nip: string;
-  role: string;
-};
 
 export default function DashboardPage() {
   const [mapLayer, setMapLayer] = useState<"hybrid" | "topo" | "heat">("hybrid");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "FRAUD" | "REVISION" | "APPROVED">("ALL");
-  const [applications, setApplications] = useState<ApplicationRecord[]>([]);
-  const [dataSource, setDataSource] = useState<string>("supabase");
-  const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
+  const { data, refetch } = useApplications();
+  const updateApp = useUpdateApplication();
+  const applications = data?.applications ?? [];
+  const dataSource = data?.source ?? "supabase";
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Derived from the cached list so the inspector always shows fresh data after refetch.
+  const selectedApp = applications.find((a) => a.tracking_id === selectedId) ?? null;
+  const setSelectedApp = (a: ApplicationRecord) => setSelectedId(a.tracking_id);
   const [modalOpen, setModalOpen] = useState(false);
   const [sidakScheduled, setSidakScheduled] = useState<Record<string, boolean>>({});
   const [notifiedIds, setNotifiedIds] = useState<Record<string, boolean>>({});
@@ -33,32 +31,7 @@ export default function DashboardPage() {
   });
   const [toastMsg, setToastMsg] = useState<string | null>(null);
 
-  const loadApplications = async () => {
-    try {
-      const r = await fetch("/api/applications", { cache: "no-store" });
-      const d = await r.json();
-      if (Array.isArray(d?.applications)) {
-        setApplications(d.applications);
-        if (d.source) setDataSource(d.source);
-        if (!selectedApp && d.applications.length > 0) {
-          const firstFraud =
-            d.applications.find((a: ApplicationRecord) => a.status === "REJECTED") ||
-            d.applications[0];
-          setSelectedApp(firstFraud);
-        } else if (selectedApp) {
-          const refreshed = d.applications.find(
-            (a: ApplicationRecord) => a.tracking_id === selectedApp.tracking_id,
-          );
-          if (refreshed) setSelectedApp(refreshed);
-        }
-      }
-    } catch {
-      // ignore fetch error
-    }
-  };
-
   useEffect(() => {
-    loadApplications();
     try {
       const raw = localStorage.getItem("zonasi_auth_user");
       if (raw) {
@@ -181,8 +154,8 @@ export default function DashboardPage() {
 
   const handleSyncDukcapil = async () => {
     setSyncLabel(`Menyinkronkan ${applications.length} Berkas...`);
-    await loadApplications();
-    setSyncLabel(`Tersinkronisasi Supabase (${applications.length} Berkas) ✓`);
+    const r = await refetch();
+    setSyncLabel(`Tersinkronisasi Supabase (${r.data?.applications.length ?? 0} Berkas) ✓`);
     showToast("Data antrean berhasil disinkronkan langsung dengan Supabase PostgreSQL.");
   };
 
@@ -191,34 +164,30 @@ export default function DashboardPage() {
     nextStatus: ApplicationRecord["status"],
     reasonNote: string,
   ) => {
-    await fetch("/api/applications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      await updateApp.mutateAsync({
         tracking_id: targetApp.tracking_id,
         status: nextStatus,
         actor: `${authUser.full_name} (NIP: ${authUser.nip})`,
         ai_reasoning_summary: `[Override Panitia - ${authUser.full_name}] ${reasonNote}`,
-      }),
-    }).catch(() => {});
-    await loadApplications();
+      });
+    } catch (e) {
+      return showToast(`Gagal memperbarui status: ${(e as Error).message}`);
+    }
     setModalOpen(false);
     showToast(`Status berkas ${targetApp.tracking_id} (${targetApp.student_name}) diperbarui menjadi ${nextStatus}.`);
   };
 
   const handleNotifyApplicant = async (app: ApplicationRecord) => {
     setNotifiedIds((p) => ({ ...p, [app.tracking_id]: true }));
-    await fetch("/api/applications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    await updateApp
+      .mutateAsync({
         tracking_id: app.tracking_id,
         status: app.status,
         actor: authUser.full_name,
         ai_reasoning_summary: `${app.ai_reasoning_summary} [Notifikasi revisi dikirim oleh ${authUser.full_name} pada ${new Date().toLocaleTimeString("id-ID")}]`,
-      }),
-    }).catch(() => {});
-    await loadApplications();
+      })
+      .catch(() => {});
     showToast(`Notifikasi instruksi revisi terkirim ke pendaftar ${app.student_name} (${app.tracking_id}).`);
   };
 

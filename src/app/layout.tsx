@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { QueryProvider } from "@/providers/QueryProvider";
 
 export const metadata: Metadata = {
   title: "Zonasi-Agent - Autonomous PPDB Validator & Fraud Detector",
@@ -27,7 +28,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface font-body-md text-text-body antialiased min-h-screen flex flex-col">
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

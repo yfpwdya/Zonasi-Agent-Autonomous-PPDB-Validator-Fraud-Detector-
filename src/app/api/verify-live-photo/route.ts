@@ -1,6 +1,6 @@
 import { NextResponse, after } from "next/server";
-import { readApplications, writeApplications } from "@/lib/store";
-import { getSupabaseServer } from "@/lib/supabase/server";
+import { readApplications, writeApplications } from "@/server/store";
+import { getSupabaseServer } from "@/server/supabase";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));

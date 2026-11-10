@@ -1,8 +1,9 @@
 "use client";
 import { use, useEffect, useRef, useState } from "react";
 import { FadeIn } from "@/components/animations/FadeIn";
-import { supabaseBrowser } from "@/lib/supabase/client";
-import type { ApplicationRecord } from "@/lib/store";
+import { supabaseBrowser } from "@/lib/supabase";
+import type { ApplicationRecord } from "@/types";
+import { useApplication, useCreateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
 
 const FEED_LOGS = [
   {
@@ -47,13 +48,14 @@ export default function TrackPage({
   const [geoStatus, setGeoStatus] = useState("");
   const [scanningOcr, setScanningOcr] = useState(false);
   const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
+  const { data: fetchedApp } = useApplication(trackingId);
+  const createApp = useCreateApplication();
+  const verifyPhoto = useVerifyLivePhoto();
 
+  // Seed UI state + reasoning feed once the query resolves.
   useEffect(() => {
-    fetch(`/api/applications?q=${encodeURIComponent(trackingId)}`)
-      .then((r) => r.json())
-      .then((d) => {
-        if (d?.application) {
-          const app: ApplicationRecord = d.application;
+        if (fetchedApp) {
+          const app: ApplicationRecord = fetchedApp;
           setAppData(app);
           setStudentName(app.student_name);
           if (app.kk_image_url?.startsWith("http")) {
@@ -87,9 +89,7 @@ export default function TrackPage({
             },
           ]);
         }
-      })
-      .catch(() => {});
-  }, [trackingId]);
+  }, [fetchedApp]);
 
   const handleLiveReuploadKK = (file: File) => {
     setReuploadStatus(`Memindai ${file.name} dengan Gemini 3 Flash...`);
@@ -99,25 +99,19 @@ export default function TrackPage({
       const b64 = typeof reader.result === "string" ? reader.result : undefined;
       if (b64) setUploadedPreviewUrl(b64);
       try {
-        const res = await fetch("/api/applications", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            tracking_id: trackingId,
-            student_nik: appData?.student_nik || "3171041908070002",
-            student_name: appData?.student_name || studentName,
-            kk_number: appData?.kk_number || "3171042502120005",
-            school_name: appData?.school_name || "SMAN 1 Teladan Jakarta",
-            address: appData?.address || "Jl. Kenanga No. 14, Tebet Barat",
-            home_lat: appData?.home_lat ?? -6.2284,
-            home_lng: appData?.home_lng ?? 106.8492,
-            kk_image_url: file.name,
-            kk_image_base64: b64,
-          }),
+        const updated = await createApp.mutateAsync({
+          tracking_id: trackingId,
+          student_nik: appData?.student_nik || "3171041908070002",
+          student_name: appData?.student_name || studentName,
+          kk_number: appData?.kk_number || "3171042502120005",
+          address_text: appData?.address || "Jl. Kenanga No. 14, Tebet Barat",
+          latitude: appData?.home_lat ?? -6.2284,
+          longitude: appData?.home_lng ?? 106.8492,
+          kk_file_name: file.name,
+          kk_file_base64: b64,
+          kk_mime_type: file.type || "image/jpeg",
         });
-        const data = await res.json();
-        if (data?.application) {
-          const updated: ApplicationRecord = data.application;
+        if (updated) {
           setAppData(updated);
           if (updated.kk_image_url?.startsWith("http")) {
             setUploadedPreviewUrl(updated.kk_image_url);
@@ -195,12 +189,12 @@ export default function TrackPage({
 
   const handleGeoCamera = async () => {
     setGeoStatus("Memverifikasi Geotag GPS...");
-    await fetch("/api/verify-live-photo", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tracking_id: trackingId, lat: -6.23827, lng: 106.85194 }),
-    }).catch(() => {});
-    setGeoStatus("Kamera Geotag Terverifikasi ✓");
+    try {
+      await verifyPhoto.mutateAsync({ tracking_id: trackingId, lat: -6.23827, lng: 106.85194 });
+      setGeoStatus("Kamera Geotag Terverifikasi ✓");
+    } catch {
+      setGeoStatus("Verifikasi Geotag Gagal — coba lagi");
+    }
   };
 
   return (

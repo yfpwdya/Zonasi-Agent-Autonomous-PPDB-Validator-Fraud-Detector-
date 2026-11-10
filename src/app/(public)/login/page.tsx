@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,50 +12,24 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState("Drs. H. Bambang Sudibyo, M.Pd");
   const [nip, setNip] = useState("197608142003121004");
   const [role, setRole] = useState("KETUA_VERIFIKATOR");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const auth = useAuth();
+  const loading = auth.isPending;
+  const error = auth.error?.message ?? null;
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
     setSuccessMsg(null);
-    try {
-      const res = await fetch("/api/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: mode,
-          email,
-          password,
-          fullName,
-          nip,
-          role,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data?.ok) {
-        setError(data?.error || "Gagal memproses autentikasi.");
-        return;
-      }
-      localStorage.setItem("zonasi_auth_user", JSON.stringify(data.user));
-      if (data.access_token) {
-        localStorage.setItem("zonasi_auth_token", data.access_token);
-      }
-      setSuccessMsg(
-        mode === "register"
-          ? `Akun ${data.user.full_name} berhasil terdaftar di Supabase Auth! Mengalihkan ke Dashboard...`
-          : `Selamat datang kembali, ${data.user.full_name}! Mengalihkan ke Dashboard...`,
-      );
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 600);
-    } catch {
-      setError("Gagal menghubungi server autentikasi.");
-    } finally {
-      setLoading(false);
-    }
+    const data = await auth
+      .mutateAsync({ action: mode, email, password, fullName, nip, role })
+      .catch(() => null); // error message is exposed via auth.error
+    if (!data) return;
+    setSuccessMsg(
+      mode === "register"
+        ? `Akun ${data.user.full_name} berhasil terdaftar di Supabase Auth! Mengalihkan ke Dashboard...`
+        : `Selamat datang kembali, ${data.user.full_name}! Mengalihkan ke Dashboard...`,
+    );
+    setTimeout(() => router.push("/dashboard"), 600);
   }
 
   return (
@@ -128,7 +103,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => {
                   setMode("login");
-                  setError(null);
+                  auth.reset();
                   setSuccessMsg(null);
                 }}
                 className={
@@ -143,7 +118,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => {
                   setMode("register");
-                  setError(null);
+                  auth.reset();
                   setSuccessMsg(null);
                 }}
                 className={

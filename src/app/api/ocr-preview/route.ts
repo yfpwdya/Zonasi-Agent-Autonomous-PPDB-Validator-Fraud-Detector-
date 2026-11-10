@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { analyzeKKDocument } from "@/lib/agent/ocr-kk-tool";
+import { analyzeKKDocument } from "@/server/agent/ocr-kk-tool";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));

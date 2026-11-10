@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence } from "motion/react";
 import { FadeIn } from "@/components/animations/FadeIn";
+import { useCreateApplication, useOcrPreview } from "@/hooks/useApplications";
 
 export function RegistrationWizard() {
   const router = useRouter();
@@ -24,7 +25,10 @@ export function RegistrationWizard() {
   const [routeMeters, setRouteMeters] = useState(820);
   const [straightMeters, setStraightMeters] = useState(540);
   const [draftSaved, setDraftSaved] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [kkMimeType, setKkMimeType] = useState("image/jpeg");
+  const createApp = useCreateApplication();
+  const ocrPreview = useOcrPreview();
+  const submitting = createApp.isPending;
 
   const handleUseGps = () => {
     if (typeof navigator !== "undefined" && navigator.geolocation) {
@@ -40,31 +44,22 @@ export function RegistrationWizard() {
   };
 
   const handleSubmitApplication = async () => {
-    setSubmitting(true);
     try {
-      const res = await fetch("/api/applications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          student_nik: nik,
-          student_name: studentName,
-          kk_number: kkNumber,
-          school_name: schoolName,
-          address,
-          home_lat: coords.lat,
-          home_lng: coords.lng,
-          kk_image_url: kkFileName,
-          kk_image_base64: kkFileBase64,
-          real_route_distance_meters: routeMeters,
-        }),
+      const app = await createApp.mutateAsync({
+        student_nik: nik,
+        student_name: studentName,
+        kk_number: kkNumber,
+        address_text: address,
+        latitude: coords.lat,
+        longitude: coords.lng,
+        kk_file_name: kkFileName,
+        kk_file_base64: kkFileBase64,
+        kk_mime_type: kkMimeType,
       });
-      const data = await res.json();
-      const targetId = data?.application?.tracking_id || "PPDB-2026-X89K";
-      router.push(`/track/${encodeURIComponent(targetId)}`);
-    } catch {
-      router.push("/track/PPDB-2026-X89K");
-    } finally {
-      setSubmitting(false);
+      router.push(`/track/${encodeURIComponent(app.tracking_id)}`);
+    } catch (e) {
+      // Stay on the form so the applicant doesn't lose their input.
+      alert(`Gagal mengirim pendaftaran: ${(e as Error).message}`);
     }
   };
 
@@ -265,6 +260,7 @@ export function RegistrationWizard() {
                   const f = e.target.files?.[0];
                   if (f) {
                     setKkFileName(f.name);
+                    setKkMimeType(f.type || "image/jpeg");
                     setOcrStatusText("Memindai piksel KK dengan Gemini 3 Flash Vision...");
                     setOcrDetailText("Mengekstrak Nomor KK, Tanggal Terbit, dan Status Hubungan...");
                     const reader = new FileReader();
@@ -272,17 +268,13 @@ export function RegistrationWizard() {
                       const b64 = typeof reader.result === "string" ? reader.result : undefined;
                       setKkFileBase64(b64);
                       try {
-                        const r = await fetch("/api/ocr-preview", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            kk_number: kkNumber,
-                            kk_image_name: f.name,
-                            kk_image_base64: b64,
-                          }),
+                        const ocr = await ocrPreview.mutateAsync({
+                          kk_number: kkNumber,
+                          kk_image_name: f.name,
+                          kk_image_base64: b64,
                         });
-                        const d = await r.json();
-                        if (d?.ocr) {
+                        const d = { ocr };
+                        if (d.ocr) {
                           const conf = d.ocr.ocrConfidence ?? 95;
                           const valid = d.ocr.kkAgeValid && d.ocr.familyRelationValid && conf >= 80;
                           setOcrStatusText(
