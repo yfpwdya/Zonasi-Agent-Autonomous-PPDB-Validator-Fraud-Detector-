@@ -115,19 +115,20 @@ export default function TrackPage({
         });
         if (updated) {
           setAppData(updated);
+          setStudentName(updated.student_name);
           if (updated.kk_image_url?.startsWith("http")) {
             setUploadedPreviewUrl(updated.kk_image_url);
           }
           setReuploadStatus(`Selesai Dipindai (${updated.ocr_confidence}% • ${updated.status}) ✓`);
           const now = new Date().toTimeString().slice(0, 8);
           setExtraLogs((prev) => [
+            ...prev,
             {
               time: now,
               agent: "LIVE-REUPLOAD-OCR",
               color: updated.ocr_confidence >= 80 ? "text-emerald-400" : "text-rose-400",
-              msg: `Hasil pindai ulang ${file.name}: Confidence ${updated.ocr_confidence}%, Status=${updated.status}. ${updated.rejection_reason || updated.ai_reasoning_summary}`,
+              msg: `Hasil pindai ulang ${file.name}: Siswa=${updated.student_name} (NIK ${updated.student_nik}), No.KK=${updated.kk_number}, Terbit=${updated.kk_issue_date} (${updated.kk_age_label}), Confidence=${updated.ocr_confidence}% -> STATUS: ${updated.status}. ${updated.rejection_reason || updated.ai_reasoning_summary}`,
             },
-            ...prev,
           ]);
         }
       } catch {
@@ -874,25 +875,11 @@ export default function TrackPage({
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Tanggal KK: 14/05/2023. Perhitungan delta: 1.031 hari (≥ 365 hari regulasi).
+                      Siswa: <strong>{appData?.student_name || studentName}</strong> (NIK {appData?.student_nik || "3171041908070002"}) • No.KK: {appData?.kk_number || "3171042502120005"} • Terbit: {appData?.kk_issue_date || "2018-02-12"} ({appData?.kk_age_label || "Valid"}).
                     </span>
                     {' '}
-                    <span className="text-emerald-300 font-bold">
-                      → STATUS: VALID
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-slate-500 font-mono select-none">
-                    14:02:18
-                  </span>
-                  <div>
-                    <span className="text-blue-400 font-semibold">
-                      [POSTGIS-GEOROUTE]
-                    </span>
-                    {' '}
-                    <span className="text-slate-300">
-                      Melakukan snapping koordinat rumah ke jaringan jalan Google OSRM.
+                    <span className={(appData?.kk_age_valid ?? true) && (appData?.ocr_confidence ?? 98) >= 80 ? "text-emerald-300 font-bold" : "text-rose-400 font-bold"}>
+                      → STATUS KK: {(appData?.kk_age_valid ?? true) && (appData?.ocr_confidence ?? 98) >= 80 ? "VALID" : "PERLU REVISI / ANOMALI"}
                     </span>
                   </div>
                 </div>
@@ -906,19 +893,19 @@ export default function TrackPage({
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Jarak rute riil berjalan kaki dihitung:
+                      Jarak garis lurus: {appData?.straight_line_distance_meters ?? 540}m • Jarak rute darat riil:
                     </span>
                     {' '}
                     <span className="text-cyan-300 font-bold">
-                      820 meter
+                      {appData?.real_route_distance_meters ?? 820} meter
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      (Threshold: 1.200m).
+                      (Batas Zonasi: 1.200m).
                     </span>
                     {' '}
-                    <span className="text-emerald-300 font-bold">
-                      → DALAM JANGKAUAN
+                    <span className={(appData?.real_route_distance_meters ?? 820) <= 1200 ? "text-emerald-300 font-bold" : "text-rose-400 font-bold"}>
+                      → {(appData?.real_route_distance_meters ?? 820) <= 1200 ? "DALAM JANGKAUAN" : "LUAR ZONASI"}
                     </span>
                   </div>
                 </div>

@@ -70,6 +70,8 @@ export async function runZonasiAgentPipeline(params: {
   kkImageName?: string;
   kkImageBase64?: string;
   kkIssueDateHint?: string;
+  studentNikHint?: string;
+  studentNameHint?: string;
   homeLat: number;
   homeLng: number;
   schoolLat: number;

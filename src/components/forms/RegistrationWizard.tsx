@@ -18,6 +18,13 @@ export function RegistrationWizard() {
   const [kkFileSize, setKkFileSize] = useState("1.8 MB • Image / JPEG");
   const [kkFileBase64, setKkFileBase64] = useState<string | undefined>(undefined);
   const [kkIssuedDate, setKkIssuedDate] = useState("2021-03-14");
+  const [detectedNik, setDetectedNik] = useState("3171041908070002");
+  const [detectedName, setDetectedName] = useState("Ahmad Fadhil Prasetyo");
+  const [detectedRelation, setDetectedRelation] = useState<"ANAK_KANDUNG" | "FAMILI_LAIN">("ANAK_KANDUNG");
+  const [detectedMembers, setDetectedMembers] = useState<
+    Array<{ nik: string; name: string; relation: string }>
+  >([]);
+  const [autoFillFromKK, setAutoFillFromKK] = useState(true);
   const [ocrStatusText, setOcrStatusText] = useState("OCR Pre-flight: Siap Diaudit (Unggah KK)");
   const [ocrDetailText, setOcrDetailText] = useState("Tanggal Terbit KK: 14 Maret 2021 (>1 Tahun Domisili Sah)");
   const [address, setAddress] = useState(
@@ -317,11 +324,26 @@ export function RegistrationWizard() {
                           kk_number: kkNumber,
                           kk_image_name: f.name,
                           kk_image_base64: b64,
+                          student_nik: nik,
+                          student_name: studentName,
                         });
                         const d = { ocr };
                         if (d.ocr) {
                           if (d.ocr.kkIssueDate) setKkIssuedDate(d.ocr.kkIssueDate);
                           if (d.ocr.kkNumberDetected) setKkNumber(d.ocr.kkNumberDetected);
+                          if (d.ocr.studentNikDetected) {
+                            setDetectedNik(d.ocr.studentNikDetected);
+                            if (autoFillFromKK) setNik(d.ocr.studentNikDetected);
+                          }
+                          if (d.ocr.studentNameDetected) {
+                            setDetectedName(d.ocr.studentNameDetected);
+                            if (autoFillFromKK) setStudentName(d.ocr.studentNameDetected);
+                          }
+                          if (d.ocr.addressDetected && autoFillFromKK) {
+                            setAddress(d.ocr.addressDetected);
+                          }
+                          if (d.ocr.familyRelation) setDetectedRelation(d.ocr.familyRelation);
+                          if (d.ocr.familyMembers) setDetectedMembers(d.ocr.familyMembers);
                           const conf = d.ocr.ocrConfidence ?? 95;
                           const valid = d.ocr.kkAgeValid && d.ocr.familyRelationValid && conf >= 80;
                           setOcrStatusText(
@@ -415,29 +437,125 @@ export function RegistrationWizard() {
                   </span>
                 </div>
               </div>
-              {/* Document Inspection Scan Visual Effect */}
-              <div className="relative overflow-hidden rounded-lg bg-text-heading p-space-md text-on-primary">
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-label-md text-label-md text-primary-fixed uppercase tracking-wider">
-                      AI Inference Agent Output
-                    </span>
-                    {' '}
-                    <span className="font-code-md text-code-md text-on-primary">
-                      NIK Terdeteksi: {nik} [MATCH]
-                    </span>
-                    {' '}
-                    <span className="font-code-sm text-code-sm text-on-secondary-container opacity-90">
-                      {ocrDetailText}
-                    </span>
+              {/* Toggle Sinkronisasi Otomatis Form <-> KK */}
+              <label className="flex items-center justify-between gap-2 px-space-sm py-2 rounded-lg bg-surface-tint-blue/60 cursor-pointer text-xs">
+                <span className="font-body-sm text-text-heading font-medium">
+                  Isi &amp; perbarui otomatis NIK, Nama Siswa, dan No. KK saat berkas KK diunggah
+                </span>
+                <input
+                  type="checkbox"
+                  checked={autoFillFromKK}
+                  onChange={(e) => setAutoFillFromKK(e.target.checked)}
+                  className="w-4 h-4 accent-secondary rounded"
+                />
+              </label>
+
+              {/* Document Inspection Scan Visual Effect (Live Cross-Validation Form vs KK) */}
+              {(() => {
+                const isDummyNik = detectedNik.includes("X") || detectedName.includes("XXXXX");
+                const nikMatch = !isDummyNik && nik.trim() === detectedNik.trim();
+                const nameMatch =
+                  !isDummyNik &&
+                  studentName.trim().toLowerCase() === detectedName.trim().toLowerCase();
+                const allMatch = nikMatch && nameMatch && detectedRelation === "ANAK_KANDUNG";
+                return (
+                  <div className="relative overflow-hidden rounded-lg bg-text-heading p-space-md text-on-primary space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-label-md text-label-md text-primary-fixed uppercase tracking-wider">
+                          AI Inference Agent Output (Pencocokan Form vs Tabel KK)
+                        </span>
+                        <span className="font-code-md text-code-md text-on-primary">
+                          NIK di KK: <strong>{detectedNik}</strong>{" "}
+                          <span
+                            className={
+                              isDummyNik
+                                ? "text-amber-300 font-bold"
+                                : nikMatch
+                                ? "text-emerald-400 font-bold"
+                                : "text-rose-400 font-bold"
+                            }
+                          >
+                            {isDummyNik
+                              ? "[DISENSOR / DUMMY]"
+                              : nikMatch
+                              ? "[MATCH DENGAN FORM]"
+                              : `[TIDAK COCOK — Form: ${nik}]`}
+                          </span>
+                        </span>
+                        <span className="font-code-sm text-code-sm text-on-primary">
+                          Nama Anak di KK: <strong>{detectedName}</strong> ({detectedRelation}){" "}
+                          <span
+                            className={
+                              isDummyNik
+                                ? "text-amber-300 font-bold"
+                                : nameMatch
+                                ? "text-emerald-400 font-bold"
+                                : "text-rose-400 font-bold"
+                            }
+                          >
+                            {isDummyNik ? "[PERLU KK ASLI]" : nameMatch ? "[MATCH]" : "[BEDA NAMA]"}
+                          </span>
+                        </span>
+                        <span className="font-code-sm text-code-sm text-on-secondary-container opacity-90">
+                          {ocrDetailText}
+                        </span>
+                      </div>
+                      <span
+                        className={`material-symbols-outlined text-[24px] ${
+                          allMatch ? "text-status-approved" : "text-amber-400"
+                        }`}
+                      >
+                        {allMatch ? "verified" : "warning"}
+                      </span>
+                    </div>
+
+                    {(!nikMatch || !nameMatch) && !isDummyNik && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNik(detectedNik);
+                          setStudentName(detectedName);
+                        }}
+                        className="px-3 py-1 rounded bg-secondary text-on-secondary font-code-sm text-xs font-bold hover:opacity-95"
+                      >
+                        Samakan Form dengan Data KK ({detectedName} • {detectedNik})
+                      </button>
+                    )}
+
+                    {detectedMembers.length > 0 && (
+                      <div className="pt-2 border-t border-white/15">
+                        <span className="block font-code-sm text-[11px] text-slate-300 mb-1">
+                          Anggota Keluarga Terbaca di KK (klik untuk pilih sebagai Calon Siswa):
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {detectedMembers.map((m, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => {
+                                setNik(m.nik);
+                                setStudentName(m.name);
+                                setDetectedNik(m.nik);
+                                setDetectedName(m.name);
+                                setDetectedRelation(
+                                  m.relation === "ANAK_KANDUNG" ? "ANAK_KANDUNG" : "FAMILI_LAIN",
+                                );
+                              }}
+                              className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-left font-code-sm text-[11px] text-white transition-colors"
+                            >
+                              {m.name} ({m.nik}) • {m.relation}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Horizontal Scanning Beam Visual */}
+                    <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent animate-pulse" />
                   </div>
-                  <span className="material-symbols-outlined text-status-approved text-[24px]">
-                    verified
-                  </span>
-                </div>
-                {/* Horizontal Scanning Beam Visual */}
-                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-secondary to-transparent animate-pulse" />
-              </div>
+                );
+              })()}
             </div>
           </div>
           {/* KOLOM KANAN (7 Cols Desktop): Geolocation Picker & Realtime Route Preview */}
