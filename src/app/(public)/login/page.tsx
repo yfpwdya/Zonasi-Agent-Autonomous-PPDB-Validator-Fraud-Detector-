@@ -57,10 +57,10 @@ export default function LoginPage() {
             Pendaftaran Siswa
           </Link>
           <Link
-            href="/dashboard"
+            href="/"
             className="px-3.5 py-1.5 rounded-lg bg-surface-tint-blue text-secondary font-label-md text-label-md font-semibold transition-colors"
           >
-            Dashboard Panitia
+            Beranda Siswa
           </Link>
         </div>
       </header>
@@ -242,9 +242,7 @@ export default function LoginPage() {
 
             <div className="mt-5 pt-4 border-t border-border-slate flex items-center justify-between text-xs text-text-muted">
               <span>Akun Demo Siap Pakai: <code>panitia.ppdb@sman1-jkt.sch.id</code></span>
-              <Link href="/dashboard" className="text-secondary font-semibold hover:underline">
-                Lanjut ke Dashboard →
-              </Link>
+              <span className="font-code-sm text-secondary">Sesi dikunci HttpOnly Cookie</span>
             </div>
           </div>
         </div>

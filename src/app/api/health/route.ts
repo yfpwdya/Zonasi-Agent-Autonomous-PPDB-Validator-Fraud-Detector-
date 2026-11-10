@@ -18,18 +18,12 @@ export async function GET() {
 
   const geminiKey = process.env.GEMINI_API_KEY || "";
   let geminiConnected = false;
-  let geminiModel = "gemini-3-flash-preview";
+  const geminiModel = "gemini-3-flash-preview";
   if (geminiKey) {
     try {
+      // ponytail: GET model metadata instead of POST :generateContent so health checks consume 0 of the 20/day free-tier RPD quota.
       const r = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: "Balas singkat: OK" }] }],
-          }),
-        }
+        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}?key=${geminiKey}`,
       );
       geminiConnected = r.ok;
     } catch {

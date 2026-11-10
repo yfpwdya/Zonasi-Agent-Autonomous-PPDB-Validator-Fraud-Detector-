@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import type { ApplicationRecord, AuthUser } from "@/types";
 import { useApplications, useUpdateApplication } from "@/hooks/useApplications";
+import { clearPanitiaSession } from "@/hooks/useAuth";
 import Link from "next/link";
 
 export default function DashboardPage() {
@@ -191,9 +192,8 @@ export default function DashboardPage() {
     showToast(`Notifikasi instruksi revisi terkirim ke pendaftar ${app.student_name} (${app.tracking_id}).`);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("zonasi_auth_user");
-    localStorage.removeItem("zonasi_auth_token");
+  const handleLogout = async () => {
+    await clearPanitiaSession();
     window.location.href = "/login";
   };
 

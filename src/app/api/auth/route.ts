@@ -66,7 +66,8 @@ export async function POST(req: NextRequest) {
     }
 
     const u = signInData.user;
-    return NextResponse.json({
+    const token = signInData.session?.access_token;
+    const res = NextResponse.json({
       ok: true,
       user: {
         id: u.id,
@@ -76,8 +77,17 @@ export async function POST(req: NextRequest) {
         role: u.user_metadata?.role || "AUDITOR_PANITIA",
         last_sign_in_at: u.last_sign_in_at,
       },
-      access_token: signInData.session?.access_token,
+      access_token: token,
     });
+    if (token) {
+      res.cookies.set("zonasi_session", token, {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 12,
+      });
+    }
+    return res;
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Gagal memproses autentikasi." },
@@ -108,4 +118,10 @@ export async function GET(req: NextRequest) {
       role: u.user_metadata?.role || "AUDITOR_PANITIA",
     },
   });
+}
+
+export async function DELETE() {
+  const res = NextResponse.json({ ok: true });
+  res.cookies.delete("zonasi_session");
+  return res;
 }

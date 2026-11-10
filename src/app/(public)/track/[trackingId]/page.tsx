@@ -4,6 +4,7 @@ import { FadeIn } from "@/components/animations/FadeIn";
 import { supabaseBrowser } from "@/lib/supabase";
 import type { ApplicationRecord } from "@/types";
 import { useApplication, useCreateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
+import { usePanitiaSession } from "@/hooks/useAuth";
 
 const FEED_LOGS = [
   {
@@ -48,7 +49,8 @@ export default function TrackPage({
   const [geoStatus, setGeoStatus] = useState("");
   const [scanningOcr, setScanningOcr] = useState(false);
   const [uploadedPreviewUrl, setUploadedPreviewUrl] = useState<string | null>(null);
-  const { data: fetchedApp } = useApplication(trackingId);
+  const { data: fetchedApp, refetch } = useApplication(trackingId);
+  const panitia = usePanitiaSession();
   const createApp = useCreateApplication();
   const verifyPhoto = useVerifyLivePhoto();
 
@@ -184,6 +186,37 @@ export default function TrackPage({
   }, [trackingId]);
 
   const handleDownloadReceipt = () => {
+    const content = [
+      "============================================================",
+      "        BUKTI TANDA TERIMA PENDAFTARAN PPDB ZONASI 2026     ",
+      "           ZONASI-AGENT • AUTONOMOUS AI AUDITOR             ",
+      "============================================================",
+      `Tracking ID        : ${trackingId}`,
+      `Nama Calon Siswa   : ${appData?.student_name || studentName}`,
+      `NIK Siswa          : ${appData?.student_nik || "3171041908070002"}`,
+      `Nomor KK           : ${appData?.kk_number || "3171042502120005"}`,
+      `Sekolah Pilihan    : ${appData?.school_name || "SMAN 1 Teladan Jakarta"}`,
+      `Alamat Domisili    : ${appData?.address || "Jl. Kenanga No. 14, Tebet Barat"}`,
+      `Jarak Garis Lurus  : ${appData?.straight_line_distance_meters ?? 540} meter`,
+      `Jarak Rute Darat   : ${appData?.real_route_distance_meters ?? 820} meter (Maks 1.200m)`,
+      `Usia Terbit KK     : ${appData?.kk_issue_date || "2018-02-12"} (${appData?.kk_age_label || "Valid"})`,
+      `Confidence OCR     : ${appData?.ocr_confidence ?? 98.4}%`,
+      `Deteksi Bangunan   : ${appData?.detected_building || "RESIDENTIAL"}`,
+      `Status Verifikasi  : ${appData?.status || "APPROVED"}`,
+      `Ringkasan Audit AI : ${appData?.ai_reasoning_summary || "Memenuhi syarat zonasi."}`,
+      `Waktu Cetak        : ${new Date().toLocaleString("id-ID")}`,
+      "============================================================",
+      `URL Pelacakan Live : ${typeof window !== "undefined" ? window.location.href : `/track/${trackingId}`}`,
+    ].join("\n");
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Tanda-Terima-${trackingId}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     setReceiptDownloaded(true);
   };
 
@@ -813,7 +846,7 @@ export default function TrackPage({
                     </span>
                     {' '}
                     <span className="text-amber-300">
-                      PPDB-2026-X89K
+                      {trackingId}
                     </span>
                   </div>
                 </div>
@@ -1105,25 +1138,31 @@ export default function TrackPage({
               </div>
             </div>
             <div className="flex items-center gap-space-sm w-full md:w-auto">
-              <a className="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-surface-tint-blue text-secondary hover:bg-surface-container-high font-label-lg text-label-lg transition-colors w-full md:w-auto" href="/track/PPDB-2026-X89K">
-                <span className="material-symbols-outlined text-[18px]">
-                  history
-                </span>
-                {' '}
-                <span>
-                  Segarkan Status
-                </span>
-              </a>
-              {' '}
-              <a className="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-primary text-on-primary hover:bg-secondary font-label-lg text-label-lg transition-colors w-full md:w-auto" href="/dashboard">
-                <span>
-                  Konsol Panitia
-                </span>
-                {' '}
-                <span className="material-symbols-outlined text-[18px]">
-                  chevron_right
-                </span>
-              </a>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-surface-tint-blue text-secondary hover:bg-surface-container-high font-label-lg text-label-lg transition-colors w-full md:w-auto"
+              >
+                <span className="material-symbols-outlined text-[18px]">history</span>
+                <span>Segarkan Status</span>
+              </button>
+              {panitia ? (
+                <a
+                  className="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-primary text-on-primary hover:bg-secondary font-label-lg text-label-lg transition-colors w-full md:w-auto"
+                  href="/dashboard"
+                >
+                  <span>Konsol Panitia</span>
+                  <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                </a>
+              ) : (
+                <a
+                  className="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-primary text-on-primary hover:bg-secondary font-label-lg text-label-lg transition-colors w-full md:w-auto"
+                  href="/daftar"
+                >
+                  <span>Daftar Berkas Baru</span>
+                  <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

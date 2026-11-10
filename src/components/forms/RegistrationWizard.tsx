@@ -15,41 +15,86 @@ export function RegistrationWizard() {
     "SMAN 1 Teladan Jakarta (Sisa Kuota Zonasi: 142 Kursi)"
   );
   const [kkFileName, setKkFileName] = useState("kartu_keluarga_ahmad.jpg");
+  const [kkFileSize, setKkFileSize] = useState("1.8 MB • Image / JPEG");
   const [kkFileBase64, setKkFileBase64] = useState<string | undefined>(undefined);
-  const [ocrStatusText, setOcrStatusText] = useState("{ocrStatusText}");
+  const [kkIssuedDate, setKkIssuedDate] = useState("2021-03-14");
+  const [ocrStatusText, setOcrStatusText] = useState("OCR Pre-flight: Siap Diaudit (Unggah KK)");
   const [ocrDetailText, setOcrDetailText] = useState("Tanggal Terbit KK: 14 Maret 2021 (>1 Tahun Domisili Sah)");
   const [address, setAddress] = useState(
     "Jl. Kenanga No. 14, RT 03 / RW 05, Tebet Barat, Jakarta Selatan"
   );
   const [coords, setCoords] = useState({ lat: -6.2284, lng: 106.8492 });
-  const [routeMeters, setRouteMeters] = useState(820);
-  const [straightMeters, setStraightMeters] = useState(540);
+  const [mapMode, setMapMode] = useState<"road" | "satellite">("road");
+  const [mapZoom, setMapZoom] = useState(1);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [draftSaved, setDraftSaved] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [kkMimeType, setKkMimeType] = useState("image/jpeg");
   const createApp = useCreateApplication();
   const ocrPreview = useOcrPreview();
   const submitting = createApp.isPending;
 
+  // Live Haversine + route estimation (school center: SMAN 1 Teladan -6.2333, 106.8511)
+  const schoolLat = -6.2333;
+  const schoolLng = 106.8511;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(coords.lat - schoolLat);
+  const dLng = toRad(coords.lng - schoolLng);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(schoolLat)) * Math.cos(toRad(coords.lat)) * Math.sin(dLng / 2) ** 2;
+  const straightMeters = Math.max(
+    40,
+    Math.round(6_371_000 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h))),
+  );
+  const routeMeters = Math.round(straightMeters * 1.32);
+
+  const applyLocationPreset = (lat: number, lng: number, label: string) => {
+    setCoords({ lat: Number(lat.toFixed(5)), lng: Number(lng.toFixed(5)) });
+    setAddress(label);
+  };
+
   const handleUseGps = () => {
     if (typeof navigator !== "undefined" && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setCoords({
+            lat: Number(pos.coords.latitude.toFixed(5)),
+            lng: Number(pos.coords.longitude.toFixed(5)),
+          });
         },
         () => {
-          setCoords({ lat: -6.2284, lng: 106.8492 });
+          applyLocationPreset(-6.2284, 106.8492, "Jl. Kenanga No. 14, RT 03 / RW 05, Tebet Barat");
         }
       );
     }
   };
 
+  const handleSaveDraft = () => {
+    try {
+      localStorage.setItem(
+        "zonasi_registration_draft",
+        JSON.stringify({ nik, studentName, kkNumber, schoolName, address, coords }),
+      );
+      setDraftSaved(true);
+    } catch {
+      setDraftSaved(true);
+    }
+  };
+
   const handleSubmitApplication = async () => {
+    setSubmitError(null);
+    if (nik.trim().length < 8 || kkNumber.trim().length < 8 || !studentName.trim()) {
+      setSubmitError("Mohon lengkapi NIK, Nama Lengkap, dan Nomor KK dengan benar.");
+      return;
+    }
     try {
       const app = await createApp.mutateAsync({
-        student_nik: nik,
-        student_name: studentName,
-        kk_number: kkNumber,
-        address_text: address,
+        student_nik: nik.trim(),
+        student_name: studentName.trim(),
+        kk_number: kkNumber.trim(),
+        kk_issued_date: kkIssuedDate,
+        address_text: address.trim(),
         latitude: coords.lat,
         longitude: coords.lng,
         kk_file_name: kkFileName,
@@ -58,8 +103,7 @@ export function RegistrationWizard() {
       });
       router.push(`/track/${encodeURIComponent(app.tracking_id)}`);
     } catch (e) {
-      // Stay on the form so the applicant doesn't lose their input.
-      alert(`Gagal mengirim pendaftaran: ${(e as Error).message}`);
+      setSubmitError(`Gagal mengirim pendaftaran: ${(e as Error).message}`);
     }
   };
 
@@ -260,6 +304,7 @@ export function RegistrationWizard() {
                   const f = e.target.files?.[0];
                   if (f) {
                     setKkFileName(f.name);
+                    setKkFileSize(`${(f.size / (1024 * 1024)).toFixed(2)} MB • ${(f.type || "image/jpeg").toUpperCase()}`);
                     setKkMimeType(f.type || "image/jpeg");
                     setOcrStatusText("Memindai piksel KK dengan Gemini 3 Flash Vision...");
                     setOcrDetailText("Mengekstrak Nomor KK, Tanggal Terbit, dan Status Hubungan...");
@@ -275,6 +320,8 @@ export function RegistrationWizard() {
                         });
                         const d = { ocr };
                         if (d.ocr) {
+                          if (d.ocr.kkIssueDate) setKkIssuedDate(d.ocr.kkIssueDate);
+                          if (d.ocr.kkNumberDetected) setKkNumber(d.ocr.kkNumberDetected);
                           const conf = d.ocr.ocrConfidence ?? 95;
                           const valid = d.ocr.kkAgeValid && d.ocr.familyRelationValid && conf >= 80;
                           setOcrStatusText(
@@ -327,17 +374,17 @@ export function RegistrationWizard() {
                       </span>
                       {' '}
                       <span className="font-code-sm text-code-sm text-text-muted">
-                        2.4 MB • Image / JPEG
+                        {kkFileSize}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-space-xs">
-                    <button aria-label="Lihat Pratinjau Berkas" className="p-1.5 rounded-lg text-text-muted hover:text-secondary hover:bg-surface-canvas transition-all" type="button">
+                    <button onClick={() => setPreviewModalOpen((v) => !v)} aria-label="Lihat Pratinjau Berkas" className="p-1.5 rounded-lg text-text-muted hover:text-secondary hover:bg-surface-canvas transition-all" type="button">
                       <span className="material-symbols-outlined text-[20px]">
                         visibility
                       </span>
                     </button>
-                    <button aria-label="Ganti Berkas KK" className="p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-surface-canvas transition-all" type="button">
+                    <button onClick={() => fileInputRef.current?.click()} aria-label="Ganti Berkas KK" className="p-1.5 rounded-lg text-text-muted hover:text-error hover:bg-surface-canvas transition-all" type="button">
                       <span className="material-symbols-outlined text-[20px]">
                         refresh
                       </span>
@@ -413,10 +460,26 @@ export function RegistrationWizard() {
                 </div>
                 {/* Toggle Mode */}
                 <div className="flex items-center bg-surface-slate rounded-lg p-0.5 self-start sm:self-center">
-                  <button className="px-space-sm py-1 rounded-md bg-surface-canvas font-label-md text-label-md text-text-heading shadow-sm" type="button">
+                  <button
+                    onClick={() => setMapMode("road")}
+                    className={
+                      mapMode === "road"
+                        ? "px-space-sm py-1 rounded-md bg-surface-canvas font-label-md text-label-md text-text-heading shadow-sm"
+                        : "px-space-sm py-1 rounded-md text-text-muted font-label-md text-label-md hover:text-text-heading"
+                    }
+                    type="button"
+                  >
                     Peta Jalan
                   </button>
-                  <button className="px-space-sm py-1 rounded-md text-text-muted font-label-md text-label-md hover:text-text-heading" type="button">
+                  <button
+                    onClick={() => setMapMode("satellite")}
+                    className={
+                      mapMode === "satellite"
+                        ? "px-space-sm py-1 rounded-md bg-surface-canvas font-label-md text-label-md text-text-heading shadow-sm"
+                        : "px-space-sm py-1 rounded-md text-text-muted font-label-md text-label-md hover:text-text-heading"
+                    }
+                    type="button"
+                  >
                     Citra Satelit
                   </button>
                 </div>
@@ -437,28 +500,71 @@ export function RegistrationWizard() {
                   </span>
                 </button>
               </div>
+              {/* Preset Uji Titik Koordinat Domisili */}
+              <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                <span className="font-label-md text-text-muted mr-1">Simulasi Titik:</span>
+                <button
+                  type="button"
+                  onClick={() => applyLocationPreset(-6.2284, 106.8492, "Jl. Kenanga No. 14, RT 03 / RW 05, Tebet Barat")}
+                  className="px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-code-sm font-semibold hover:opacity-90"
+                >
+                  Zona Dekat (~760m • Lolos)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyLocationPreset(-6.2312, 106.8501, "Gg. Kancil Sempit RT 08 / RW 02, Tebet Timur")}
+                  className="px-2.5 py-1 rounded-full bg-status-revision-bg text-status-revision font-code-sm font-semibold hover:opacity-90"
+                >
+                  Gang Sempit (~340m • Foto GPS)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyLocationPreset(-6.2455, 106.8615, "Jl. Raya Casablanca No. 88 (Luar Radius Zonasi)")}
+                  className="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-code-sm font-semibold hover:opacity-90"
+                >
+                  Luar Radius (&gt;1.200m)
+                </button>
+              </div>
               {/* Map View Display Container */}
               <div className="relative w-full h-80 sm:h-96 rounded-xl overflow-hidden shadow-inner bg-surface-slate">
-                {/* Simulated Map Canvas using Static Pipeline placeholder */}
-                <div className="w-full h-full bg-cover bg-center" data-location="Jl. Kenanga No. 14 Tebet Barat, Jakarta Selatan" style={{backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAXTVdiy1K_7fpP-H0xizMoE8W7PlOvS38WM0VQVWYDCVuPjYWkqfPWBMbe9oJkg84aPmBq32rs0pYkj5sQyg6UJ6H_25pN17vGkY9ThB8oaY2poUz7_uPLTHnGe7EPb16ZOB9ETfz8BFJLXhgniaVRGz4XQJGWrm_DoL0npf2deS0HrJifYdrXagOK8moHZqa2SfQUjjQGGnQBVxUr1HMsXHsOacU7NMlqgjRkvNY')"}} />
+                <div
+                  className={`w-full h-full bg-cover bg-center transition-all duration-300 ${
+                    mapMode === "satellite" ? "contrast-125 saturate-150 brightness-90" : ""
+                  }`}
+                  data-location={address}
+                  style={{
+                    transform: `scale(${mapZoom})`,
+                    backgroundImage:
+                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAXTVdiy1K_7fpP-H0xizMoE8W7PlOvS38WM0VQVWYDCVuPjYWkqfPWBMbe9oJkg84aPmBq32rs0pYkj5sQyg6UJ6H_25pN17vGkY9ThB8oaY2poUz7_uPLTHnGe7EPb16ZOB9ETfz8BFJLXhgniaVRGz4XQJGWrm_DoL0npf2deS0HrJifYdrXagOK8moHZqa2SfQUjjQGGnQBVxUr1HMsXHsOacU7NMlqgjRkvNY')",
+                  }}
+                />
                 {/* Ambient Gradient Map Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-text-heading/30 via-transparent to-transparent pointer-events-none" />
                 {/* Floating Map Controls */}
                 <div className="absolute top-3 right-3 flex flex-col gap-1.5 shadow-md">
-                  <button aria-label="Zoom Masuk Peta" className="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading flex items-center justify-center font-bold transition-colors" type="button">
-                    <span className="material-symbols-outlined text-[20px]">
-                      add
-                    </span>
+                  <button
+                    onClick={() => setMapZoom((z) => Math.min(1.6, Number((z + 0.15).toFixed(2))))}
+                    aria-label="Zoom Masuk Peta"
+                    className="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading flex items-center justify-center font-bold transition-colors"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">add</span>
                   </button>
-                  <button aria-label="Zoom Keluar Peta" className="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading flex items-center justify-center font-bold transition-colors" type="button">
-                    <span className="material-symbols-outlined text-[20px]">
-                      remove
-                    </span>
+                  <button
+                    onClick={() => setMapZoom((z) => Math.max(1, Number((z - 0.15).toFixed(2))))}
+                    aria-label="Zoom Keluar Peta"
+                    className="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-text-heading flex items-center justify-center font-bold transition-colors"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">remove</span>
                   </button>
-                  <button aria-label="Orientasi Utara" className="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-secondary flex items-center justify-center transition-colors" type="button">
-                    <span className="material-symbols-outlined text-[20px]">
-                      explore
-                    </span>
+                  <button
+                    onClick={() => setMapZoom(1)}
+                    aria-label="Orientasi Utara"
+                    className="w-9 h-9 rounded-lg bg-surface-canvas hover:bg-surface-slate text-secondary flex items-center justify-center transition-colors"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">explore</span>
                   </button>
                 </div>
                 {/* Marker Info Overlay: Rumah Pendaftar */}
@@ -471,13 +577,11 @@ export function RegistrationWizard() {
                       <span className="font-label-md text-label-md text-secondary uppercase">
                         Marker Rumah Pendaftar
                       </span>
-                      {' '}
                       <span className="font-body-sm text-body-sm font-semibold text-text-heading truncate">
-                        Jl. Kenanga No. 14, RT 03 / RW 05
+                        {address}
                       </span>
-                      {' '}
                       <span className="font-code-sm text-code-sm text-text-muted mt-0.5">
-                        -6.21462, 106.84513
+                        {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
                       </span>
                     </div>
                   </div>
@@ -492,13 +596,11 @@ export function RegistrationWizard() {
                       <span className="font-label-md text-label-md text-status-approved uppercase">
                         Sekolah Tujuan
                       </span>
-                      {' '}
                       <span className="font-body-sm text-body-sm font-semibold text-text-heading truncate">
-                        SMAN 1 Teladan Jakarta
+                        {schoolName.split(" (")[0]}
                       </span>
-                      {' '}
                       <span className="font-code-sm text-code-sm text-text-muted mt-0.5">
-                        -6.21890, 106.84920
+                        {schoolLat.toFixed(5)}, {schoolLng.toFixed(5)}
                       </span>
                     </div>
                   </div>
@@ -524,8 +626,14 @@ export function RegistrationWizard() {
                       Hasil Komparasi Telemetri Rute Geospasial
                     </span>
                   </div>
-                  <span className="font-code-sm text-code-sm text-status-approved font-semibold bg-status-approved-bg px-space-sm py-0.5 rounded-full">
-                    Aman Dalam Zonasi
+                  <span
+                    className={`font-code-sm text-code-sm font-semibold px-space-sm py-0.5 rounded-full ${
+                      routeMeters <= 1200
+                        ? "text-status-approved bg-status-approved-bg"
+                        : "text-status-fraud bg-status-fraud-bg"
+                    }`}
+                  >
+                    {routeMeters <= 1200 ? "Aman Dalam Zonasi (≤ 1.200m)" : "Melebihi Radius Zonasi (> 1.200m)"}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
@@ -573,7 +681,7 @@ export function RegistrationWizard() {
                   </span>
                   <p className="font-body-sm text-body-sm leading-snug">
                     <strong>
-                      Selisih Rute +280 meter:
+                      Selisih Rute +{Math.max(0, routeMeters - straightMeters)} meter:
                     </strong>
                     {' '}Perhitungan mempertimbangkan jembatan penyeberangan Ciliwung dan akses jalan umum resmi yang dapat dilalui pejalan kaki / kendaraan roda dua.
                   </p>
@@ -582,6 +690,26 @@ export function RegistrationWizard() {
             </div>
           </div>
         </div>
+        {submitError && (
+          <div className="mt-space-md p-space-md rounded-xl bg-status-fraud-bg border border-status-fraud-border text-status-fraud font-body-sm text-body-sm flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px]">error</span>
+            <span>{submitError}</span>
+          </div>
+        )}
+        {previewModalOpen && (
+          <div className="mt-space-md p-space-md rounded-xl bg-surface-canvas border border-border-slate shadow-md flex items-center justify-between">
+            <span className="font-body-sm text-body-sm text-text-heading">
+              Pratinjau Berkas Aktif: <strong>{kkFileName}</strong> ({kkFileSize}) — {ocrStatusText}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPreviewModalOpen(false)}
+              className="px-3 py-1 rounded bg-surface-slate text-xs font-semibold"
+            >
+              Tutup Pratinjau
+            </button>
+          </div>
+        )}
         {/* Sticky Bottom Navigation Bar & Actions */}
         <div className="mt-space-xl p-space-md bg-surface-canvas rounded-xl shadow-md flex flex-col sm:flex-row items-center justify-between gap-space-md">
           {/* Catatan Keamanan Data SIP & PDP */}
@@ -607,7 +735,7 @@ export function RegistrationWizard() {
               Kembali
             </button>
             <button
-              onClick={() => setDraftSaved(true)}
+              onClick={handleSaveDraft}
               className="px-space-md py-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container text-text-heading font-label-lg text-label-lg transition-all"
               type="button"
             >

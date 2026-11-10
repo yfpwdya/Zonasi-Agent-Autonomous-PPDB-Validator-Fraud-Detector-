@@ -2,12 +2,25 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FadeIn } from "@/components/animations/FadeIn";
+import { useApplications } from "@/hooks/useApplications";
+import { usePanitiaSession } from "@/hooks/useAuth";
 
 export default function HomePage() {
   const [trackQuery, setTrackQuery] = useState("");
   const [showQuickResult, setShowQuickResult] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [complaintSent, setComplaintSent] = useState(false);
+  const { data } = useApplications();
+  const panitia = usePanitiaSession();
+  const qNorm = trackQuery.trim().toLowerCase();
+  const matchedApp = qNorm
+    ? data?.applications.find(
+        (a) =>
+          a.tracking_id.toLowerCase() === qNorm ||
+          a.student_nik.toLowerCase() === qNorm ||
+          a.student_name.toLowerCase().includes(qNorm),
+      )
+    : undefined;
 
   return (
     <FadeIn>
@@ -82,31 +95,67 @@ export default function HomePage() {
                   </Link>
                 </div>
               </form>
-              {/* Quick Status Indicator */}
+              {/* Quick Status Indicator (Live from Supabase / Store) */}
               {showQuickResult && (
-                <div
-                  className="mt-3 p-3 rounded-xl bg-status-approved-bg text-status-approved text-left flex items-center justify-between shadow-sm animate-fadeIn"
-                  id="quickResult"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[20px]">
-                      check_circle
-                    </span>{' '}
-                    <span className="font-body-sm text-body-sm font-semibold">
-                      Berkas ID{' '}
-                      <span className="font-code-sm">
-                        {trackQuery.trim() || "PPDB-2026-X89K"}
-                      </span>
-                      : Tervalidasi Sah (Rute Jarak: 842m, Status KK: Memenuhi Syarat {'>'}1 Thn)
-                    </span>
-                  </div>
-                  <Link
-                    href={`/track/${encodeURIComponent(trackQuery.trim() || "PPDB-2026-X89K")}`}
-                    className="font-code-sm text-code-sm bg-surface-canvas px-2 py-0.5 rounded-full shadow-xs hover:underline"
+                matchedApp ? (
+                  <div
+                    className={`mt-3 p-3.5 rounded-xl text-left flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm animate-fadeIn ${
+                      matchedApp.status === "APPROVED"
+                        ? "bg-status-approved-bg text-status-approved"
+                        : matchedApp.status === "REJECTED"
+                        ? "bg-status-fraud-bg text-status-fraud"
+                        : "bg-status-revision-bg text-status-revision"
+                    }`}
+                    id="quickResult"
                   >
-                    99.4% AI Score →
-                  </Link>
-                </div>
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[20px]">
+                        {matchedApp.status === "APPROVED"
+                          ? "check_circle"
+                          : matchedApp.status === "REJECTED"
+                          ? "gpp_maybe"
+                          : "warning"}
+                      </span>
+                      <span className="font-body-sm text-body-sm font-semibold">
+                        <strong>{matchedApp.student_name}</strong> ({matchedApp.tracking_id}) — Status:{" "}
+                        <span className="font-code-sm font-bold">{matchedApp.status}</span> • Rute:{" "}
+                        {matchedApp.real_route_distance_meters}m • KK: {matchedApp.kk_age_label}
+                      </span>
+                    </div>
+                    <Link
+                      href={`/track/${encodeURIComponent(matchedApp.tracking_id)}`}
+                      className="font-code-sm text-code-sm bg-surface-canvas px-3 py-1 rounded-full shadow-xs hover:underline shrink-0 text-center"
+                    >
+                      Buka Detail &amp; Audit AI ({matchedApp.ocr_confidence}%) →
+                    </Link>
+                  </div>
+                ) : (
+                  <div
+                    className="mt-3 p-3.5 rounded-xl bg-status-revision-bg text-status-revision text-left flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm animate-fadeIn"
+                    id="quickResult"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[20px]">info</span>
+                      <span className="font-body-sm text-body-sm font-semibold">
+                        Tracking ID / NIK <span className="font-code-sm">&quot;{trackQuery.trim()}&quot;</span> belum ditemukan di database. Coba contoh{" "}
+                        <button
+                          type="button"
+                          onClick={() => setTrackQuery("PPDB-2026-X89K")}
+                          className="underline font-code-sm font-bold"
+                        >
+                          PPDB-2026-X89K
+                        </button>{" "}
+                        atau daftar baru.
+                      </span>
+                    </div>
+                    <Link
+                      href="/daftar"
+                      className="font-code-sm text-code-sm bg-surface-canvas px-3 py-1 rounded-full shadow-xs hover:underline shrink-0"
+                    >
+                      Daftar Siswa Baru →
+                    </Link>
+                  </div>
+                )
               )}
             </div>
             {/* Trust Badges */}
@@ -261,6 +310,110 @@ export default function HomePage() {
                 <span>
                   Survei Ombudsman daerah
                 </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* DUA PERAN PENGGUNA: SISWA / WALI MURID VS PANITIA VERIFIKATOR */}
+      <section className="w-full py-12 bg-surface-canvas border-y border-border-slate">
+        <div className="max-w-7xl mx-auto px-margin">
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            <span className="font-code-sm text-code-sm uppercase tracking-widest text-secondary font-bold">
+              Alur Akses Terpisah &amp; Aman
+            </span>
+            <h2 className="font-headline-md text-headline-md text-text-heading mt-1 font-bold">
+              Siapa yang Menggunakan Aplikasi Zonasi-Agent?
+            </h2>
+            <p className="font-body-sm text-body-sm text-text-muted mt-1">
+              Calon siswa mendaftar dan memantau berkas secara mandiri tanpa perlu membuat akun, sedangkan Dashboard pengawasan dikunci khusus untuk panitia sekolah resmi.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+            {/* Kartu 1: Calon Siswa & Orang Tua */}
+            <div className="rounded-2xl bg-surface p-space-lg border border-border-slate shadow-sm flex flex-col justify-between gap-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-code-sm font-bold">
+                    <span className="material-symbols-outlined text-[16px]">school</span>
+                    1. CALON SISWA &amp; ORANG TUA (PUBLIK)
+                  </span>
+                  <span className="font-code-sm text-code-sm text-text-muted">Tanpa Login</span>
+                </div>
+                <h3 className="font-headline-sm text-headline-sm text-text-heading font-bold">
+                  Pendaftaran Mandiri &amp; Pelacakan Transparan
+                </h3>
+                <ul className="space-y-2 font-body-sm text-body-sm text-text-body">
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-status-approved text-[18px] mt-0.5">check_circle</span>
+                    <span>Isi NIK, unggah foto/scan Kartu Keluarga, dan tandai koordinat rumah di halaman <strong>/daftar</strong>.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-status-approved text-[18px] mt-0.5">check_circle</span>
+                    <span>Dapatkan <strong>Tracking ID</strong> unik (mis. <code>PPDB-2026-X89K</code>) dan unduh Bukti Pendaftaran resmi.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-status-approved text-[18px] mt-0.5">check_circle</span>
+                    <span>Pantau hasil audit 3 tahap AI secara langsung, unggah ulang KK jika buram, atau kirim foto rumah ber-GPS di <strong>/track/[ID]</strong>.</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                <Link
+                  href="/daftar"
+                  className="px-4 py-2.5 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-semibold hover:bg-primary-container transition-colors flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[18px]">how_to_reg</span>
+                  <span>Mulai Daftar Siswa</span>
+                </Link>
+                <Link
+                  href="/track/PPDB-2026-X89K"
+                  className="px-4 py-2.5 rounded-xl bg-surface-canvas border border-border-slate text-secondary font-label-md text-label-md font-semibold hover:bg-surface-tint-blue transition-colors flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[18px]">radar</span>
+                  <span>Contoh Lacak Berkas</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Kartu 2: Panitia & Verifikator Sekolah */}
+            <div className="rounded-2xl bg-surface p-space-lg border border-border-slate shadow-sm flex flex-col justify-between gap-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-tint-blue text-secondary font-code-sm text-code-sm font-bold">
+                    <span className="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+                    2. PANITIA &amp; AUDITOR SEKOLAH (INTERNAL)
+                  </span>
+                  <span className="font-code-sm text-code-sm text-secondary font-semibold">Wajib Login NIP</span>
+                </div>
+                <h3 className="font-headline-sm text-headline-sm text-text-heading font-bold">
+                  Pengawasan Anomali, Override &amp; Berita Acara
+                </h3>
+                <ul className="space-y-2 font-body-sm text-body-sm text-text-body">
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-secondary text-[18px] mt-0.5">verified_user</span>
+                    <span>Akses <strong>/dashboard</strong> diproteksi sesi Supabase Auth — tidak tampil di menu siswa yang belum login.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-secondary text-[18px] mt-0.5">verified_user</span>
+                    <span>Inspeksi temuan AI (indikasi ruko komersial, KK terbit &lt; 1 tahun, atau relasi famili lain) di atas peta radius 1.200m.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-secondary text-[18px] mt-0.5">verified_user</span>
+                    <span>Lakukan <strong>Override</strong> keputusan ber-NIP, jadwalkan sidak lapangan, dan ekspor CSV Berita Acara resmi.</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 pt-2">
+                <Link
+                  href={panitia ? "/dashboard" : "/login"}
+                  className="px-4 py-2.5 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md font-semibold hover:bg-primary transition-colors flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {panitia ? "space_dashboard" : "login"}
+                  </span>
+                  <span>{panitia ? "Buka Dashboard Panitia" : "Login / Registrasi Panitia"}</span>
+                </Link>
               </div>
             </div>
           </div>
