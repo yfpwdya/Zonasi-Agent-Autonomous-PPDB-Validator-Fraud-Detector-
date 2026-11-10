@@ -6,15 +6,14 @@ import type {
   UpdateApplicationInput,
 } from "@/types";
 
-export const getApplications = async (params?: { status?: string; q?: string }) =>
+export const getApplications = async () =>
   (
     await api.get<{ applications: ApplicationRecord[]; total: number; source: "supabase" | "local" }>(
       "/applications",
-      { params },
     )
   ).data;
 
-export const getApplicationByTrackingId = async (trackingId: string) =>
+export const getApplication = async (trackingId: string) =>
   (await api.get<{ application: ApplicationRecord }>("/applications", { params: { trackingId } }))
     .data.application;
 
@@ -25,7 +24,7 @@ export const updateApplication = async (input: UpdateApplicationInput) =>
   (await api.patch<{ application: ApplicationRecord | null; ok: boolean }>("/applications", input))
     .data;
 
-export const previewKKOcr = async (input: {
+export const previewOcr = async (input: {
   kk_number: string;
   kk_image_name: string;
   kk_image_base64?: string;
