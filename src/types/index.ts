@@ -1,8 +1,8 @@
 import type { BuildingType } from "../server/agent/streetview-audit-tool.ts";
 import type { VerificationStatus } from "../server/agent/orchestrator.ts";
-import type { OcrResult } from "../server/agent/ocr-kk-tool.ts";
+import type { OcrResult, KKMemberExtracted } from "../server/agent/ocr-kk-tool.ts";
 
-export type { BuildingType, VerificationStatus, OcrResult };
+export type { BuildingType, VerificationStatus, OcrResult, KKMemberExtracted };
 
 export type ApplicationRecord = {
   id: string;

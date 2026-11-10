@@ -103,12 +103,12 @@ export default function TrackPage({
       try {
         const updated = await createApp.mutateAsync({
           tracking_id: trackingId,
-          student_nik: appData?.student_nik || "3171041908070002",
-          student_name: appData?.student_name || studentName,
-          kk_number: appData?.kk_number || "3171042502120005",
-          address_text: appData?.address || "Jl. Kenanga No. 14, Tebet Barat",
-          latitude: appData?.home_lat ?? -6.2284,
-          longitude: appData?.home_lng ?? 106.8492,
+          student_nik: "",
+          student_name: "",
+          kk_number: "",
+          address_text: "",
+          latitude: 0,
+          longitude: 0,
           kk_file_name: file.name,
           kk_file_base64: b64,
           kk_mime_type: file.type || "image/jpeg",

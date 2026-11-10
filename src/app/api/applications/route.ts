@@ -136,13 +136,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const studentNik = String(body.student_nik || "3171041908070002").trim();
-    const studentName = String(body.student_name || "Calon Siswa PPDB").trim();
-    const kkNumber = String(body.kk_number || "3171040501190008").trim();
-    const kkIssuedDate = String(body.kk_issued_date || "2019-01-12").trim();
-    const addressText = String(body.address_text || "Jl. Tebet Utara Dalam No. 24").trim();
-    const latitude = Number(body.latitude ?? -6.2297);
-    const longitude = Number(body.longitude ?? 106.8532);
+    const studentNik = body.student_nik ? String(body.student_nik).trim() : undefined;
+    const studentName = body.student_name ? String(body.student_name).trim() : undefined;
+    const kkNumber = String(body.kk_number || "").trim();
+    const kkIssuedDate = body.kk_issued_date ? String(body.kk_issued_date).trim() : undefined;
+    const addressText = body.address_text ? String(body.address_text).trim() : undefined;
+    const latitude = typeof body.latitude === "number" ? body.latitude : undefined;
+    const longitude = typeof body.longitude === "number" ? body.longitude : undefined;
     const kkFileName = String(body.kk_file_name || "kartu_keluarga.jpg");
     const kkFileBase64 = typeof body.kk_file_base64 === "string" ? body.kk_file_base64 : undefined;
     const kkMimeType = typeof body.kk_mime_type === "string" ? body.kk_mime_type : "image/jpeg";
@@ -187,19 +187,22 @@ export async function POST(req: NextRequest) {
     }
 
     const nowIso = new Date().toISOString();
+    const finalAddress = result.resolvedAddress;
+    const finalLat = result.resolvedLat;
+    const finalLng = result.resolvedLng;
     const record: ApplicationRecord = {
       id: crypto.randomUUID(),
       tracking_id: trackingId,
-      student_nik: result.ocr.studentNikDetected || studentNik,
-      student_name: result.ocr.studentNameDetected || studentName,
-      kk_number: result.ocr.kkNumberDetected || kkNumber,
+      student_nik: result.ocr.studentNikDetected || studentNik || "3578XXXXXXXX0002",
+      student_name: result.ocr.studentNameDetected || studentName || "Peserta Didik (Lihat KK)",
+      kk_number: result.ocr.kkNumberDetected || kkNumber || "19010XXXXXXXXXXX",
       school_name: "SMAN 1 Teladan Jakarta",
-      address: addressText,
-      address_text: addressText,
-      home_lat: latitude,
-      home_lng: longitude,
-      latitude,
-      longitude,
+      address: finalAddress,
+      address_text: finalAddress,
+      home_lat: finalLat,
+      home_lng: finalLng,
+      latitude: finalLat,
+      longitude: finalLng,
       straight_line_distance_meters: result.geo.straightLineMeters,
       straight_distance_meters: result.geo.straightLineMeters,
       real_route_distance_meters: result.geo.realRouteMeters,

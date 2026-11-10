@@ -4,6 +4,7 @@ import type { ApplicationRecord, AuthUser } from "@/types";
 import { useApplications, useUpdateApplication } from "@/hooks/useApplications";
 import { clearPanitiaSession } from "@/hooks/useAuth";
 import Link from "next/link";
+import { KKScannerPanel } from "@/components/forms/KKScannerPanel";
 
 export default function DashboardPage() {
   const [mapLayer, setMapLayer] = useState<"hybrid" | "topo" | "heat">("hybrid");
@@ -262,13 +263,13 @@ export default function DashboardPage() {
             <span className="material-symbols-outlined text-[20px]">history_edu</span>
             <span className="font-label-lg text-label-lg">Log Forensik Dokumen</span>
           </Link>
-          <Link
-            className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all"
-            href="/daftar"
+          <a
+            className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-secondary font-semibold bg-surface-tint-blue/50 hover:bg-surface-tint-blue transition-all"
+            href="#scanner-kk"
           >
-            <span className="material-symbols-outlined text-[20px]">person_add</span>
-            <span className="font-label-lg text-label-lg">Form Pendaftaran Siswa</span>
-          </Link>
+            <span className="material-symbols-outlined text-[20px]">document_scanner</span>
+            <span className="font-label-lg text-label-lg">Scan &amp; Audit File KK</span>
+          </a>
         </nav>
         <div className="px-space-md pt-space-md mt-auto flex flex-col gap-space-xs">
           <div className="p-space-sm rounded-xl bg-surface-slate border border-border-slate flex flex-col gap-1">
@@ -402,6 +403,16 @@ export default function DashboardPage() {
                 </div>
               </div>
             </section>
+
+            {/* Mesin Utama Panitia: Upload File Kartu Keluarga -> Deteksi Otomatis */}
+            <KKScannerPanel
+              onAuditCompleted={(createdApp) => {
+                setSelectedId(createdApp.tracking_id);
+                showToast(
+                  `File KK berhasil dipindai: ${createdApp.student_name} (No.KK ${createdApp.kk_number}) -> ${createdApp.status}`,
+                );
+              }}
+            />
 
             {/* Metric Analytics Cards (100% Live Database Counts) */}
             <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
