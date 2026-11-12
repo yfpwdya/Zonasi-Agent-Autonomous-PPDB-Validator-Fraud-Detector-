@@ -8,7 +8,7 @@ export default function PublicLayout({
   return (
     <>
       <PublicHeader />
-      <main className="flex-1 pt-20">{children}</main>
+      <main className="flex-1">{children}</main>
       <PublicFooter />
     </>
   );

@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import { PublicFooter, PublicHeader } from "@/components/PublicShell";
 import { KKScannerPanel } from "@/components/forms/KKScannerPanel";
 import { useApplications } from "@/hooks/useApplications";
 import { usePanitiaSession } from "@/hooks/useAuth";
@@ -11,10 +10,7 @@ export default function HomePage() {
   const apps = data?.applications ?? [];
 
   return (
-    <div className="min-h-screen flex flex-col bg-surface text-text-body">
-      <PublicHeader />
-
-      <main className="flex-1 max-w-7xl w-full mx-auto px-margin py-space-xl space-y-10">
+    <div className="max-w-7xl w-full mx-auto px-margin py-space-xl space-y-10 text-text-body">
         {/* Hero Khusus Panitia Verifikator PPDB */}
         <section className="rounded-2xl bg-gradient-to-br from-primary via-primary to-primary-container text-on-primary p-6 sm:p-8 shadow-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-3xl">
@@ -35,17 +31,15 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 w-full sm:w-auto">
-            <Link
-              href={panitia ? "/dashboard" : "/login"}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-secondary text-on-secondary font-label-lg text-sm font-bold shadow-md hover:opacity-95 transition-all"
-            >
-              <span className="material-symbols-outlined text-[20px]">
-                {panitia ? "space_dashboard" : "login"}
-              </span>
-              <span>
-                {panitia ? "Buka Posko Dashboard Panitia" : "Login Posko Panitia (NIP)"}
-              </span>
-            </Link>
+            {panitia && (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-secondary text-on-secondary font-label-lg text-sm font-bold shadow-md hover:opacity-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-[20px]">space_dashboard</span>
+                <span>Buka Dashboard Panitia</span>
+              </Link>
+            )}
             <a
               href="#scanner-kk"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-label-lg text-sm font-semibold transition-all"
@@ -150,9 +144,6 @@ export default function HomePage() {
             </table>
           </div>
         </section>
-      </main>
-
-      <PublicFooter />
     </div>
   );
 }

@@ -89,7 +89,7 @@ export function PublicHeader() {
               href="/login"
             >
               <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-              <span>Login Panitia Verifikator</span>
+              <span>Login Panitia</span>
             </Link>
           )}
           <button
@@ -131,7 +131,7 @@ export function PublicHeader() {
               onClick={() => setMobileOpen(false)}
               className="px-3 py-2 rounded-lg font-label-md text-label-md text-secondary font-semibold"
             >
-              Login Panitia Verifikator
+              Login Panitia
             </Link>
           )}
         </div>
