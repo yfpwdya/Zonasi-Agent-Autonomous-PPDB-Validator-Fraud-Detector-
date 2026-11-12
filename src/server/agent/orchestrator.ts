@@ -126,12 +126,29 @@ export async function runZonasiAgentPipeline(params: {
     ocr.estimatedLng ??
     (typeof params.homeLng === "number" && params.homeLng !== 0 ? params.homeLng : 106.8532);
 
+  // ponytail: OpenStreetMap OSRM public API (100% gratis tanpa API key), fallback ke Haversine x1.28 jika offline/jauh
+  let osrmMeters = params.overrideRouteMeters;
+  if (!osrmMeters) {
+    try {
+      const r = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${resolvedLng},${resolvedLat};${params.schoolLng},${params.schoolLat}?overview=false`,
+        { signal: AbortSignal.timeout(2500) },
+      );
+      if (r.ok) {
+        const j = await r.json();
+        if (typeof j?.routes?.[0]?.distance === "number") osrmMeters = Math.round(j.routes[0].distance);
+      }
+    } catch {
+      /* fallback ke kalkulasi lokal */
+    }
+  }
+
   const geo = calculateGeospatialDistances(
     resolvedLat,
     resolvedLng,
     params.schoolLat,
     params.schoolLng,
-    params.overrideRouteMeters,
+    osrmMeters,
   );
 
   const vision = await auditStreetViewLocation({

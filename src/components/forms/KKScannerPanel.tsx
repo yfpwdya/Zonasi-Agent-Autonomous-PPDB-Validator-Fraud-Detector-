@@ -142,26 +142,34 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
       className="bg-surface-canvas rounded-2xl border-2 border-secondary/30 shadow-md p-5 sm:p-6 space-y-5"
     >
       {/* Header Scanner Khusus Panitia */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-border-slate">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-tint-blue text-secondary font-code-sm text-xs font-bold">
-            <span className="material-symbols-outlined text-[16px]">document_scanner</span>
-            <span>AI INSTANT KK FORENSIC SCANNER • KHUSUS PANITIA VERIFIKATOR</span>
-          </div>
-          <h2 className="font-headline-md text-headline-md text-text-heading font-bold">
-            Unggah File Kartu Keluarga (KK) — Deteksi Anomali &amp; Jarak Otomatis
-          </h2>
-          <p className="font-body-sm text-body-sm text-text-muted max-w-3xl">
-            Tanpa perlu mengisi form manual: cukup unggah foto/scan Kartu Keluarga.{" "}
-            <strong>Gemini Vision AI</strong> otomatis membaca <strong>Nomor KK, NIK, Nama Anak, Alamat, Tanggal Terbit, Status Hubungan Keluarga</strong>, menghitung jarak ke sekolah, dan mendeteksi indikasi kecurangan zonasi.
-          </p>
+      <div className="space-y-3 pb-4 border-b border-border-slate">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-tint-blue text-secondary font-code-sm text-xs font-bold">
+          <span className="material-symbols-outlined text-[16px]">document_scanner</span>
+          <span>AI INSTANT KK FORENSIC SCANNER • KHUSUS PANITIA VERIFIKATOR</span>
         </div>
+        <h2 className="font-headline-md text-headline-md text-text-heading font-bold">
+          Unggah File Kartu Keluarga (KK) — Deteksi Anomali &amp; Jarak Otomatis
+        </h2>
+        <p className="font-body-sm text-body-sm text-text-muted leading-relaxed">
+          Tanpa perlu mengisi form manual: cukup unggah foto/scan Kartu Keluarga.{" "}
+          <strong>Gemini Vision AI</strong> otomatis membaca <strong>Nomor KK, NIK, Nama Anak, Alamat, Tanggal Terbit, Status Hubungan Keluarga</strong>, menghitung jarak ke sekolah via <strong>OpenStreetMap / OSRM</strong>, dan mendeteksi indikasi kecurangan zonasi.
+        </p>
+      </div>
 
-        {/* Tombol Sampel Cepat untuk Demo Hackathon */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <span className="font-code-sm text-[11px] text-text-muted uppercase tracking-wider mr-1">
-            Uji Cepat Sampel KK:
-          </span>
+      {/* Card Scope Terpisah: Toolbar Simulasi Sampel KK */}
+      <div className="rounded-xl bg-surface-slate border border-border-slate p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-secondary text-[18px]">science</span>
+          <div>
+            <span className="font-label-md text-xs text-text-heading font-bold block">
+              Simulasi &amp; Uji Cepat Sampel KK
+            </span>
+            <span className="font-body-sm text-[11px] text-text-muted">
+              Klik salah satu skenario berkas di samping jika belum menyiapkan file gambar KK:
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => handlePresetSample("valid")}
@@ -380,38 +388,56 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                 </div>
               </div>
 
-              {/* Alamat Terbaca & Jarak PostGIS */}
-              <div className="rounded-lg bg-white/10 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <span className="font-code-sm text-[11px] text-slate-300 block">
-                    Alamat pada Kartu Keluarga &amp; Titik Koordinat Otomatis:
-                  </span>
-                  <span className="font-body-sm text-sm font-semibold text-white block">
-                    {auditResult.address_text || auditResult.address}
-                  </span>
-                  <span className="font-code-sm text-xs text-cyan-300 block">
-                    GPS: {(auditResult.latitude ?? auditResult.home_lat).toFixed(4)},{" "}
-                    {(auditResult.longitude ?? auditResult.home_lng).toFixed(4)} • Bangunan:{" "}
-                    {auditResult.detected_building}
-                  </span>
+              {/* Alamat Terbaca & Jarak PostGIS + Peta OpenStreetMap Live */}
+              <div className="rounded-lg bg-white/10 p-3.5 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <span className="font-code-sm text-[11px] text-slate-300 block">
+                      Alamat pada Kartu Keluarga &amp; Titik Koordinat Otomatis:
+                    </span>
+                    <span className="font-body-sm text-sm font-semibold text-white block">
+                      {auditResult.address_text || auditResult.address}
+                    </span>
+                    <span className="font-code-sm text-xs text-cyan-300 block">
+                      GPS: {(auditResult.latitude ?? auditResult.home_lat).toFixed(5)},{" "}
+                      {(auditResult.longitude ?? auditResult.home_lng).toFixed(5)} • Bangunan:{" "}
+                      {auditResult.detected_building}
+                    </span>
+                  </div>
+                  <div className="sm:text-right shrink-0">
+                    <span className="font-code-sm text-[11px] text-slate-300 block">
+                      Jarak ke Sekolah (Batas 1.200m)
+                    </span>
+                    <span
+                      className={`font-code-lg text-base font-bold ${
+                        auditResult.real_route_distance_meters <= 1200
+                          ? "text-emerald-300"
+                          : "text-rose-300"
+                      }`}
+                    >
+                      Rute: {auditResult.real_route_distance_meters}m
+                    </span>
+                    <span className="font-code-sm text-[11px] text-slate-300 block">
+                      Garis Lurus: {auditResult.straight_line_distance_meters}m
+                    </span>
+                  </div>
                 </div>
-                <div className="sm:text-right shrink-0">
-                  <span className="font-code-sm text-[11px] text-slate-300 block">
-                    Jarak ke Sekolah (Batas 1.200m)
-                  </span>
-                  <span
-                    className={`font-code-lg text-base font-bold ${
-                      auditResult.real_route_distance_meters <= 1200
-                        ? "text-emerald-300"
-                        : "text-rose-300"
-                    }`}
-                  >
-                    Rute: {auditResult.real_route_distance_meters}m
-                  </span>
-                  <span className="font-code-sm text-[11px] text-slate-300 block">
-                    Garis Lurus: {auditResult.straight_line_distance_meters}m
-                  </span>
-                </div>
+                {(() => {
+                  const lat = auditResult.latitude ?? auditResult.home_lat ?? -6.2297;
+                  const lng = auditResult.longitude ?? auditResult.home_lng ?? 106.8532;
+                  const d = 0.0045;
+                  const osmUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${(lng - d).toFixed(5)}%2C${(lat - d).toFixed(5)}%2C${(lng + d).toFixed(5)}%2C${(lat + d).toFixed(5)}&layer=mapnik&marker=${lat.toFixed(5)}%2C${lng.toFixed(5)}`;
+                  return (
+                    <div className="rounded-lg overflow-hidden border border-white/20 bg-slate-900">
+                      <iframe
+                        title="Peta Lokasi KK OpenStreetMap"
+                        src={osmUrl}
+                        className="w-full h-44 border-0"
+                        loading="lazy"
+                      />
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Daftar Anggota Keluarga yang Terbaca di Tabel KK */}

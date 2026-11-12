@@ -633,7 +633,7 @@ export default function TrackPage({
                       }
                       id="tabScanStreet"
                     >
-                      Street View Panitia
+                      Peta Interaktif &amp; Tata Ruang
                     </button>
                   </div>
                 </div>
@@ -772,38 +772,36 @@ export default function TrackPage({
                 }`}
                 id="containerStreetViewer"
               >
-                <div
-                  className="w-full h-full bg-cover bg-center"
-                  data-location={appData?.address || "Jl. Tebet Timur Dalam VI, Jakarta Selatan"}
-                  style={{
-                    backgroundImage:
-                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAu3uRs8QGs--gdj3uuUn-_w6pAldVL_j_PTYJmBVR1_IRtwmDDuFAcpfLXN-1DvTJ2noiwKssq7DSHM7yyNBvqoT6Pj82DLiJWweho8NSeJ_Qu-kdCF98fbfCmCvlUmeiUNywdKoQh0d2SCXKnz-qFjOdm0JWFhLQ0p9IFUD_YQm4T0ozeCideBZAqxDE7SY9XnFumP1GBlwnudlYlH9K2pQbwJJpn15DH0YshdPQ')",
-                  }}
-                >
-                  <div className="w-full h-full bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent p-space-md flex flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                      <div className="bg-slate-900/85 backdrop-blur px-space-sm py-1 rounded text-white font-code-sm text-code-sm">
-                        <span>
-                          Street View Target: ({appData ? `${appData.home_lat.toFixed(5)}, ${appData.home_lng.toFixed(5)}` : "-6.23827, 106.85194"})
-                        </span>
-                      </div>
-                      <div className="bg-status-approved px-space-sm py-1 rounded text-white font-label-md text-label-md font-semibold">
-                        Objek Fasad: {appData?.detected_building || "RESIDENTIAL"}
-                      </div>
-                    </div>
-                    <div className="bg-slate-900/90 backdrop-blur p-space-sm rounded-lg text-white space-y-1">
-                      <div className="flex justify-between font-code-sm text-code-sm">
-                        <span className="text-slate-300">Hasil Visi Mesin Gemini 3 Flash:</span>
-                        <span className="text-cyan-400 font-semibold">
-                          {appData?.address || "Hunian Warga Terverifikasi"}
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
-                        <div className="bg-cyan-400 h-full rounded-full" style={{ width: `${appData?.ocr_confidence ?? 94}%` }} />
+                {(() => {
+                  const lat = appData?.home_lat ?? -6.2297;
+                  const lng = appData?.home_lng ?? 106.8532;
+                  const d = 0.005;
+                  const osmEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${(lng - d).toFixed(5)}%2C${(lat - d).toFixed(5)}%2C${(lng + d).toFixed(5)}%2C${(lat + d).toFixed(5)}&layer=mapnik&marker=${lat.toFixed(5)}%2C${lng.toFixed(5)}`;
+                  return (
+                    <div className="relative w-full h-full flex flex-col">
+                      <iframe
+                        title="Peta Zonasi OpenStreetMap"
+                        src={osmEmbed}
+                        className="w-full flex-1 border-0"
+                        loading="lazy"
+                      />
+                      <div className="bg-slate-900/95 backdrop-blur px-4 py-2.5 text-white flex flex-wrap items-center justify-between gap-2 border-t border-white/10">
+                        <div className="font-code-sm text-xs">
+                          <span className="text-cyan-400 font-bold">OpenStreetMap Live:</span>{" "}
+                          {appData?.address || "Jl. Tebet Utara Dalam No. 14"} ({lat.toFixed(5)}, {lng.toFixed(5)})
+                        </div>
+                        <div className="flex items-center gap-2 font-code-sm text-xs">
+                          <span className="px-2 py-0.5 rounded bg-secondary text-on-secondary font-bold">
+                            Rute: {appData?.real_route_distance_meters ?? 667}m
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-status-approved text-white font-bold">
+                            Fasad: {appData?.detected_building || "RESIDENTIAL"}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
               <div className="p-space-sm bg-surface-slate flex flex-wrap items-center justify-between gap-space-xs text-text-muted font-body-sm text-body-sm">
                 <div className="flex items-center gap-space-xs">
