@@ -33,40 +33,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-slate flex flex-col justify-between">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 h-16 bg-surface-canvas/90 backdrop-blur-md border-b border-border-slate px-4 sm:px-8 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm">
-            <span className="material-symbols-outlined text-[22px]">policy</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-headline-sm text-headline-sm text-primary font-bold tracking-tight leading-none">
-              Zonasi-Agent
-            </span>
-            <span className="font-code-sm text-[11px] text-secondary font-medium tracking-wider uppercase mt-0.5">
-              Autonomous PPDB Auditor
-            </span>
-          </div>
-        </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/daftar"
-            className="px-3.5 py-1.5 rounded-lg text-text-body hover:bg-surface-slate font-label-md text-label-md transition-colors"
-          >
-            Pendaftaran Siswa
-          </Link>
-          <Link
-            href="/"
-            className="px-3.5 py-1.5 rounded-lg bg-surface-tint-blue text-secondary font-label-md text-label-md font-semibold transition-colors"
-          >
-            Beranda Siswa
-          </Link>
-        </div>
-      </header>
-
-      {/* Main Auth Card */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-8">
+    <div className="bg-surface-slate flex items-center justify-center p-4 sm:p-8 min-h-[calc(100vh-8rem)]">
         <div className="w-full max-w-4xl bg-surface-canvas rounded-2xl shadow-lg border border-border-slate overflow-hidden grid grid-cols-1 lg:grid-cols-12">
           {/* Left Civic Identity Banner */}
           <div className="lg:col-span-5 bg-primary text-on-primary p-8 flex flex-col justify-between relative overflow-hidden">
@@ -246,7 +213,6 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-      </main>
     </div>
   );
 }
