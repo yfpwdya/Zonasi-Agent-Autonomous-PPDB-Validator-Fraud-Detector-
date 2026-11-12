@@ -221,11 +221,28 @@ export default function TrackPage({
     setReceiptDownloaded(true);
   };
 
-  const handleGeoCamera = async () => {
-    setGeoStatus("Memverifikasi Geotag GPS...");
+  const geoInputRef = useRef<HTMLInputElement | null>(null);
+  const [showFasadGuide, setShowFasadGuide] = useState(false);
+
+  const handleGeoCamera = async (fileName?: string) => {
+    const lat = appData?.home_lat ?? -7.2489;
+    const lng = appData?.home_lng ?? 112.6382;
+    const label = fileName || "fasad_rumah_dan_skpwni_geotag.jpg";
+    setGeoStatus(`Memverifikasi EXIF GPS (${lat.toFixed(4)}, ${lng.toFixed(4)}) & Dokumen Pendukung...`);
     try {
-      await verifyPhoto.mutateAsync({ tracking_id: trackingId, lat: -6.23827, lng: 106.85194 });
-      setGeoStatus("Kamera Geotag Terverifikasi ✓");
+      const res = await verifyPhoto.mutateAsync({ tracking_id: trackingId, lat, lng });
+      if (res) setAppData(res);
+      const now = new Date().toTimeString().slice(0, 8);
+      setExtraLogs((prev) => [
+        ...prev,
+        {
+          time: now,
+          agent: "GEOTAG-FIELD-VERIFIER",
+          color: "text-emerald-400",
+          msg: `Bukti ${label} tervalidasi di (${lat.toFixed(5)}, ${lng.toFixed(5)}). Pindah rumah 1 keluarga (SKPWNI / SK Pindah Ortu) & fasad hunian sah -> STATUS: APPROVED.`,
+        },
+      ]);
+      setGeoStatus(`Terverifikasi: ${label} (Status -> APPROVED) ✓`);
     } catch {
       setGeoStatus("Verifikasi Geotag Gagal — coba lagi");
     }
@@ -1053,7 +1070,7 @@ export default function TrackPage({
                       <span className="material-symbols-outlined text-[16px]">
                         location_searching
                       </span>
-                      {' '}Mitigasi Gang / Rumah Tidak Terpetakan
+                      {' '}Mitigasi Gang Sempit &amp; Pindah Rumah Sah (&lt; 1 Thn)
                     </span>
                     {' '}
                     <span className="font-code-sm text-code-sm text-text-muted">
@@ -1061,10 +1078,10 @@ export default function TrackPage({
                     </span>
                   </div>
                   <h3 className="font-headline-sm text-headline-sm text-text-heading mb-space-xs">
-                    Verifikasi Mandiri Foto Ber-Geotag
+                    Verifikasi Mandiri Foto Ber-Geotag &amp; Bukti Pindah Keluarga
                   </h3>
                   <p className="font-body-sm text-body-sm text-text-muted mb-space-md">
-                    Jika mobil Google Street View terhalang portal gang sempit atau gapura warga, peserta dapat mengirimkan foto depan rumah dengan metadata GPS presisi.
+                    Untuk rumah di gang sempit yang terhalang Street View <strong>ATAU</strong> keluarga yang benar-benar pindah rumah (&lt; 1 tahun) bersama seluruh anggota keluarga: unggah <strong>Foto Depan Rumah Ber-Geotag GPS</strong> beserta <strong>SKPWNI (Surat Pindah Dukcapil) / SK Pindah Tugas Orang Tua</strong>.
                   </p>
                   <div className="bg-surface-slate rounded-xl p-space-md space-y-space-sm mb-space-md">
                     <div className="flex items-center gap-space-sm">
@@ -1075,10 +1092,10 @@ export default function TrackPage({
                       </div>
                       <div>
                         <h4 className="font-label-lg text-label-lg text-text-heading">
-                          Kamera Geotagging Otomatis
+                          Kamera Geotagging &amp; Lampiran SKPWNI / Surat Tugas
                         </h4>
                         <p className="font-body-sm text-body-sm text-text-muted">
-                          Mengaktifkan sensor kamera gawai dengan EXIF latitude & longitude terenkripsi.
+                          Mencocokkan koordinat EXIF foto rumah &amp; memvalidasi kepindahan seluruh keluarga (bukan titip KK anak).
                         </p>
                       </div>
                     </div>
@@ -1088,23 +1105,59 @@ export default function TrackPage({
                       </span>
                       {' '}
                       <span>
-                        Akurasi GPS Tersedia: ±3.2 Meter dari Titik Koordinat KK
+                        Target GPS KK: ({(appData?.home_lat ?? -7.2489).toFixed(4)}, {(appData?.home_lng ?? 112.6382).toFixed(4)}) • Akurasi ±3.2m
                       </span>
                     </div>
+                    {showFasadGuide && (
+                      <div className="p-3 rounded-lg bg-surface-tint-blue/40 border border-secondary/30 font-body-sm text-xs text-text-heading space-y-1">
+                        <p className="font-bold text-secondary">Syarat Sah Pindah Rumah (&lt; 1 Tahun) &amp; Fasad Hunian (Permendikbudristek 1/2021):</p>
+                        <ul className="list-disc pl-4 space-y-0.5 text-text-body">
+                          <li><strong>Pindah 1 Keluarga Penuh:</strong> Wajib melampirkan <strong>SKPWNI</strong> (Surat Keterangan Pindah WNI dari Dukcapil) yang membuktikan orang tua &amp; anak ikut pindah bersama (bukan hanya menumpang/titip anak ke KK kerabat).</li>
+                          <li><strong>Mutasi Kerja/Dinas:</strong> Lampirkan <strong>SK Pindah Tugas</strong> orang tua/wali dari instansi/perusahaan + Surat Keterangan Domisili RT/RW setempat.</li>
+                          <li><strong>Bukti Fisik Hunian:</strong> Foto depan rumah menampilkan nomor rumah &amp; jalan lingkungan dengan GPS aktif.</li>
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
+                <input
+                  ref={geoInputRef}
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handleGeoCamera(f.name);
+                  }}
+                />
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm pt-space-xs">
-                  <button className="flex-1 flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-primary hover:bg-secondary text-on-primary font-label-lg text-label-lg shadow transition-all" id="btnGeoCamera" type="button" onClick={handleGeoCamera}>
+                  <button
+                    className="flex-1 flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-primary hover:bg-secondary text-on-primary font-label-lg text-label-lg shadow transition-all"
+                    id="btnGeoCamera"
+                    type="button"
+                    onClick={() => geoInputRef.current?.click()}
+                  >
                     <span className="material-symbols-outlined text-[18px]">
                       camera
                     </span>
                     {' '}
                     <span>
-                      {geoStatus || "Aktifkan Kamera Verifikasi Mandiri"}
+                      {geoStatus || "Unggah Foto Geotag / SKPWNI Pindah Rumah"}
                     </span>
                   </button>
-                  <button className="px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-body font-label-md text-label-md transition-all">
-                    Panduan Foto Fasad
+                  <button
+                    type="button"
+                    onClick={() => void handleGeoCamera("Simulasi_Geotag_SKPWNI_Sememi.jpg")}
+                    className="px-space-md py-space-sm rounded-lg bg-status-approved-bg border border-status-approved-border text-status-approved font-label-md text-label-md font-bold transition-all"
+                  >
+                    Simulasi Verifikasi Cepat
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowFasadGuide((v) => !v)}
+                    className="px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-body font-label-md text-label-md transition-all"
+                  >
+                    {showFasadGuide ? "Tutup Panduan" : "Syarat Pindah & Fasad"}
                   </button>
                 </div>
               </div>

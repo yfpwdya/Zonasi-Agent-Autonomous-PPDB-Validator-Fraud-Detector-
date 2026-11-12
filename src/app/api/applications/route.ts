@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse, after } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   readApplications,
   findByTrackingId,
@@ -248,48 +248,49 @@ export async function POST(req: NextRequest) {
       },
     ];
 
-    after(async () => {
-      if (!hasSupabaseConfig()) return;
+    if (hasSupabaseConfig()) {
       const sb = getSupabaseServer();
-      if (!sb) return;
-      const { data: appRow } = await sb
-        .from("applications")
-        .upsert(
-          {
-            tracking_id: record.tracking_id,
-            student_nik: record.student_nik,
-            student_name: record.student_name,
-            kk_number: record.kk_number,
-            kk_issued_date: record.kk_issued_date,
-            family_relation: record.family_relation,
-            address_text: record.address_text,
-            home_location: `SRID=4326;POINT(${record.longitude} ${record.latitude})`,
-            latitude: record.latitude,
-            longitude: record.longitude,
-            straight_distance_meters: record.straight_distance_meters,
-            real_route_distance_meters: record.real_route_distance_meters,
-            detected_building: record.detected_building,
-            ocr_confidence: record.ocr_confidence,
-            status: record.status,
-            ai_reasoning_summary: record.ai_reasoning_summary,
-            kk_document_url: record.kk_document_url,
-          },
-          { onConflict: "tracking_id" },
-        )
-        .select("id")
-        .single();
+      if (sb) {
+        const { data: appRow } = await sb
+          .from("applications")
+          .upsert(
+            {
+              tracking_id: record.tracking_id,
+              student_nik: record.student_nik,
+              student_name: record.student_name,
+              kk_number: record.kk_number,
+              kk_issued_date: record.kk_issued_date,
+              family_relation: record.family_relation,
+              address_text: record.address_text,
+              home_location: `SRID=4326;POINT(${record.longitude} ${record.latitude})`,
+              latitude: record.latitude,
+              longitude: record.longitude,
+              straight_distance_meters: record.straight_distance_meters,
+              real_route_distance_meters: record.real_route_distance_meters,
+              detected_building: record.detected_building,
+              ocr_confidence: record.ocr_confidence,
+              status: record.status,
+              ai_reasoning_summary: record.ai_reasoning_summary,
+              kk_document_url: record.kk_document_url,
+            },
+            { onConflict: "tracking_id" },
+          )
+          .select("id")
+          .single();
 
-      if (appRow?.id) {
-        await sb.from("agent_audit_logs").insert(
-          auditLogs.map((l) => ({
-            application_id: appRow.id,
-            step_name: l.stepName,
-            log_level: l.logLevel,
-            message: l.message,
-          })),
-        );
+        if (appRow?.id) {
+          record.id = String(appRow.id);
+          await sb.from("agent_audit_logs").insert(
+            auditLogs.map((l) => ({
+              application_id: appRow.id,
+              step_name: l.stepName,
+              log_level: l.logLevel,
+              message: l.message,
+            })),
+          );
+        }
       }
-    });
+    }
 
     return NextResponse.json(
       {

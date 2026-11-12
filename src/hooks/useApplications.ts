@@ -22,7 +22,29 @@ function useAppMutation<TIn, TOut>(fn: (input: TIn) => Promise<TOut>) {
   return useMutation({ mutationFn: fn, onSuccess: () => qc.invalidateQueries({ queryKey: KEY }) });
 }
 
-export const useCreateApplication = () => useAppMutation(createApplication);
+export const useCreateApplication = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: createApplication,
+    onSuccess: (created) => {
+      qc.setQueryData(
+        KEY,
+        (old?: { applications: typeof created[]; total: number; source?: string }) => {
+          if (!old || !created) return old;
+          const filtered = old.applications.filter(
+            (a) => a.tracking_id.toUpperCase() !== created.tracking_id.toUpperCase(),
+          );
+          return {
+            ...old,
+            applications: [created, ...filtered],
+            total: filtered.length + 1,
+          };
+        },
+      );
+      void qc.invalidateQueries({ queryKey: KEY });
+    },
+  });
+};
 export const useUpdateApplication = () => useAppMutation(updateApplication);
 export const useVerifyLivePhoto = () => useAppMutation(verifyLivePhoto);
 export const useOcrPreview = () => useMutation({ mutationFn: previewOcr });
