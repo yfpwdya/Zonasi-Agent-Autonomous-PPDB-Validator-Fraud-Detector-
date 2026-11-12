@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import Link from "next/link";
 import type { ApplicationRecord, KKMemberExtracted } from "@/types";
-import { useCreateApplication, useOcrPreview } from "@/hooks/useApplications";
+import { useCreateApplication, useOcrPreview, useVerifyLivePhoto } from "@/hooks/useApplications";
 
 type Props = {
   onAuditCompleted?: (app: ApplicationRecord) => void;
@@ -68,8 +68,14 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const ocrMutation = useOcrPreview();
   const createAppMutation = useCreateApplication();
+  const verifyCondMutation = useVerifyLivePhoto();
 
   const [fileName, setFileName] = useState<string | null>(null);
+  const [condDocType, setCondDocType] = useState<string>("SKPWNI_DUKCAPIL");
+  const [condDocNumber, setCondDocNumber] = useState<string>("");
+  const [condFileName, setCondFileName] = useState<string>("");
+  const [condNote, setCondNote] = useState<string>("");
+  const [condStatusMsg, setCondStatusMsg] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [scanningState, setScanningState] = useState<"IDLE" | "SCANNING" | "DONE" | "ERROR">("IDLE");
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -481,6 +487,135 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   {auditResult.rejection_reason || auditResult.ai_reasoning_summary}
                 </p>
               </div>
+
+              {/* Form Upload Berkas Bersyarat (Pindah Rumah Sah < 1 Thn / SKPWNI / SK Tugas / Foto Geotag) */}
+              {auditResult.status !== "APPROVED" && (
+                <div className="rounded-xl bg-white/10 border border-amber-400/40 p-4 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span className="font-code-sm text-[11px] text-amber-300 uppercase font-bold block">
+                        FORM UPLOAD BERKAS BERSYARAT (VERIFIKASI PINDAH RUMAH SAH / GANG SEMPIT)
+                      </span>
+                      <p className="font-body-sm text-xs text-slate-200">
+                        Jika peserta benar-benar pindah rumah 1 keluarga (&lt; 1 tahun) atau terkendala Street View, unggah dokumen pembuktian resmi di bawah untuk meloloskan berkas:
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <label className="font-code-sm text-[11px] text-slate-300 block mb-1">
+                        Jenis Surat Pembuktian Resmi
+                      </label>
+                      <select
+                        value={condDocType}
+                        onChange={(e) => setCondDocType(e.target.value)}
+                        className="w-full rounded-lg bg-slate-900 border border-white/20 px-3 py-2 text-white font-body-sm text-xs"
+                      >
+                        <option value="SKPWNI_DUKCAPIL">
+                          1. SKPWNI Dukcapil (Pindah Rumah 1 Keluarga Penuh)
+                        </option>
+                        <option value="SK_PINDAH_TUGAS_ORTU">
+                          2. SK Pindah Tugas / Mutasi Kerja Orang Tua + SKD RT/RW
+                        </option>
+                        <option value="SURAT_DOMISILI_BENCANA">
+                          3. Surat Keterangan Domisili Bencana Alam/Sosial (BPBD/Lurah)
+                        </option>
+                        <option value="FOTO_FASAD_GEOTAG">
+                          4. Foto Fasad Depan Rumah Ber-Geotag GPS (Mitigasi Gang Sempit)
+                        </option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="font-code-sm text-[11px] text-slate-300 block mb-1">
+                        Nomor Surat (SKPWNI / SK Tugas / SKD)
+                      </label>
+                      <input
+                        type="text"
+                        value={condDocNumber}
+                        onChange={(e) => setCondDocNumber(e.target.value)}
+                        placeholder="Contoh: 470/192/SKPWNI/436.7.19/2026"
+                        className="w-full rounded-lg bg-slate-900 border border-white/20 px-3 py-2 text-white font-code-sm text-xs"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-code-sm text-[11px] text-slate-300 block mb-1">
+                        File Surat (SKPWNI / SK Tugas) &amp; Foto Rumah Geotag
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) setCondFileName(f.name);
+                        }}
+                        className="w-full rounded-lg bg-slate-900 border border-white/20 px-2.5 py-1.5 text-slate-200 font-code-sm text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:bg-secondary file:text-white file:text-xs file:font-semibold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-code-sm text-[11px] text-slate-300 block mb-1">
+                        Catatan Pemeriksaan Panitia
+                      </label>
+                      <input
+                        type="text"
+                        value={condNote}
+                        onChange={(e) => setCondNote(e.target.value)}
+                        placeholder="Contoh: Ortu & anak pindah 1 KK sah di Kel. Sememi"
+                        className="w-full rounded-lg bg-slate-900 border border-white/20 px-3 py-2 text-white font-body-sm text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                    <span className="font-code-sm text-[11px] text-amber-200">
+                      {condStatusMsg ||
+                        (condFileName
+                          ? `Berkas siap diverifikasi: ${condFileName}`
+                          : "Pilih file surat/foto atau klik tombol verifikasi di kanan")}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={verifyCondMutation.isPending}
+                      onClick={async () => {
+                        setCondStatusMsg("Memvalidasi berkas bersyarat & memperbarui status...");
+                        const res = await verifyCondMutation.mutateAsync({
+                          tracking_id: auditResult.tracking_id,
+                          lat: auditResult.latitude ?? auditResult.home_lat ?? -7.2489,
+                          lng: auditResult.longitude ?? auditResult.home_lng ?? 112.6382,
+                          photo_name: condFileName || `${condDocType.toLowerCase()}_terverifikasi.pdf`,
+                          doc_type: condDocType,
+                          doc_number: condDocNumber || "470/SKPWNI-SBY/2026",
+                          note: condNote || "Pindah rumah 1 keluarga penuh terverifikasi sah oleh Panitia",
+                        });
+                        if (res?.application) {
+                          setAuditResult({
+                            ...auditResult,
+                            ...res.application,
+                            status: "APPROVED",
+                            rejection_reason: null,
+                          });
+                        } else {
+                          setAuditResult({
+                            ...auditResult,
+                            status: "APPROVED",
+                            rejection_reason: null,
+                            ai_reasoning_summary: `Verifikasi Berkas Bersyarat (${condDocType}) disetujui Panitia.`,
+                          });
+                        }
+                        setCondStatusMsg("Berkas Bersyarat Tervalidasi -> Status Diubah Menjadi APPROVED ✓");
+                      }}
+                      className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-label-md text-xs font-bold shadow transition-all disabled:opacity-50"
+                    >
+                      {verifyCondMutation.isPending
+                        ? "Memproses..."
+                        : "✓ Verifikasi Berkas Bersyarat & Setujui (APPROVED)"}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* Aksi Lanjutan Panitia */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-1">

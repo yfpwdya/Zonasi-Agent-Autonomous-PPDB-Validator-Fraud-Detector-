@@ -37,4 +37,7 @@ export const verifyLivePhoto = async (input: {
   lat: number;
   lng: number;
   photo_name?: string;
+  doc_type?: string;
+  doc_number?: string;
+  note?: string;
 }) => (await api.post<{ ok: boolean; application?: ApplicationRecord }>("/verify-live-photo", input)).data;

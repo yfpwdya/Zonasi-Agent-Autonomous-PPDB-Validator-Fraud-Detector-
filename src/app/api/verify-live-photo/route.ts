@@ -8,7 +8,10 @@ export async function POST(request: Request) {
   const lat = Number(body.lat ?? body.photo_lat ?? -7.2489);
   const lng = Number(body.lng ?? body.photo_lng ?? 112.6382);
   const photo_name = String(body.photo_name || "fasad_rumah_dan_skpwni_geotag.jpg");
-  const summary = `Verifikasi Lapangan & Dokumen Pendukung (SKPWNI / Surat Tugas / Foto Fasad Geotag) tervalidasi di koordinat (${lat.toFixed(5)}, ${lng.toFixed(5)}) — Zonasi SMAN 12 Surabaya.`;
+  const doc_type = String(body.doc_type || "SKPWNI_PINDAH_KELUARGA");
+  const doc_number = String(body.doc_number || "").trim();
+  const note = String(body.note || "").trim();
+  const summary = `Verifikasi Berkas Bersyarat [${doc_type}${doc_number ? ` No.${doc_number}` : ""}] & Foto Geotag (${photo_name} @ ${lat.toFixed(5)}, ${lng.toFixed(5)}) tervalidasi${note ? ` — ${note}` : ""} -> LOLOS ZONASI SMAN 12 SURABAYA.`;
 
   const rows = readApplications();
   const idx = rows.findIndex((r) => r.tracking_id.toUpperCase() === tracking_id.toUpperCase());

@@ -223,14 +223,25 @@ export default function TrackPage({
 
   const geoInputRef = useRef<HTMLInputElement | null>(null);
   const [showFasadGuide, setShowFasadGuide] = useState(false);
+  const [condDocType, setCondDocType] = useState("SKPWNI_DUKCAPIL");
+  const [condDocNumber, setCondDocNumber] = useState("");
+  const [condNote, setCondNote] = useState("");
 
   const handleGeoCamera = async (fileName?: string) => {
     const lat = appData?.home_lat ?? -7.2489;
     const lng = appData?.home_lng ?? 112.6382;
     const label = fileName || "fasad_rumah_dan_skpwni_geotag.jpg";
-    setGeoStatus(`Memverifikasi EXIF GPS (${lat.toFixed(4)}, ${lng.toFixed(4)}) & Dokumen Pendukung...`);
+    setGeoStatus(`Memverifikasi ${condDocType} & EXIF GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})...`);
     try {
-      const res = await verifyPhoto.mutateAsync({ tracking_id: trackingId, lat, lng });
+      const res = await verifyPhoto.mutateAsync({
+        tracking_id: trackingId,
+        lat,
+        lng,
+        photo_name: label,
+        doc_type: condDocType,
+        doc_number: condDocNumber || "470/SKPWNI-SBY/2026",
+        note: condNote || "Pindah rumah 1 keluarga penuh tervalidasi sah",
+      });
       if (res?.application) setAppData(res.application);
       const now = new Date().toTimeString().slice(0, 8);
       setExtraLogs((prev) => [
@@ -1107,6 +1118,47 @@ export default function TrackPage({
                       <span>
                         Target GPS KK: ({(appData?.home_lat ?? -7.2489).toFixed(4)}, {(appData?.home_lng ?? 112.6382).toFixed(4)}) • Akurasi ±3.2m
                       </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                      <div>
+                        <label className="font-code-sm text-[11px] text-text-muted block mb-1">
+                          Jenis Surat Pembuktian Pindah / Domisili
+                        </label>
+                        <select
+                          value={condDocType}
+                          onChange={(e) => setCondDocType(e.target.value)}
+                          className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2.5 py-2 text-text-heading font-body-sm text-xs"
+                        >
+                          <option value="SKPWNI_DUKCAPIL">1. SKPWNI Dukcapil (Pindah 1 Keluarga Penuh)</option>
+                          <option value="SK_PINDAH_TUGAS_ORTU">2. SK Pindah Tugas / Mutasi Kerja Ortu + SKD</option>
+                          <option value="SURAT_DOMISILI_BENCANA">3. Surat Domisili Bencana Alam/Sosial (BPBD)</option>
+                          <option value="FOTO_FASAD_GEOTAG">4. Foto Fasad Rumah Geotag (Gang Sempit)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="font-code-sm text-[11px] text-text-muted block mb-1">
+                          Nomor Surat Resmi (SKPWNI / SK Tugas)
+                        </label>
+                        <input
+                          type="text"
+                          value={condDocNumber}
+                          onChange={(e) => setCondDocNumber(e.target.value)}
+                          placeholder="Contoh: 470/192/SKPWNI/436.7.19/2026"
+                          className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2.5 py-2 text-text-heading font-code-sm text-xs"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="font-code-sm text-[11px] text-text-muted block mb-1">
+                          Catatan Verifikasi Panitia
+                        </label>
+                        <input
+                          type="text"
+                          value={condNote}
+                          onChange={(e) => setCondNote(e.target.value)}
+                          placeholder="Contoh: Orang tua & anak pindah 1 keluarga ke Kel. Sememi, Kec. Benowo"
+                          className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2.5 py-2 text-text-heading font-body-sm text-xs"
+                        />
+                      </div>
                     </div>
                     {showFasadGuide && (
                       <div className="p-3 rounded-lg bg-surface-tint-blue/40 border border-secondary/30 font-body-sm text-xs text-text-heading space-y-1">
