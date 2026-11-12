@@ -35,10 +35,10 @@ export default function TrackPage({
   params: Promise<{ trackingId: string }>;
 }) {
   const resolved = use(params);
-  const trackingId = decodeURIComponent(resolved.trackingId || "PPDB-2026-X89K");
+  const trackingId = decodeURIComponent(resolved.trackingId || "");
   const kkInputRef = useRef<HTMLInputElement | null>(null);
   const [appData, setAppData] = useState<ApplicationRecord | null>(null);
-  const [studentName, setStudentName] = useState("Rafi Alamsyah");
+  const [studentName, setStudentName] = useState("Belum Ada Berkas KK");
   const [activeTab, setActiveTab] = useState<"doc" | "street">("doc");
   const [extraLogs, setExtraLogs] = useState<
     Array<{ time: string; agent: string; color: string; msg: string }>
@@ -687,7 +687,7 @@ export default function TrackPage({
                       Sumber Storage: {appData?.kk_image_url?.startsWith("http") ? "Supabase Storage (ppdb-documents)" : appData?.kk_image_url}
                     </div>
                   </div>
-                ) : (
+                ) : appData ? (
                   <div className="relative w-full max-w-lg h-80 bg-surface-canvas rounded-lg shadow-2xl overflow-hidden p-space-md font-body-sm text-text-heading select-none z-10">
                     <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-[scan_3s_ease-in-out_infinite] z-30" />
                     <div className="flex items-center justify-between pb-2 mb-2">
@@ -702,18 +702,18 @@ export default function TrackPage({
                             KARTU KELUARGA
                           </p>
                           <p className="font-code-sm text-[10px] text-slate-500">
-                            No. {appData?.kk_number || "3578192502120005"}
+                            No. {appData.kk_number || "-"}
                           </p>
                         </div>
                       </div>
                       <div
                         className={`px-2 py-0.5 rounded font-code-sm text-[10px] font-bold ${
-                          (appData?.ocr_confidence ?? 98.4) >= 80
+                          (appData.ocr_confidence ?? 0) >= 80
                             ? "bg-emerald-50 text-status-approved"
                             : "bg-amber-50 text-status-revision"
                         }`}
                       >
-                        {(appData?.ocr_confidence ?? 98.4) >= 80 ? "TERVERIFIKASI" : "PERLU REVISI / DUMMY"}
+                        {(appData.ocr_confidence ?? 0) >= 80 ? "TERVERIFIKASI" : "PERLU REVISI"}
                       </div>
                     </div>
                     <div className="relative p-2 bg-emerald-50/60 rounded mb-2 z-10">
@@ -724,7 +724,7 @@ export default function TrackPage({
                         Alamat Domisili Terbaca
                       </p>
                       <p className="font-body-md text-[13px] font-bold text-slate-900 leading-tight truncate">
-                        {appData?.address || "Jl. Sememi Jaya IV No. 14, Kel. Sememi, Kec. Benowo, Surabaya"}
+                        {appData.address || appData.address_text || "-"}
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-2">
@@ -736,7 +736,7 @@ export default function TrackPage({
                           Nama Calon Siswa
                         </p>
                         <p className="font-body-md text-[12px] font-bold text-slate-900 leading-tight truncate">
-                          {appData?.student_name || studentName}
+                          {appData.student_name}
                         </p>
                       </div>
                       <div className="relative p-2 bg-emerald-50/60 rounded z-10">
@@ -747,7 +747,7 @@ export default function TrackPage({
                           Status Hubungan
                         </p>
                         <p className="font-body-md text-[12px] font-bold text-slate-900 leading-tight">
-                          {(appData?.family_relation_valid ?? true) ? "ANAK KANDUNG" : "FAMILI LAIN / DUMMY"}
+                          {(appData.family_relation_valid ?? true) ? "ANAK KANDUNG" : "FAMILI LAIN"}
                         </p>
                       </div>
                     </div>
@@ -761,24 +761,36 @@ export default function TrackPage({
                             Dikeluarkan Tanggal
                           </p>
                           <p className="font-body-md text-[12px] font-bold text-primary leading-tight">
-                            {appData?.kk_issue_date || "2018-02-12"} ({appData?.kk_age_label || "6 Tahun"})
+                            {appData.kk_issue_date || appData.kk_issued_date || "-"} ({appData.kk_age_label || "-"})
                           </p>
                         </div>
                         <span
                           className={`font-code-sm text-[10px] font-bold px-2 py-0.5 rounded ${
-                            (appData?.kk_age_valid ?? true)
+                            (appData.kk_age_valid ?? true)
                               ? "text-status-approved bg-status-approved-bg"
                               : "text-status-fraud bg-status-fraud-bg"
                           }`}
                         >
-                          {(appData?.kk_age_valid ?? true) ? "VALID ≥ 1 TAHUN" : "ANOMALI < 1 THN"}
+                          {(appData.kk_age_valid ?? true) ? "VALID ≥ 1 TAHUN" : "ANOMALI < 1 THN"}
                         </span>
                       </div>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-slate-400 font-code-sm text-[9px]">
-                      <span>Berkas: {appData?.kk_image_url || "kartu_keluarga.jpg"}</span>
-                      <span>Engine: Gemini Vision • SMAN 12 Surabaya</span>
+                      <span>Berkas: {appData.kk_image_url || appData.kk_document_url || "-"}</span>
+                      <span>Confidence: {appData.ocr_confidence}%</span>
                     </div>
+                  </div>
+                ) : (
+                  <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 text-slate-300 max-w-md gap-3">
+                    <span className="material-symbols-outlined text-[42px] text-cyan-400">
+                      upload_file
+                    </span>
+                    <p className="font-headline-sm text-sm font-bold text-white">
+                      Belum Ada File Kartu Keluarga (KK) yang Diunggah
+                    </p>
+                    <p className="font-body-sm text-xs text-slate-400">
+                      Klik tombol <strong>Pindai File KK Baru</strong> di kanan atas untuk mengunggah dan memindai berkas KK secara langsung tanpa data dummy.
+                    </p>
                   </div>
                 )}
               </div>

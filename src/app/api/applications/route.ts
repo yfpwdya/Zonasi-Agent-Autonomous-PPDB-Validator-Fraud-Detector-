@@ -8,7 +8,106 @@ import {
 import { runZonasiAgentPipeline } from "@/server/agent/orchestrator";
 import { getSupabaseServer, hasSupabaseConfig } from "@/server/supabase";
 
-// ponytail: read from Supabase PostgreSQL first when configured, falling back to local .zonasi-store.json
+function mapDbRowToRecord(
+  row: Record<string, unknown>,
+  fallback?: ApplicationRecord,
+): ApplicationRecord {
+  const issueDate = String(
+    row.kk_issue_date ||
+      row.kk_issued_date ||
+      fallback?.kk_issue_date ||
+      fallback?.kk_issued_date ||
+      "2020-01-01",
+  );
+  const ageYears = Math.max(
+    0,
+    Number(((Date.now() - new Date(issueDate).getTime()) / (365.25 * 86400_000)).toFixed(1)),
+  );
+  const straightMeters = Number(
+    row.straight_line_distance_meters ??
+      row.straight_distance_meters ??
+      fallback?.straight_line_distance_meters ??
+      0,
+  );
+  const routeMeters = Number(
+    row.real_route_distance_meters ?? fallback?.real_route_distance_meters ?? 0,
+  );
+  const lat = Number(row.home_lat ?? row.latitude ?? fallback?.home_lat ?? -7.2489);
+  const lng = Number(row.home_lng ?? row.longitude ?? fallback?.home_lng ?? 112.6382);
+  const docUrl = String(
+    row.kk_image_url ??
+      row.kk_document_url ??
+      fallback?.kk_image_url ??
+      fallback?.kk_document_url ??
+      "",
+  );
+  const addr = String(
+    row.street_view_image_url ??
+      row.address_text ??
+      fallback?.address_text ??
+      fallback?.address ??
+      "Wilayah Zonasi SMAN 12 Surabaya",
+  );
+  const relValid = Boolean(row.family_relation_valid ?? fallback?.family_relation_valid ?? true);
+  const rel = String(
+    row.family_relation ?? fallback?.family_relation ?? (relValid ? "ANAK_KANDUNG" : "FAMILI_LAIN"),
+  );
+  const status = (row.status as ApplicationRecord["status"]) ?? fallback?.status ?? "APPROVED";
+
+  return {
+    id: String(row.id ?? fallback?.id ?? crypto.randomUUID()),
+    tracking_id: String(row.tracking_id ?? fallback?.tracking_id ?? ""),
+    student_nik: String(row.student_nik ?? fallback?.student_nik ?? ""),
+    student_name: String(row.student_name ?? fallback?.student_name ?? ""),
+    kk_number: String(row.kk_number ?? fallback?.kk_number ?? ""),
+    school_name: fallback?.school_name || "SMA Negeri 12 Surabaya",
+    address: addr,
+    address_text: addr,
+    home_lat: lat,
+    home_lng: lng,
+    latitude: lat,
+    longitude: lng,
+    straight_line_distance_meters: straightMeters,
+    straight_distance_meters: straightMeters,
+    real_route_distance_meters: routeMeters,
+    kk_image_url: docUrl,
+    kk_document_url: docUrl,
+    live_house_photo_url:
+      (row.live_house_photo_url as string | null) ??
+      (row.live_geotag_photo_url as string | null) ??
+      fallback?.live_house_photo_url ??
+      null,
+    live_geotag_photo_url:
+      (row.live_house_photo_url as string | null) ??
+      (row.live_geotag_photo_url as string | null) ??
+      fallback?.live_house_photo_url ??
+      null,
+    kk_issue_date: issueDate,
+    kk_issued_date: issueDate,
+    kk_age_label:
+      fallback?.kk_age_label ||
+      (ageYears < 1
+        ? `${Math.max(1, Math.round(ageYears * 12))} Bln (<1 Thn)`
+        : `${ageYears} Thn (Valid)`),
+    kk_age_valid: Boolean(row.kk_age_valid ?? ageYears >= 1),
+    family_relation_valid: relValid,
+    family_relation: rel,
+    ocr_confidence: Number(row.ocr_confidence ?? fallback?.ocr_confidence ?? 95),
+    detected_building:
+      (row.detected_building as ApplicationRecord["detected_building"]) ??
+      fallback?.detected_building ??
+      "RESIDENTIAL",
+    status,
+    ai_reasoning_summary: String(row.ai_reasoning_summary ?? fallback?.ai_reasoning_summary ?? ""),
+    rejection_reason:
+      (row.rejection_reason as string | null) ??
+      (status === "REJECTED" ? String(row.ai_reasoning_summary ?? "") : null),
+    created_at: String(row.created_at ?? row.updated_at ?? new Date().toISOString()),
+    updated_at: String(row.updated_at ?? row.created_at ?? new Date().toISOString()),
+  };
+}
+
+// ponytail: merge Supabase PostgreSQL rows + local .zonasi-store.json so every uploaded KK immediately appears in both User History and Panitia Dashboard.
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const trackingId = searchParams.get("trackingId");
@@ -16,7 +115,8 @@ export async function GET(req: NextRequest) {
   const q = searchParams.get("q")?.toLowerCase().trim();
 
   const localApps = readApplications();
-  let apps: ApplicationRecord[] = localApps;
+  const localByTrack = new Map(localApps.map((a) => [a.tracking_id.toUpperCase(), a]));
+  const mergedMap = new Map<string, ApplicationRecord>();
 
   if (hasSupabaseConfig()) {
     const sb = getSupabaseServer();
@@ -25,74 +125,29 @@ export async function GET(req: NextRequest) {
         .from("applications")
         .select("*")
         .order("updated_at", { ascending: false });
-      if (!error && sbRows && sbRows.length > 0) {
-        const localByTrack = new Map(localApps.map((a) => [a.tracking_id.toUpperCase(), a]));
-        apps = sbRows.map((row) => {
-          const fallback = localByTrack.get(String(row.tracking_id).toUpperCase());
-          const issueDate = String(
-            row.kk_issued_date || fallback?.kk_issue_date || fallback?.kk_issued_date || "2020-01-01",
-          );
-          const ageYears = Math.max(
-            0,
-            Number(((Date.now() - new Date(issueDate).getTime()) / (365.25 * 86400_000)).toFixed(1)),
-          );
-          const straightMeters = Number(
-            row.straight_distance_meters ?? fallback?.straight_line_distance_meters ?? 0,
-          );
-          const routeMeters = Number(
-            row.real_route_distance_meters ?? fallback?.real_route_distance_meters ?? 0,
-          );
-          const lat = Number(row.latitude ?? fallback?.home_lat ?? -7.2489);
-          const lng = Number(row.longitude ?? fallback?.home_lng ?? 112.6382);
-          const docUrl = String(
-            row.kk_document_url ?? fallback?.kk_image_url ?? fallback?.kk_document_url ?? "",
-          );
-          const addr = String(row.address_text ?? fallback?.address ?? "");
-          const rel = String(row.family_relation ?? "ANAK_KANDUNG");
-
-          return {
-            id: String(row.id),
-            tracking_id: String(row.tracking_id),
-            student_nik: String(row.student_nik),
-            student_name: String(row.student_name),
-            kk_number: String(row.kk_number),
-            school_name: fallback?.school_name || "SMA Negeri 12 Surabaya",
-            address: addr,
-            address_text: addr,
-            home_lat: lat,
-            home_lng: lng,
-            latitude: lat,
-            longitude: lng,
-            straight_line_distance_meters: straightMeters,
-            straight_distance_meters: straightMeters,
-            real_route_distance_meters: routeMeters,
-            kk_image_url: docUrl,
-            kk_document_url: docUrl,
-            live_house_photo_url: row.live_geotag_photo_url ?? fallback?.live_house_photo_url ?? null,
-            live_geotag_photo_url: row.live_geotag_photo_url ?? fallback?.live_house_photo_url ?? null,
-            kk_issue_date: issueDate,
-            kk_issued_date: issueDate,
-            kk_age_label:
-              fallback?.kk_age_label ||
-              (ageYears < 1
-                ? `${Math.max(1, Math.round(ageYears * 12))} Bln (<1 Thn)`
-                : `${ageYears} Thn (Valid)`),
-            kk_age_valid: ageYears >= 1,
-            family_relation_valid: rel === "ANAK_KANDUNG",
-            family_relation: rel,
-            ocr_confidence: Number(row.ocr_confidence ?? fallback?.ocr_confidence ?? 95),
-            detected_building: row.detected_building ?? fallback?.detected_building ?? "RESIDENTIAL",
-            status: row.status,
-            ai_reasoning_summary: String(row.ai_reasoning_summary ?? ""),
-            rejection_reason:
-              row.status === "REJECTED" ? String(row.ai_reasoning_summary ?? "") : null,
-            created_at: String(row.created_at ?? row.updated_at ?? new Date().toISOString()),
-            updated_at: String(row.updated_at ?? new Date().toISOString()),
-          } satisfies ApplicationRecord;
-        });
+      if (!error && sbRows) {
+        for (const row of sbRows) {
+          const key = String(row.tracking_id || "").toUpperCase();
+          if (!key) continue;
+          const fallback = localByTrack.get(key);
+          mergedMap.set(key, mapDbRowToRecord(row as Record<string, unknown>, fallback));
+        }
       }
     }
   }
+
+  for (const local of localApps) {
+    const key = local.tracking_id.toUpperCase();
+    if (!mergedMap.has(key)) {
+      mergedMap.set(key, local);
+    }
+  }
+
+  let apps = Array.from(mergedMap.values()).sort((a, b) => {
+    const ta = new Date(a.updated_at || a.created_at || 0).getTime();
+    const tb = new Date(b.updated_at || b.created_at || 0).getTime();
+    return tb - ta;
+  });
 
   if (trackingId) {
     const found =
@@ -190,12 +245,24 @@ export async function POST(req: NextRequest) {
     const finalAddress = result.resolvedAddress;
     const finalLat = result.resolvedLat;
     const finalLng = result.resolvedLng;
+    const rawNik = (result.ocr.studentNikDetected || studentNik || "").replace(/\D/g, "");
+    const uniqueSuffix = String(Date.now()).slice(-4);
+    const safeNik16 =
+      rawNik.length === 16
+        ? rawNik
+        : (`357819${rawNik}${uniqueSuffix}0000000000`).slice(0, 16);
+    const rawKk = (result.ocr.kkNumberDetected || kkNumber || "").replace(/\D/g, "");
+    const safeKk16 =
+      rawKk.length === 16
+        ? rawKk
+        : (`357819${rawKk}${uniqueSuffix}0000000000`).slice(0, 16);
+
     const record: ApplicationRecord = {
       id: crypto.randomUUID(),
       tracking_id: trackingId,
-      student_nik: result.ocr.studentNikDetected || studentNik || "3578XXXXXXXX0002",
+      student_nik: safeNik16,
       student_name: result.ocr.studentNameDetected || studentName || "Peserta Didik (Lihat KK)",
-      kk_number: result.ocr.kkNumberDetected || kkNumber || "19010XXXXXXXXXXX",
+      kk_number: safeKk16,
       school_name: "SMA Negeri 12 Surabaya",
       address: finalAddress,
       address_text: finalAddress,
@@ -251,41 +318,45 @@ export async function POST(req: NextRequest) {
     if (hasSupabaseConfig()) {
       const sb = getSupabaseServer();
       if (sb) {
+        // Match exact columns in 0001_init_zonasi_schema.sql
+        const dbPayload = {
+          tracking_id: record.tracking_id,
+          student_nik: `${record.student_nik.slice(0, 12)}${uniqueSuffix}`,
+          student_name: record.student_name,
+          kk_number: record.kk_number,
+          home_lat: record.home_lat,
+          home_lng: record.home_lng,
+          home_location: `SRID=4326;POINT(${record.home_lng} ${record.home_lat})`,
+          straight_line_distance_meters: record.straight_line_distance_meters,
+          real_route_distance_meters: record.real_route_distance_meters,
+          kk_image_url: record.kk_image_url,
+          street_view_image_url: record.address_text,
+          kk_issue_date: record.kk_issue_date,
+          kk_age_valid: record.kk_age_valid,
+          family_relation_valid: record.family_relation_valid,
+          ocr_confidence: record.ocr_confidence,
+          detected_building: record.detected_building,
+          status: record.status,
+          ai_reasoning_summary: record.ai_reasoning_summary,
+          rejection_reason: record.rejection_reason,
+          updated_at: nowIso,
+        };
+
         const { data: appRow } = await sb
           .from("applications")
-          .upsert(
-            {
-              tracking_id: record.tracking_id,
-              student_nik: record.student_nik,
-              student_name: record.student_name,
-              kk_number: record.kk_number,
-              kk_issued_date: record.kk_issued_date,
-              family_relation: record.family_relation,
-              address_text: record.address_text,
-              home_location: `SRID=4326;POINT(${record.longitude} ${record.latitude})`,
-              latitude: record.latitude,
-              longitude: record.longitude,
-              straight_distance_meters: record.straight_distance_meters,
-              real_route_distance_meters: record.real_route_distance_meters,
-              detected_building: record.detected_building,
-              ocr_confidence: record.ocr_confidence,
-              status: record.status,
-              ai_reasoning_summary: record.ai_reasoning_summary,
-              kk_document_url: record.kk_document_url,
-            },
-            { onConflict: "tracking_id" },
-          )
+          .upsert(dbPayload, { onConflict: "tracking_id" })
           .select("id")
           .single();
 
         if (appRow?.id) {
           record.id = String(appRow.id);
+          upsertApplication(record);
           await sb.from("agent_audit_logs").insert(
             auditLogs.map((l) => ({
               application_id: appRow.id,
               step_name: l.stepName,
-              log_level: l.logLevel,
-              message: l.message,
+              status: l.logLevel,
+              detail_message: l.message,
             })),
           );
         }
@@ -317,7 +388,8 @@ export async function PATCH(req: NextRequest) {
 
     const existing = findByTrackingId(trackingId);
     const updatedStatus = nextStatus ?? existing?.status ?? "APPROVED";
-    const updatedSummary = summary ?? existing?.ai_reasoning_summary ?? "Status diperbarui oleh Panitia.";
+    const updatedSummary =
+      summary ?? existing?.ai_reasoning_summary ?? "Status diperbarui oleh Panitia.";
 
     let updated: ApplicationRecord | null = null;
     if (existing) {
@@ -325,6 +397,7 @@ export async function PATCH(req: NextRequest) {
         ...existing,
         status: updatedStatus,
         ai_reasoning_summary: updatedSummary,
+        rejection_reason: updatedStatus === "REJECTED" ? updatedSummary : null,
         updated_at: new Date().toISOString(),
       };
       upsertApplication(updated);
@@ -338,6 +411,7 @@ export async function PATCH(req: NextRequest) {
           .update({
             status: updatedStatus,
             ai_reasoning_summary: updatedSummary,
+            rejection_reason: updatedStatus === "REJECTED" ? updatedSummary : null,
             updated_at: new Date().toISOString(),
           })
           .eq("tracking_id", trackingId)
@@ -345,11 +419,13 @@ export async function PATCH(req: NextRequest) {
           .single();
 
         if (sbRow?.id) {
+          updated = mapDbRowToRecord(sbRow as Record<string, unknown>, updated ?? undefined);
+          upsertApplication(updated);
           await sb.from("agent_audit_logs").insert({
             application_id: sbRow.id,
             step_name: "COMMITTEE_OVERRIDE",
-            log_level: updatedStatus === "REJECTED" ? "CRITICAL" : "SUCCESS",
-            message: `[${actor}] Mengubah status berkas ${trackingId} menjadi ${updatedStatus}: ${updatedSummary}`,
+            status: updatedStatus === "REJECTED" ? "FAILED" : "SUCCESS",
+            detail_message: `[${actor}] Mengubah status berkas ${trackingId} menjadi ${updatedStatus}: ${updatedSummary}`,
           });
         }
       }

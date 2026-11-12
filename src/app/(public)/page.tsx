@@ -72,77 +72,91 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-border-slate text-text-muted font-code-sm text-[11px] uppercase">
-                  <th className="py-2.5 px-3">ID Audit</th>
-                  <th className="py-2.5 px-3">Nama Anak &amp; NIK (Hasil OCR KK)</th>
-                  <th className="py-2.5 px-3">No. KK &amp; Terbit</th>
-                  <th className="py-2.5 px-3">Relasi &amp; Skor OCR</th>
-                  <th className="py-2.5 px-3">Alamat KK &amp; Jarak</th>
-                  <th className="py-2.5 px-3">Keputusan AI</th>
-                  <th className="py-2.5 px-3 text-right">Detail</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-slate font-body-sm text-xs">
-                {apps.slice(0, 8).map((a) => (
-                  <tr key={a.tracking_id} className="hover:bg-surface-slate/60">
-                    <td className="py-3 px-3 font-code-sm font-bold text-secondary">
-                      {a.tracking_id}
-                    </td>
-                    <td className="py-3 px-3">
-                      <div className="font-semibold text-text-heading">{a.student_name}</div>
-                      <div className="font-code-sm text-[11px] text-text-muted">
-                        NIK: {a.student_nik}
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 font-code-sm">
-                      <div>{a.kk_number}</div>
-                      <div className="text-[11px] text-text-muted">
-                        {a.kk_issue_date} ({a.kk_age_label})
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 font-code-sm">
-                      <div>{a.family_relation || "ANAK_KANDUNG"}</div>
-                      <div className="text-[11px] text-text-muted">
-                        OCR: {a.ocr_confidence}%
-                      </div>
-                    </td>
-                    <td className="py-3 px-3 max-w-xs">
-                      <div className="truncate text-text-heading">
-                        {a.address_text || a.address}
-                      </div>
-                      <div className="font-code-sm text-[11px] text-text-muted">
-                        Rute: {a.real_route_distance_meters}m • {a.detected_building}
-                      </div>
-                    </td>
-                    <td className="py-3 px-3">
-                      <span
-                        className={`px-2.5 py-0.5 rounded-full font-code-sm text-[11px] font-bold ${
-                          a.status === "APPROVED"
-                            ? "bg-status-approved-bg text-status-approved"
-                            : a.status === "REJECTED"
-                            ? "bg-status-fraud-bg text-status-fraud"
-                            : "bg-status-revision-bg text-status-revision"
-                        }`}
-                      >
-                        {a.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-3 text-right">
-                      <Link
-                        href={`/track/${encodeURIComponent(a.tracking_id)}`}
-                        className="px-2.5 py-1 rounded bg-surface-slate hover:bg-surface-container font-code-sm text-xs text-secondary font-semibold"
-                      >
-                        Inspeksi →
-                      </Link>
-                    </td>
+          {apps.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border-slate bg-surface-slate/50 p-8 text-center space-y-2">
+              <span className="material-symbols-outlined text-text-muted text-[32px]">
+                document_scanner
+              </span>
+              <p className="font-label-lg text-sm font-bold text-text-heading">
+                Belum Ada Berkas Kartu Keluarga yang Dipindai
+              </p>
+              <p className="font-body-sm text-xs text-text-muted max-w-md mx-auto">
+                Unggah file Kartu Keluarga (JPG/PNG/PDF) pada panel scanner di atas. Setiap berkas yang dipindai akan otomatis tercatat di tabel riwayat ini dan di Dashboard Panitia.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-border-slate text-text-muted font-code-sm text-[11px] uppercase">
+                    <th className="py-2.5 px-3">ID Audit</th>
+                    <th className="py-2.5 px-3">Nama Anak &amp; NIK (Hasil OCR KK)</th>
+                    <th className="py-2.5 px-3">No. KK &amp; Terbit</th>
+                    <th className="py-2.5 px-3">Relasi &amp; Skor OCR</th>
+                    <th className="py-2.5 px-3">Alamat KK &amp; Jarak</th>
+                    <th className="py-2.5 px-3">Keputusan AI</th>
+                    <th className="py-2.5 px-3 text-right">Detail</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-border-slate font-body-sm text-xs">
+                  {apps.slice(0, 12).map((a) => (
+                    <tr key={a.tracking_id} className="hover:bg-surface-slate/60">
+                      <td className="py-3 px-3 font-code-sm font-bold text-secondary">
+                        {a.tracking_id}
+                      </td>
+                      <td className="py-3 px-3">
+                        <div className="font-semibold text-text-heading">{a.student_name}</div>
+                        <div className="font-code-sm text-[11px] text-text-muted">
+                          NIK: {a.student_nik}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 font-code-sm">
+                        <div>{a.kk_number}</div>
+                        <div className="text-[11px] text-text-muted">
+                          {a.kk_issue_date} ({a.kk_age_label})
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 font-code-sm">
+                        <div>{a.family_relation || "ANAK_KANDUNG"}</div>
+                        <div className="text-[11px] text-text-muted">
+                          OCR: {a.ocr_confidence}%
+                        </div>
+                      </td>
+                      <td className="py-3 px-3 max-w-xs">
+                        <div className="truncate text-text-heading">
+                          {a.address_text || a.address}
+                        </div>
+                        <div className="font-code-sm text-[11px] text-text-muted">
+                          Rute: {a.real_route_distance_meters}m • {a.detected_building}
+                        </div>
+                      </td>
+                      <td className="py-3 px-3">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full font-code-sm text-[11px] font-bold ${
+                            a.status === "APPROVED"
+                              ? "bg-status-approved-bg text-status-approved"
+                              : a.status === "REJECTED"
+                              ? "bg-status-fraud-bg text-status-fraud"
+                              : "bg-status-revision-bg text-status-revision"
+                          }`}
+                        >
+                          {a.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-3 text-right">
+                        <Link
+                          href={`/track/${encodeURIComponent(a.tracking_id)}`}
+                          className="px-2.5 py-1 rounded bg-surface-slate hover:bg-surface-container font-code-sm text-xs text-secondary font-semibold"
+                        >
+                          Inspeksi →
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </section>
     </div>
   );

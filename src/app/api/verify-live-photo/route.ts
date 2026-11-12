@@ -4,7 +4,7 @@ import { getSupabaseServer, hasSupabaseConfig } from "@/server/supabase";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
-  const tracking_id = String(body.tracking_id || "PPDB-2026-X89K");
+  const tracking_id = String(body.tracking_id || "");
   const lat = Number(body.lat ?? body.photo_lat ?? -7.2489);
   const lng = Number(body.lng ?? body.photo_lng ?? 112.6382);
   const photo_name = String(body.photo_name || "fasad_rumah_dan_skpwni_geotag.jpg");
@@ -22,21 +22,23 @@ export async function POST(request: Request) {
       live_geotag_photo_url: photo_name,
       detected_building: "RESIDENTIAL",
       status: "APPROVED",
+      rejection_reason: null,
       ai_reasoning_summary: summary,
       updated_at: new Date().toISOString(),
     };
     writeApplications(rows);
   }
 
-  if (hasSupabaseConfig()) {
+  if (hasSupabaseConfig() && tracking_id) {
     const sb = getSupabaseServer();
     if (sb) {
       const { data: sbRow } = await sb
         .from("applications")
         .update({
-          live_geotag_photo_url: photo_name,
+          live_house_photo_url: photo_name,
           detected_building: "RESIDENTIAL",
           status: "APPROVED",
+          rejection_reason: null,
           ai_reasoning_summary: summary,
           updated_at: new Date().toISOString(),
         })
@@ -48,10 +50,13 @@ export async function POST(request: Request) {
         await sb.from("agent_audit_logs").insert({
           application_id: sbRow.id,
           step_name: "LIVE_GEOTAG_PHOTO",
-          log_level: "SUCCESS",
-          message: summary,
+          status: "SUCCESS",
+          detail_message: summary,
         });
-        return NextResponse.json({ ok: true, application: sbRow });
+        return NextResponse.json({
+          ok: true,
+          application: idx >= 0 ? rows[idx] : sbRow,
+        });
       }
     }
   }

@@ -11,7 +11,9 @@ import {
 
 const KEY = ["applications"] as const;
 
-export const useApplications = () => useQuery({ queryKey: KEY, queryFn: getApplications });
+export const useApplications = () =>
+  // ponytail: 3s polling keeps Panitia dashboard & public history synced live across tabs without websocket infra
+  useQuery({ queryKey: KEY, queryFn: getApplications, refetchInterval: 3000, staleTime: 0 });
 
 export const useApplication = (trackingId: string) =>
   useQuery({ queryKey: [...KEY, trackingId], queryFn: () => getApplication(trackingId), enabled: !!trackingId });
