@@ -231,7 +231,7 @@ export default function TrackPage({
     setGeoStatus(`Memverifikasi EXIF GPS (${lat.toFixed(4)}, ${lng.toFixed(4)}) & Dokumen Pendukung...`);
     try {
       const res = await verifyPhoto.mutateAsync({ tracking_id: trackingId, lat, lng });
-      if (res) setAppData(res);
+      if (res?.application) setAppData(res.application);
       const now = new Date().toTimeString().slice(0, 8);
       setExtraLogs((prev) => [
         ...prev,
