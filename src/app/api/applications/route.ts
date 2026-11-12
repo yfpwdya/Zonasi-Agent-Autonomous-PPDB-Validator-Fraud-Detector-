@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
           const routeMeters = Number(
             row.real_route_distance_meters ?? fallback?.real_route_distance_meters ?? 0,
           );
-          const lat = Number(row.latitude ?? fallback?.home_lat ?? -6.2297);
-          const lng = Number(row.longitude ?? fallback?.home_lng ?? 106.8532);
+          const lat = Number(row.latitude ?? fallback?.home_lat ?? -7.2489);
+          const lng = Number(row.longitude ?? fallback?.home_lng ?? 112.6382);
           const docUrl = String(
             row.kk_document_url ?? fallback?.kk_image_url ?? fallback?.kk_document_url ?? "",
           );
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
             student_nik: String(row.student_nik),
             student_name: String(row.student_name),
             kk_number: String(row.kk_number),
-            school_name: fallback?.school_name || "SMAN 1 Teladan Jakarta",
+            school_name: fallback?.school_name || "SMA Negeri 12 Surabaya",
             address: addr,
             address_text: addr,
             home_lat: lat,
@@ -159,8 +159,8 @@ export async function POST(req: NextRequest) {
       studentNameHint: studentName,
       homeLat: latitude,
       homeLng: longitude,
-      schoolLat: -6.2333,
-      schoolLng: 106.8511,
+      schoolLat: -7.2468,
+      schoolLng: 112.6358,
       addressHint: addressText,
     });
 
@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
       student_nik: result.ocr.studentNikDetected || studentNik || "3578XXXXXXXX0002",
       student_name: result.ocr.studentNameDetected || studentName || "Peserta Didik (Lihat KK)",
       kk_number: result.ocr.kkNumberDetected || kkNumber || "19010XXXXXXXXXXX",
-      school_name: "SMAN 1 Teladan Jakarta",
+      school_name: "SMA Negeri 12 Surabaya",
       address: finalAddress,
       address_text: finalAddress,
       home_lat: finalLat,

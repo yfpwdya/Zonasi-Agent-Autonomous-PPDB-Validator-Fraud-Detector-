@@ -196,8 +196,8 @@ export default function TrackPage({
       `Nama Calon Siswa   : ${appData?.student_name || studentName}`,
       `NIK Siswa          : ${appData?.student_nik || "3171041908070002"}`,
       `Nomor KK           : ${appData?.kk_number || "3171042502120005"}`,
-      `Sekolah Pilihan    : ${appData?.school_name || "SMAN 1 Teladan Jakarta"}`,
-      `Alamat Domisili    : ${appData?.address || "Jl. Kenanga No. 14, Tebet Barat"}`,
+      `Sekolah Pilihan    : ${appData?.school_name || "SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Benowo)"}`,
+      `Alamat Domisili    : ${appData?.address || "Jl. Sememi Jaya IV No. 14, Sememi, Kec. Benowo, Surabaya"}`,
       `Jarak Garis Lurus  : ${appData?.straight_line_distance_meters ?? 540} meter`,
       `Jarak Rute Darat   : ${appData?.real_route_distance_meters ?? 820} meter (Maks 1.200m)`,
       `Usia Terbit KK     : ${appData?.kk_issue_date || "2018-02-12"} (${appData?.kk_age_label || "Valid"})`,
@@ -338,7 +338,7 @@ export default function TrackPage({
                     </span>{' '}
                     <span>Pilihan:</span>{' '}
                     <span className="font-semibold text-text-heading">
-                      {appData?.school_name || "SMAN 1 Teladan (Zonasi Domisili)"}
+                      {appData?.school_name || "SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Benowo)"}
                     </span>
                   </div>
                 </div>
@@ -639,7 +639,7 @@ export default function TrackPage({
                 </div>
               </div>
               <div
-                className={`relative w-full h-[400px] bg-slate-900 flex items-center justify-center overflow-hidden ${
+                className={`relative w-full h-[380px] bg-slate-900 flex items-center justify-center overflow-hidden ${
                   activeTab === "doc" ? "" : "hidden"
                 }`}
                 id="containerDocViewer"
@@ -652,7 +652,8 @@ export default function TrackPage({
                     <img
                       src={uploadedPreviewUrl}
                       alt="Scan Kartu Keluarga"
-                      className="max-h-[300px] w-auto object-contain rounded-lg border-2 border-cyan-400/60 shadow-2xl bg-white"
+                      onError={() => setUploadedPreviewUrl(null)}
+                      className="max-h-[290px] w-auto object-contain rounded-lg border-2 border-cyan-400/60 shadow-2xl bg-white"
                     />
                     <div className="mt-2 px-3 py-1 rounded bg-slate-950/90 text-cyan-300 font-code-sm text-[11px] border border-cyan-500/30">
                       Sumber Storage: {appData?.kk_image_url?.startsWith("http") ? "Supabase Storage (ppdb-documents)" : appData?.kk_image_url}
@@ -673,7 +674,7 @@ export default function TrackPage({
                             KARTU KELUARGA
                           </p>
                           <p className="font-code-sm text-[10px] text-slate-500">
-                            No. {appData?.kk_number || "3171042502120005"}
+                            No. {appData?.kk_number || "3578192502120005"}
                           </p>
                         </div>
                       </div>
@@ -695,7 +696,7 @@ export default function TrackPage({
                         Alamat Domisili Terbaca
                       </p>
                       <p className="font-body-md text-[13px] font-bold text-slate-900 leading-tight truncate">
-                        {appData?.address || "Jl. Kenanga No. 14, Tebet Barat, Jakarta Selatan"}
+                        {appData?.address || "Jl. Sememi Jaya IV No. 14, Kel. Sememi, Kec. Benowo, Surabaya"}
                       </p>
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-2">
@@ -748,33 +749,20 @@ export default function TrackPage({
                     </div>
                     <div className="mt-2 flex items-center justify-between text-slate-400 font-code-sm text-[9px]">
                       <span>Berkas: {appData?.kk_image_url || "kartu_keluarga.jpg"}</span>
-                      <span>Engine: Gemini 3 Flash Vision</span>
+                      <span>Engine: Gemini Vision • SMAN 12 Surabaya</span>
                     </div>
                   </div>
                 )}
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-space-sm py-1.5 rounded bg-slate-900/80 backdrop-blur text-white font-code-sm text-code-sm z-30">
-                  <span className="flex items-center gap-1 truncate pr-2">
-                    <span className="material-symbols-outlined text-secondary text-[16px]">
-                      center_focus_strong
-                    </span>
-                    {scanningOcr
-                      ? "Memindai Piksel Dokumen KK dengan Gemini 3 Flash..."
-                      : appData?.ai_reasoning_summary || "Gemini 3 Flash OCR Ready"}
-                  </span>
-                  <span className="text-status-approved shrink-0">
-                    Confidence: {appData?.ocr_confidence ?? 98.4}%
-                  </span>
-                </div>
               </div>
               <div
-                className={`relative w-full h-[400px] bg-slate-900 overflow-hidden ${
+                className={`relative w-full h-[380px] bg-slate-900 overflow-hidden ${
                   activeTab === "street" ? "" : "hidden"
                 }`}
                 id="containerStreetViewer"
               >
                 {(() => {
-                  const lat = appData?.home_lat ?? -6.2297;
-                  const lng = appData?.home_lng ?? 106.8532;
+                  const lat = appData?.home_lat ?? -7.2489;
+                  const lng = appData?.home_lng ?? 112.6382;
                   const d = 0.005;
                   const osmEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${(lng - d).toFixed(5)}%2C${(lat - d).toFixed(5)}%2C${(lng + d).toFixed(5)}%2C${(lat + d).toFixed(5)}&layer=mapnik&marker=${lat.toFixed(5)}%2C${lng.toFixed(5)}`;
                   return (
@@ -788,11 +776,11 @@ export default function TrackPage({
                       <div className="bg-slate-900/95 backdrop-blur px-4 py-2.5 text-white flex flex-wrap items-center justify-between gap-2 border-t border-white/10">
                         <div className="font-code-sm text-xs">
                           <span className="text-cyan-400 font-bold">OpenStreetMap Live:</span>{" "}
-                          {appData?.address || "Jl. Tebet Utara Dalam No. 14"} ({lat.toFixed(5)}, {lng.toFixed(5)})
+                          {appData?.address || "Jl. Sememi Jaya IV No. 14, Surabaya"} ({lat.toFixed(5)}, {lng.toFixed(5)})
                         </div>
                         <div className="flex items-center gap-2 font-code-sm text-xs">
                           <span className="px-2 py-0.5 rounded bg-secondary text-on-secondary font-bold">
-                            Rute: {appData?.real_route_distance_meters ?? 667}m
+                            Rute ke SMAN 12: {appData?.real_route_distance_meters ?? 480}m
                           </span>
                           <span className="px-2 py-0.5 rounded bg-status-approved text-white font-bold">
                             Fasad: {appData?.detected_building || "RESIDENTIAL"}
@@ -802,6 +790,22 @@ export default function TrackPage({
                     </div>
                   );
                 })()}
+              </div>
+              {/* Scope Terpisah: Bar Ringkasan Hasil OCR & Confidence */}
+              <div className="px-4 py-3 bg-slate-900 text-white font-code-sm text-xs border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-start gap-2 min-w-0">
+                  <span className="material-symbols-outlined text-secondary text-[16px] shrink-0 mt-0.5">
+                    center_focus_strong
+                  </span>
+                  <span className="leading-relaxed break-words text-slate-200">
+                    {scanningOcr
+                      ? "Memindai Piksel Dokumen KK dengan Gemini Vision..."
+                      : appData?.ai_reasoning_summary || "Gemini Vision OCR Ready"}
+                  </span>
+                </div>
+                <span className="px-2.5 py-1 rounded bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-bold shrink-0 self-start sm:self-center">
+                  Confidence: {appData?.ocr_confidence ?? 98.4}%
+                </span>
               </div>
               <div className="p-space-sm bg-surface-slate flex flex-wrap items-center justify-between gap-space-xs text-text-muted font-body-sm text-body-sm">
                 <div className="flex items-center gap-space-xs">

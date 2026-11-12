@@ -41,34 +41,37 @@ const normName = (s: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-// ponytail: deterministic address-to-coordinate lookup relative to SMAN 1 Teladan Jakarta (-6.2333, 106.8511)
+// ponytail: deterministic address-to-coordinate lookup relative to SMAN 12 Surabaya (-7.2468, 112.6358)
 export function geocodeAddressFallback(address: string): { lat: number; lng: number } {
   const lower = (address || "").toLowerCase();
   if (lower.includes("xxxx") || lower.includes("dummy") || lower.includes("disensor")) {
-    return { lat: -6.2455, lng: 106.8665 }; // ~2.180m (Luar Zonasi / Dummy)
+    return { lat: -7.2695, lng: 112.6625 }; // ~3.880m (Luar Zonasi / Dummy)
   }
-  if (lower.includes("tebet utara") || lower.includes("tebet barat") || lower.includes("kenanga")) {
-    return { lat: -6.2297, lng: 106.8532 }; // ~460m (Dalam Zonasi)
+  if (lower.includes("sememi") || lower.includes("kandangsari") || lower.includes("kendung")) {
+    return { lat: -7.2489, lng: 112.6382 }; // ~360m (Dalam Zonasi SMAN 12 Surabaya)
   }
-  if (lower.includes("bukit duri") || lower.includes("manggarai") || lower.includes("melayu")) {
-    return { lat: -6.2282, lng: 106.8548 }; // ~690m (Dalam Zonasi)
+  if (lower.includes("benowo") || lower.includes("romokalisari") || lower.includes("tambak osowilangun")) {
+    return { lat: -7.2438, lng: 112.6319 }; // ~540m (Dalam Zonasi SMAN 12 Surabaya)
   }
-  if (lower.includes("casablanca") || lower.includes("ruko") || lower.includes("komersial") || lower.includes("niaga")) {
-    return { lat: -6.2242, lng: 106.8428 }; // ~1.360m (Ruko Komersial / Luar Zonasi)
+  if (lower.includes("babat jerawat") || lower.includes("pakal") || lower.includes("manukan") || lower.includes("tandes")) {
+    return { lat: -7.2562, lng: 112.6512 }; // ~1.980m (Ruko / Luar Zonasi 1.200m)
   }
-  if (lower.includes("pasar minggu") || lower.includes("kalibata") || lower.includes("pancoran")) {
-    return { lat: -6.2512, lng: 106.8465 }; // ~2.050m (Luar Zonasi)
+  if (lower.includes("ruko") || lower.includes("komersial") || lower.includes("niaga") || lower.includes("plaza")) {
+    return { lat: -7.2538, lng: 112.6485 }; // ~1.610m (Ruko Komersial / Luar Zonasi)
   }
-  if (lower.includes("surabaya") || lower.includes("bandung") || lower.includes("bekasi") || lower.includes("depok")) {
-    return { lat: -6.265, lng: 106.872 }; // ~4.200m (Luar Zonasi)
+  if (lower.includes("gubeng") || lower.includes("wonokromo") || lower.includes("rungkut") || lower.includes("mulyorejo")) {
+    return { lat: -7.2756, lng: 112.7521 }; // ~13.200m (Luar Zonasi)
+  }
+  if (lower.includes("gresik") || lower.includes("sidoarjo") || lower.includes("jakarta") || lower.includes("bangka")) {
+    return { lat: -7.285, lng: 112.695 }; // Luar Kota / Luar Zonasi
   }
   let h = 0;
   for (let i = 0; i < lower.length; i++) h = (h * 31 + lower.charCodeAt(i)) % 1000;
   const dLat = ((h % 20) - 8) * 0.0005;
   const dLng = (((h >> 3) % 20) - 8) * 0.0005;
   return {
-    lat: Number((-6.2333 + dLat).toFixed(6)),
-    lng: Number((106.8511 + dLng).toFixed(6)),
+    lat: Number((-7.2468 + dLat).toFixed(6)),
+    lng: Number((112.6358 + dLng).toFixed(6)),
   };
 }
 
@@ -88,15 +91,15 @@ export async function analyzeKKDocument(params: {
       const mimeType = mimeMatch?.[1] || "image/jpeg";
       const cleaned = params.kkImageBase64.replace(/^data:[^;]+;base64,/, "");
 
-      const prompt = `Anda adalah Forensik Dokumen Kartu Keluarga (KK) Dukcapil untuk Panitia Verifikator PPDB Zonasi SMAN 1 Jakarta (koordinat sekolah: -6.2333, 106.8511).
+      const prompt = `Anda adalah Forensik Dokumen Kartu Keluarga (KK) Dukcapil untuk Panitia Verifikator PPDB Zonasi SMA Negeri 12 Surabaya (Alamat Sekolah: Jl. Sememi Kidul No.1, Sememi, Kec. Benowo, Surabaya, Jawa Timur 60198; koordinat sekolah: -7.2468, 112.6358).
 Baca seluruh teks pada gambar Kartu Keluarga (KK) ini secara presisi sesuai isi dokumen yang diunggah (JANGAN mengarang nama jika disensor XXXXX, dan JANGAN memakai data statis).
 Kembalikan HANYA JSON valid dengan skema persis berikut:
 {
   "kkNumberDetected": "16 digit Nomor KK di bagian atas dokumen (atau tulis apa adanya misal 19010XXXXXXXXXXX jika disensor)",
   "headOfFamilyName": "Nama Kepala Keluarga di header KK",
   "addressDetected": "Alamat lengkap jalan, RT/RW, Kelurahan, Kecamatan, Kab/Kota pada header KK",
-  "estimatedLat": -6.2297,
-  "estimatedLng": 106.8532,
+  "estimatedLat": -7.2489,
+  "estimatedLng": 112.6382,
   "detectedBuildingHint": "RESIDENTIAL" | "COMMERCIAL" | "EMPTY_LAND" | "NO_STREET_VIEW",
   "studentNameDetected": "Nama lengkap anak usia sekolah / calon peserta didik di tabel KK",
   "studentNikDetected": "16 digit NIK anak / calon peserta didik di tabel KK",
@@ -111,12 +114,12 @@ Kembalikan HANYA JSON valid dengan skema persis berikut:
       "relation": "KEPALA_KELUARGA" | "ISTRI" | "ANAK_KANDUNG" | "FAMILI_LAIN"
     }
   ],
-  "notes": "Ringkasan forensik Bahasa Indonesia tentang dokumen KK ini (sebutkan No KK, Kepala Keluarga, Nama Anak, Alamat, Tanggal Terbit, serta anomali jika ada seperti dokumen contoh/disensor XXXXX, Famili Lain / Titip KK, atau KK baru terbit < 1 tahun)"
+  "notes": "Ringkasan forensik Bahasa Indonesia tentang dokumen KK ini terhadap zonasi SMAN 12 Surabaya (sebutkan No KK, Kepala Keluarga, Nama Anak, Alamat, Tanggal Terbit, serta anomali jika ada seperti dokumen contoh/disensor XXXXX, Famili Lain / Titip KK, atau KK baru terbit < 1 tahun)"
 }
 Aturan Penting:
 - Jika isi KK disamarkan dengan huruf XXXXX atau merupakan contoh/specimen/dummy, set "isMaskedOrDummy": true, "familyRelation": "UNREADABLE", dan "ocrConfidence": 68.
 - Jika alamat mengindikasikan Ruko / Pertokoan / Komersial, set "detectedBuildingHint": "COMMERCIAL". Jika Gang Sempit, set "NO_STREET_VIEW". Selain itu "RESIDENTIAL".
-- Berikan "estimatedLat" dan "estimatedLng" di sekitar Jakarta Selatan/Pusat sesuai nama jalan/kelurahan pada KK (Tebet sekitar -6.2297, 106.8532; luar zonasi sekitar -6.2485, 106.8640).`;
+- Berikan "estimatedLat" dan "estimatedLng" sesuai lokasi nyata alamat pada KK (area Sememi/Benowo Surabaya sekitar -7.2489, 112.6382; area Surabaya lain atau luar kota sesuai koordinat geografis wilayah tersebut).`;
 
       for (const model of GEMINI_VISION_MODELS) {
         const res = await fetch(
@@ -198,7 +201,7 @@ Aturan Penting:
             ? rawAddress
             : isDummy
             ? `Dokumen Dummy / Alamat Disensor (${params.kkImageName || "KK Contoh"})`
-            : "Jl. Tebet Utara Dalam No. 14, Tebet Timur, Jakarta Selatan";
+            : "Jl. Sememi Jaya IV No. 12, Kel. Sememi, Kec. Benowo, Surabaya";
 
         const fallbackGeo = geocodeAddressFallback(addressDetected);
         const estimatedLat =
@@ -270,8 +273,8 @@ Aturan Penting:
   const detectedNik = isDummyFile
     ? "3578XXXXXXXX0002"
     : isRecentFraud
-    ? "3171042809090004"
-    : params.studentNikHint?.trim() || "3171041405080002";
+    ? "3578192809090004"
+    : params.studentNikHint?.trim() || "3578191405080002";
   const detectedName = isDummyFile
     ? "XXXXXXX (Dokumen Dummy / Disensor)"
     : isRecentFraud
@@ -280,13 +283,13 @@ Aturan Penting:
   const detectedKk = isDummyFile
     ? "19010XXXXXXXXXXX"
     : isRecentFraud
-    ? "3171041002260004"
-    : params.kkNumber?.trim() || "3171041504190002";
+    ? "3578191002260004"
+    : params.kkNumber?.trim() || "3578191504190002";
   const addressDetected = isDummyFile
     ? `Dokumen Dummy / Alamat Disensor (${params.kkImageName || "KK Dummy"})`
     : isRecentFraud
-    ? "Ruko Casablanca Niaga Blok C-12, Tebet, Jakarta Selatan"
-    : "Jl. Tebet Utara Dalam No. 14, RT 004/RW 002, Tebet Timur, Jakarta Selatan";
+    ? "Ruko Grand Sememi Niaga Blok B-08, Kec. Benowo, Surabaya"
+    : "Jl. Sememi Jaya IV No. 12, RT 003/RW 002, Kel. Sememi, Kec. Benowo, Surabaya";
   const geo = geocodeAddressFallback(addressDetected);
 
   return {

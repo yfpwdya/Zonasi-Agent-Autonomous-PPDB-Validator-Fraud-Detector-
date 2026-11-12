@@ -18,17 +18,17 @@ function makeSampleKKDataUrl(kind: "valid" | "fraud_titip" | "fraud_baru"): {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="540" style="background:#f8fafc;font-family:Arial,sans-serif">
       <rect x="15" y="15" width="870" height="510" fill="#ffffff" stroke="#1e293b" stroke-width="3"/>
       <text x="450" y="55" text-anchor="middle" font-size="24" font-weight="bold" fill="#0f172a">KARTU KELUARGA</text>
-      <text x="450" y="82" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e293b">No. 3171041504190002</text>
+      <text x="450" y="82" text-anchor="middle" font-size="18" font-weight="bold" fill="#1e293b">No. 3578191504190002</text>
       <text x="40" y="120" font-size="14" fill="#0f172a">Nama Kepala Keluarga : BUDI RAHMAWAN</text>
-      <text x="40" y="145" font-size="14" fill="#0f172a">Alamat : JL. TEBET UTARA DALAM NO. 14, RT 004/RW 002, TEBET TIMUR, JAKARTA SELATAN</text>
+      <text x="40" y="145" font-size="14" fill="#0f172a">Alamat : JL. SEMEMI JAYA IV NO. 12, RT 003/RW 002, KEL. SEMEMI, KEC. BENOWO, SURABAYA</text>
       <rect x="40" y="175" width="820" height="160" fill="none" stroke="#334155" stroke-width="1.5"/>
-      <text x="55" y="205" font-size="13" font-weight="bold">1. BUDI RAHMAWAN | NIK: 3171041105780001 | Status: KEPALA KELUARGA</text>
-      <text x="55" y="245" font-size="13" font-weight="bold">2. SITI NURHALIZA | NIK: 3171045408810002 | Status: ISTRI</text>
-      <text x="55" y="285" font-size="14" font-weight="bold" fill="#047857">3. NADIA PUTRI RAHMAWATI | NIK: 3171041405080002 | Status: ANAK KANDUNG</text>
-      <text x="40" y="420" font-size="14" font-weight="bold" fill="#0f172a">Dikeluarkan Tanggal : 15-04-2019 (Lebih dari 1 Tahun - Domisili Sah)</text>
+      <text x="55" y="205" font-size="13" font-weight="bold">1. BUDI RAHMAWAN | NIK: 3578191105780001 | Status: KEPALA KELUARGA</text>
+      <text x="55" y="245" font-size="13" font-weight="bold">2. SITI NURHALIZA | NIK: 3578195408810002 | Status: ISTRI</text>
+      <text x="55" y="285" font-size="14" font-weight="bold" fill="#047857">3. NADIA PUTRI RAHMAWATI | NIK: 3578191405080002 | Status: ANAK KANDUNG</text>
+      <text x="40" y="420" font-size="14" font-weight="bold" fill="#0f172a">Dikeluarkan Tanggal : 15-04-2019 (Domisili Sah Sememi - Zonasi SMAN 12 Surabaya)</text>
     </svg>`;
     return {
-      fileName: "KK_Valid_Nadia_Tebet.svg",
+      fileName: "KK_Valid_Nadia_Sememi_Surabaya.svg",
       dataUrl: `data:image/svg+xml;base64,${btoa(svg)}`,
     };
   }
@@ -36,16 +36,16 @@ function makeSampleKKDataUrl(kind: "valid" | "fraud_titip" | "fraud_baru"): {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="540" style="background:#fff1f2;font-family:Arial,sans-serif">
       <rect x="15" y="15" width="870" height="510" fill="#ffffff" stroke="#be123c" stroke-width="3"/>
       <text x="450" y="55" text-anchor="middle" font-size="24" font-weight="bold" fill="#0f172a">KARTU KELUARGA</text>
-      <text x="450" y="82" text-anchor="middle" font-size="18" font-weight="bold" fill="#be123c">No. 3171041002260004</text>
+      <text x="450" y="82" text-anchor="middle" font-size="18" font-weight="bold" fill="#be123c">No. 3578191002260004</text>
       <text x="40" y="120" font-size="14" fill="#0f172a">Nama Kepala Keluarga : HENDRA WIJAYA</text>
-      <text x="40" y="145" font-size="14" fill="#0f172a">Alamat : RUKO CASABLANCA NIAGA BLOK C-12, TEBET, JAKARTA SELATAN</text>
+      <text x="40" y="145" font-size="14" fill="#0f172a">Alamat : RUKO GRAND SEMEMI NIAGA BLOK B-08, KEC. BENOWO, SURABAYA</text>
       <rect x="40" y="175" width="820" height="160" fill="none" stroke="#334155" stroke-width="1.5"/>
-      <text x="55" y="205" font-size="13" font-weight="bold">1. HENDRA WIJAYA | NIK: 3171041105780009 | Status: KEPALA KELUARGA</text>
-      <text x="55" y="260" font-size="14" font-weight="bold" fill="#be123c">2. KEVIN PRATAMA WIJAYA | NIK: 3171042809090004 | Status: FAMILI LAIN</text>
+      <text x="55" y="205" font-size="13" font-weight="bold">1. HENDRA WIJAYA | NIK: 3578191105780009 | Status: KEPALA KELUARGA</text>
+      <text x="55" y="260" font-size="14" font-weight="bold" fill="#be123c">2. KEVIN PRATAMA WIJAYA | NIK: 3578192809090004 | Status: FAMILI LAIN</text>
       <text x="40" y="420" font-size="14" font-weight="bold" fill="#be123c">Dikeluarkan Tanggal : 10-02-2026 (Baru Terbit 4 Bulan &amp; Status FAMILI LAIN)</text>
     </svg>`;
     return {
-      fileName: "KK_Fraud_TitipKK_Kevin_2026.svg",
+      fileName: "KK_Fraud_TitipKK_RukoSememi_2026.svg",
       dataUrl: `data:image/svg+xml;base64,${btoa(svg)}`,
     };
   }
@@ -105,8 +105,8 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
         kk_number: ocr.kkNumberDetected || "19010XXXXXXXXXXX",
         kk_issued_date: ocr.kkIssueDate,
         address_text: ocr.addressDetected || "Alamat Hasil Ekstraksi KK",
-        latitude: ocr.estimatedLat ?? -6.2297,
-        longitude: ocr.estimatedLng ?? 106.8532,
+        latitude: ocr.estimatedLat ?? -7.2489,
+        longitude: ocr.estimatedLng ?? 112.6382,
         kk_file_name: name,
         kk_file_base64: dataUrl,
         kk_mime_type: mimeType,
@@ -151,8 +151,13 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
           Unggah File Kartu Keluarga (KK) — Deteksi Anomali &amp; Jarak Otomatis
         </h2>
         <p className="font-body-sm text-body-sm text-text-muted leading-relaxed">
-          Tanpa perlu mengisi form manual: cukup unggah foto/scan Kartu Keluarga.{" "}
-          <strong>Gemini Vision AI</strong> otomatis membaca <strong>Nomor KK, NIK, Nama Anak, Alamat, Tanggal Terbit, Status Hubungan Keluarga</strong>, menghitung jarak ke sekolah via <strong>OpenStreetMap / OSRM</strong>, dan mendeteksi indikasi kecurangan zonasi.
+          Titik Acuan Sekolah:{" "}
+          <strong className="text-text-heading">
+            SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Sememi, Kec. Benowo, Surabaya 60198)
+          </strong>
+          . Cukup unggah foto/scan Kartu Keluarga — <strong>Gemini Vision AI</strong> otomatis membaca{" "}
+          <strong>Nomor KK, NIK, Nama Anak, Alamat, Tanggal Terbit, Status Hubungan Keluarga</strong>, menghitung jarak ke{" "}
+          <strong>SMAN 12 Surabaya</strong> via <strong>OpenStreetMap / OSRM</strong>, dan mendeteksi indikasi kecurangan zonasi.
         </p>
       </div>
 
@@ -406,7 +411,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   </div>
                   <div className="sm:text-right shrink-0">
                     <span className="font-code-sm text-[11px] text-slate-300 block">
-                      Jarak ke Sekolah (Batas 1.200m)
+                      Jarak ke SMAN 12 Surabaya (Batas 1.200m)
                     </span>
                     <span
                       className={`font-code-lg text-base font-bold ${
@@ -423,8 +428,8 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   </div>
                 </div>
                 {(() => {
-                  const lat = auditResult.latitude ?? auditResult.home_lat ?? -6.2297;
-                  const lng = auditResult.longitude ?? auditResult.home_lng ?? 106.8532;
+                  const lat = auditResult.latitude ?? auditResult.home_lat ?? -7.2489;
+                  const lng = auditResult.longitude ?? auditResult.home_lng ?? 112.6382;
                   const d = 0.0045;
                   const osmUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${(lng - d).toFixed(5)}%2C${(lat - d).toFixed(5)}%2C${(lng + d).toFixed(5)}%2C${(lat + d).toFixed(5)}&layer=mapnik&marker=${lat.toFixed(5)}%2C${lng.toFixed(5)}`;
                   return (

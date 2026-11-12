@@ -350,7 +350,7 @@ export default function DashboardPage() {
                   </span>
                   <span className="flex items-center gap-1 font-body-sm text-body-sm text-text-muted">
                     <span className="material-symbols-outlined text-[16px] text-secondary">domain</span>
-                    SMAN 1 Teladan (Wilayah DKI Jakarta)
+                    SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Kec. Benowo, Surabaya 60198)
                   </span>
                 </div>
                 <h1 className="font-headline-md text-headline-md text-text-heading font-bold">
@@ -615,7 +615,7 @@ export default function DashboardPage() {
                         <span className="material-symbols-outlined text-[22px]">school</span>
                       </div>
                       <span className="bg-surface-canvas px-2.5 py-0.5 rounded-md shadow text-[11px] font-label-md text-text-heading font-bold mt-1 border border-border-slate">
-                        SMAN 1 Teladan (Pusat Zonasi)
+                        SMAN 12 Surabaya (Pusat Zonasi Sememi)
                       </span>
                     </div>
 

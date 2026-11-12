@@ -121,10 +121,10 @@ export async function runZonasiAgentPipeline(params: {
     ocr.addressDetected || params.addressHint || "Alamat hasil ekstraksi Kartu Keluarga";
   const resolvedLat =
     ocr.estimatedLat ??
-    (typeof params.homeLat === "number" && params.homeLat !== 0 ? params.homeLat : -6.2297);
+    (typeof params.homeLat === "number" && params.homeLat !== 0 ? params.homeLat : -7.2489);
   const resolvedLng =
     ocr.estimatedLng ??
-    (typeof params.homeLng === "number" && params.homeLng !== 0 ? params.homeLng : 106.8532);
+    (typeof params.homeLng === "number" && params.homeLng !== 0 ? params.homeLng : 112.6382);
 
   // ponytail: OpenStreetMap OSRM public API (100% gratis tanpa API key), fallback ke Haversine x1.28 jika offline/jauh
   let osrmMeters = params.overrideRouteMeters;
