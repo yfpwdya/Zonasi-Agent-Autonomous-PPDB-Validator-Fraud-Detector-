@@ -579,8 +579,7 @@ export default function DashboardPage() {
                     const isFraud = a.status === "REJECTED";
                     const isRev =
                       a.status === "NEEDS_LIVE_PHOTO" ||
-                      a.status === "NEEDS_REVISION" ||
-                      a.status === "MANUAL_REVIEW";
+                      a.status === "NEEDS_REVISION";
                     const isSelected = activeCase.tracking_id === a.tracking_id;
                     return (
                       <button
