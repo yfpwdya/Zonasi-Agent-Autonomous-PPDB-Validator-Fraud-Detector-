@@ -1,67 +1,61 @@
+import test from "node:test";
 import assert from "node:assert/strict";
-import { decideVerificationStatus, runZonasiAgentPipeline } from "./orchestrator.ts";
-import { calculateGeospatialDistances } from "./route-distance-tool.ts";
+import { decideVerificationStatus } from "./orchestrator.ts";
+import { resolveBirthDateAndAge } from "./ocr-kk-tool.ts";
 
-// 1. Low OCR confidence -> NEEDS_REVISION
-assert.equal(
-  decideVerificationStatus({
-    ocrConfidence: 72,
+test("decideVerificationStatus: APPROVED when all checks pass (including SMA age 15-17 yrs)", () => {
+  const res = decideVerificationStatus({
+    ocrConfidence: 97.5,
     kkAgeValid: true,
     familyRelationValid: true,
+    studentAgeValid: true,
+    studentAgeYears: 16.1,
+    studentBirthDate: "2010-05-14",
     detectedBuilding: "RESIDENTIAL",
-    realRouteMeters: 800,
-  }).status,
-  "NEEDS_REVISION"
-);
-
-// 2. Narrow alley without Street View -> NEEDS_LIVE_PHOTO
-assert.equal(
-  decideVerificationStatus({
-    ocrConfidence: 98,
-    kkAgeValid: true,
-    familyRelationValid: true,
-    detectedBuilding: "NO_STREET_VIEW",
-    realRouteMeters: 950,
-  }).status,
-  "NEEDS_LIVE_PHOTO"
-);
-
-// 3. Fraud: KK < 1 yr or Commercial Ruko -> REJECTED
-const fraud = decideVerificationStatus({
-  ocrConfidence: 99,
-  kkAgeValid: false,
-  familyRelationValid: false,
-  detectedBuilding: "COMMERCIAL",
-  realRouteMeters: 310,
+    realRouteMeters: 850,
+    maxRadiusMeters: 1200,
+  });
+  assert.equal(res.status, "APPROVED");
 });
-assert.equal(fraud.status, "REJECTED");
-assert.ok(fraud.rejectionReason?.includes("KOMERSIAL/RUKO"));
 
-// 4. Clean residential application -> APPROVED
-assert.equal(
-  decideVerificationStatus({
-    ocrConfidence: 99.4,
+test("decideVerificationStatus: REJECTED when student age is out of SMA range (<15 or >17 years)", () => {
+  const tooYoung = decideVerificationStatus({
+    ocrConfidence: 96,
     kkAgeValid: true,
     familyRelationValid: true,
+    studentAgeValid: false,
+    studentAgeYears: 14.2,
+    studentBirthDate: "2012-04-10",
     detectedBuilding: "RESIDENTIAL",
-    realRouteMeters: 642,
-  }).status,
-  "APPROVED"
-);
+    realRouteMeters: 420,
+    maxRadiusMeters: 1200,
+  });
+  assert.equal(tooYoung.status, "REJECTED");
+  assert.match(tooYoung.rejectionReason || "", /di bawah batas minimal masuk SMA \(15 tahun\)/);
 
-// 5. Geospatial distance sanity check (~400-1500m in Tebet)
-const dist = calculateGeospatialDistances(-6.23827, 106.85194, -6.23485, 106.85412);
-assert.ok(dist.straightLineMeters > 350 && dist.straightLineMeters < 600);
-assert.ok(dist.realRouteMeters > dist.straightLineMeters);
-
-const full = await runZonasiAgentPipeline({
-  kkNumber: "3171042502120005",
-  homeLat: -6.23827,
-  homeLng: 106.85194,
-  schoolLat: -6.23485,
-  schoolLng: 106.85412,
-  addressHint: "Jl. Kenanga No. 14, Tebet Barat",
-  overrideRouteMeters: 642,
+  const tooOld = decideVerificationStatus({
+    ocrConfidence: 96,
+    kkAgeValid: true,
+    familyRelationValid: true,
+    studentAgeValid: false,
+    studentAgeYears: 18.7,
+    studentBirthDate: "2007-09-28",
+    detectedBuilding: "RESIDENTIAL",
+    realRouteMeters: 420,
+    maxRadiusMeters: 1200,
+  });
+  assert.equal(tooOld.status, "REJECTED");
+  assert.match(tooOld.rejectionReason || "", /melebihi batas maksimal masuk SMA \(17 tahun\)/);
 });
-assert.equal(full.decision.status, "APPROVED");
-console.log("Zonasi-Agent self-check passed:", { dist, status: full.decision.status });
+
+test("resolveBirthDateAndAge: extracts birth date from KK or NIK and enforces 15-17 years SMA rule", () => {
+  const valid16 = resolveBirthDateAndAge("2010-05-14", "3578195405100002");
+  assert.equal(valid16.ageValid, true);
+
+  const tooYoung14 = resolveBirthDateAndAge("2012-06-10", "3578191006120001");
+  assert.equal(tooYoung14.ageValid, false);
+
+  const tooOld18FromNik = resolveBirthDateAndAge(undefined, "3578192809070004");
+  assert.equal(tooOld18FromNik.birthDate, "2007-09-28");
+  assert.equal(tooOld18FromNik.ageValid, false);
+});

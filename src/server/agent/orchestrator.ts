@@ -26,12 +26,17 @@ export function decideVerificationStatus(input: {
   ocrConfidence: number;
   kkAgeValid: boolean;
   familyRelationValid: boolean;
+  studentAgeValid?: boolean;
+  studentAgeYears?: number;
+  studentBirthDate?: string;
   detectedBuilding: BuildingType;
   realRouteMeters: number;
   maxRadiusMeters?: number;
   isMaskedOrDummy?: boolean;
 }): DecisionOutcome {
   const maxRadius = input.maxRadiusMeters ?? 1200;
+  const ageValid = input.studentAgeValid ?? true;
+  const wholeAge = typeof input.studentAgeYears === "number" ? Math.floor(input.studentAgeYears) : 16;
 
   if (input.isMaskedOrDummy) {
     return {
@@ -63,11 +68,19 @@ export function decideVerificationStatus(input: {
   if (
     !input.kkAgeValid ||
     !input.familyRelationValid ||
+    !ageValid ||
     input.detectedBuilding === "COMMERCIAL" ||
     input.detectedBuilding === "EMPTY_LAND" ||
     input.realRouteMeters > maxRadius
   ) {
     const reasons: string[] = [];
+    if (!ageValid) {
+      reasons.push(
+        wholeAge < 15
+          ? `Usia calon siswa (${wholeAge} tahun, Tgl Lahir: ${input.studentBirthDate || "-"}) di bawah batas minimal masuk SMA (15 tahun)`
+          : `Usia calon siswa (${wholeAge} tahun, Tgl Lahir: ${input.studentBirthDate || "-"}) melebihi batas maksimal masuk SMA (17 tahun)`
+      );
+    }
     if (!input.kkAgeValid)
       reasons.push("Usia terbit Kartu Keluarga kurang dari 1 tahun (indikasi pindah domisili mendadak)");
     if (!input.familyRelationValid)
@@ -87,7 +100,7 @@ export function decideVerificationStatus(input: {
 
   return {
     status: "APPROVED",
-    aiReasoningSummary: `LOLOS AUDIT ZONASI: Dokumen KK valid (>= 1 tahun, Anak Kandung), jarak rute darat ${input.realRouteMeters}m dalam radius zonasi, dan bangunan terkonfirmasi HUNIAN RESIDENSIAL.`,
+    aiReasoningSummary: `LOLOS AUDIT ZONASI: Dokumen KK valid (>= 1 tahun, Anak Kandung, Usia Siswa ${wholeAge} Thn sesuai syarat SMA 15-17 Thn), jarak rute darat ${input.realRouteMeters}m dalam radius zonasi, dan bangunan terkonfirmasi HUNIAN RESIDENSIAL.`,
     rejectionReason: null,
   };
 }
@@ -99,6 +112,7 @@ export async function runZonasiAgentPipeline(params: {
   kkIssueDateHint?: string;
   studentNikHint?: string;
   studentNameHint?: string;
+  studentBirthDateHint?: string;
   homeLat?: number;
   homeLng?: number;
   schoolLat: number;
@@ -114,9 +128,9 @@ export async function runZonasiAgentPipeline(params: {
   resolvedLng: number;
   resolvedAddress: string;
 }> {
+  // ponytail: 1x single-pass AI execution (OCR + BirthDate/Age + Coordinates + Building + Anomaly)
   const ocr = await analyzeKKDocument(params);
 
-  // Gunakan alamat & koordinat dari hasil bacaan KK secara otomatis
   const resolvedAddress =
     ocr.addressDetected || params.addressHint || "Alamat hasil ekstraksi Kartu Keluarga";
   const resolvedLat =
@@ -124,9 +138,8 @@ export async function runZonasiAgentPipeline(params: {
     (typeof params.homeLat === "number" && params.homeLat !== 0 ? params.homeLat : -7.2489);
   const resolvedLng =
     ocr.estimatedLng ??
-    (typeof params.homeLng === "number" && params.homeLng !== 0 ? params.homeLng : 112.6382);
+    (typeof params.homeLng === "number" && params.homeLng !== 0 ? params.homeLng : 112.6358);
 
-  // ponytail: OpenStreetMap OSRM public API (100% gratis tanpa API key), fallback ke Haversine x1.28 jika offline/jauh
   let osrmMeters = params.overrideRouteMeters;
   if (!osrmMeters) {
     try {
@@ -166,6 +179,9 @@ export async function runZonasiAgentPipeline(params: {
     ocrConfidence: ocr.ocrConfidence,
     kkAgeValid: ocr.kkAgeValid,
     familyRelationValid: ocr.familyRelationValid,
+    studentAgeValid: ocr.studentAgeValid,
+    studentAgeYears: ocr.studentAgeYears,
+    studentBirthDate: ocr.studentBirthDate,
     detectedBuilding: vision.detectedBuilding,
     realRouteMeters: geo.realRouteMeters,
     isMaskedOrDummy: ocr.isMaskedOrDummy,

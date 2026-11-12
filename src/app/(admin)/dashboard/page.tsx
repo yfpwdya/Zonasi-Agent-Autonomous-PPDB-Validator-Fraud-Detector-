@@ -682,6 +682,19 @@ export default function DashboardPage() {
                         {/* Detail Alamat & Relasi KK */}
                         <div className="rounded-lg bg-surface-canvas border border-border-slate p-3 space-y-1.5 text-xs">
                           <div className="flex items-center justify-between">
+                            <span className="text-text-muted">Tgl Lahir &amp; Usia SMA:</span>
+                            <span
+                              className={`font-code-sm font-bold ${
+                                (activeCase.student_age_valid ?? true)
+                                  ? "text-status-approved"
+                                  : "text-status-fraud"
+                              }`}
+                            >
+                              {activeCase.student_birth_date || "-"} ({Math.floor(activeCase.student_age_years ?? 16)} Thn{" "}
+                              {(activeCase.student_age_valid ?? true) ? "✓ 15–17 Thn" : "✗ Anomali Usia"})
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
                             <span className="text-text-muted">No. KK &amp; Terbit:</span>
                             <span className="font-code-sm font-semibold text-text-heading">
                               {activeCase.kk_number} ({activeCase.kk_issued_date || activeCase.kk_issue_date})

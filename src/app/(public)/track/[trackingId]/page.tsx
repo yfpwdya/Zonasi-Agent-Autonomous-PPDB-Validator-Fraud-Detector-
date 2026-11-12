@@ -451,9 +451,20 @@ export default function TrackPage({
               </div>
               <div className="relative z-10 bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
                 <div className="flex justify-between items-center py-1">
+                  <span className="text-text-muted">Tgl Lahir &amp; Usia SMA:</span>
+                  <span
+                    className={`font-bold ${
+                      (appData?.student_age_valid ?? true) ? "text-status-approved" : "text-status-fraud"
+                    }`}
+                  >
+                    {appData?.student_birth_date || "-"} ({Math.floor(appData?.student_age_years ?? 16)} Thn{" "}
+                    {(appData?.student_age_valid ?? true) ? "✓ 15–17 Thn" : "✗ Anomali"})
+                  </span>
+                </div>
+                <div className="flex justify-between items-center py-1">
                   <span className="text-text-muted">Tgl Terbit KK:</span>
                   <span className="font-semibold text-text-heading">
-                    {appData?.kk_issue_date || "2018-02-12"}
+                    {appData?.kk_issue_date || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">
@@ -463,7 +474,7 @@ export default function TrackPage({
                       (appData?.kk_age_valid ?? true) ? "text-status-approved" : "text-status-fraud"
                     }`}
                   >
-                    {appData?.kk_age_label || "6.0 Tahun (≥ 1 Thn)"}
+                    {appData?.kk_age_label || "-"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-1">

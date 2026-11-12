@@ -6,6 +6,7 @@ import {
   type ApplicationRecord,
 } from "@/server/store";
 import { runZonasiAgentPipeline } from "@/server/agent/orchestrator";
+import { resolveBirthDateAndAge } from "@/server/agent/ocr-kk-tool";
 import { getSupabaseServer, hasSupabaseConfig } from "@/server/supabase";
 
 function mapDbRowToRecord(
@@ -53,11 +54,13 @@ function mapDbRowToRecord(
     row.family_relation ?? fallback?.family_relation ?? (relValid ? "ANAK_KANDUNG" : "FAMILI_LAIN"),
   );
   const status = (row.status as ApplicationRecord["status"]) ?? fallback?.status ?? "APPROVED";
+  const nikStr = String(row.student_nik ?? fallback?.student_nik ?? "");
+  const birthCalc = resolveBirthDateAndAge(fallback?.student_birth_date, nikStr);
 
   return {
     id: String(row.id ?? fallback?.id ?? crypto.randomUUID()),
     tracking_id: String(row.tracking_id ?? fallback?.tracking_id ?? ""),
-    student_nik: String(row.student_nik ?? fallback?.student_nik ?? ""),
+    student_nik: nikStr,
     student_name: String(row.student_name ?? fallback?.student_name ?? ""),
     kk_number: String(row.kk_number ?? fallback?.kk_number ?? ""),
     school_name: fallback?.school_name || "SMA Negeri 12 Surabaya",
@@ -92,6 +95,12 @@ function mapDbRowToRecord(
     kk_age_valid: Boolean(row.kk_age_valid ?? ageYears >= 1),
     family_relation_valid: relValid,
     family_relation: rel,
+    student_birth_date: fallback?.student_birth_date ?? birthCalc.birthDate,
+    student_age_years: fallback?.student_age_years ?? birthCalc.ageYears,
+    student_age_valid: fallback?.student_age_valid ?? birthCalc.ageValid,
+    head_of_family: fallback?.head_of_family ?? "-",
+    family_members: fallback?.family_members ?? [],
+    model_used: fallback?.model_used ?? "gemini-vision-single-pass",
     ocr_confidence: Number(row.ocr_confidence ?? fallback?.ocr_confidence ?? 95),
     detected_building:
       (row.detected_building as ApplicationRecord["detected_building"]) ??
@@ -286,6 +295,12 @@ export async function POST(req: NextRequest) {
       kk_age_valid: result.ocr.kkAgeValid,
       family_relation_valid: result.ocr.familyRelationValid,
       family_relation: result.ocr.familyRelation,
+      student_birth_date: result.ocr.studentBirthDate,
+      student_age_years: result.ocr.studentAgeYears,
+      student_age_valid: result.ocr.studentAgeValid,
+      head_of_family: result.ocr.headOfFamilyName || "-",
+      family_members: result.ocr.familyMembers || [],
+      model_used: result.ocr.modelUsed || "gemini-vision-single-pass",
       ocr_confidence: result.ocr.ocrConfidence,
       detected_building: result.vision.detectedBuilding,
       status: result.decision.status,

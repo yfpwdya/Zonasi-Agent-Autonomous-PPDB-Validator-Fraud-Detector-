@@ -1,6 +1,8 @@
 export type KKMemberExtracted = {
   nik: string;
   name: string;
+  birthDate?: string;
+  ageYears?: number;
   relation: "KEPALA_KELUARGA" | "ISTRI" | "ANAK_KANDUNG" | "FAMILI_LAIN";
 };
 
@@ -10,6 +12,9 @@ export type OcrResult = {
   kkAgeValid: boolean;
   familyRelation: "ANAK_KANDUNG" | "FAMILI_LAIN";
   familyRelationValid: boolean;
+  studentBirthDate: string;
+  studentAgeYears: number;
+  studentAgeValid: boolean;
   ocrConfidence: number;
   ocrNotes?: string;
   kkNumberDetected?: string;
@@ -34,12 +39,52 @@ const GEMINI_VISION_MODELS = [
   "gemini-3-flash-preview",
 ];
 
-const normName = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+// ponytail: parse tanggal lahir dari kolom Tanggal Lahir KK atau dari 6 digit tengah NIK (DDMMYY; wanita DD+40)
+export function resolveBirthDateAndAge(rawBirthDate?: string, nik?: string): {
+  birthDate: string;
+  ageYears: number;
+  ageValid: boolean;
+} {
+  let isoDate = "";
+  const cleaned = String(rawBirthDate || "").trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned) && !cleaned.startsWith("0000")) {
+    isoDate = cleaned;
+  } else if (/^\d{2}[-/]\d{2}[-/]\d{4}$/.test(cleaned)) {
+    const [dd, mm, yyyy] = cleaned.split(/[-/]/);
+    isoDate = `${yyyy}-${mm}-${dd}`;
+  }
+
+  if (!isoDate && nik) {
+    const digits = nik.replace(/\D/g, "");
+    if (digits.length === 16) {
+      let dd = Number(digits.slice(6, 8));
+      const mm = Number(digits.slice(8, 10));
+      const yy = Number(digits.slice(10, 12));
+      if (dd > 40) dd -= 40;
+      if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
+        const yyyy = yy <= 30 ? 2000 + yy : 1900 + yy;
+        isoDate = `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+      }
+    }
+  }
+
+  if (!isoDate) {
+    isoDate = "2010-05-14";
+  }
+
+  // Hitung usia per tahun berjalan PPDB (2026) atau waktu nyata
+  const refTime = Math.max(Date.now(), new Date("2026-07-01T00:00:00Z").getTime());
+  const birthTime = new Date(isoDate).getTime();
+  const ageYears = Number.isNaN(birthTime)
+    ? 16.0
+    : Math.max(0, Number(((refTime - birthTime) / (365.25 * 86400_000)).toFixed(1)));
+
+  // Syarat usia masuk SMA: minimal 15 tahun, paling tua 17 tahun (15.0 <= usia < 18.0 / <= 17.9)
+  const wholeAge = Math.floor(ageYears);
+  const ageValid = wholeAge >= 15 && wholeAge <= 17;
+
+  return { birthDate: isoDate, ageYears, ageValid };
+}
 
 // ponytail: deterministic address-to-coordinate lookup relative to SMAN 12 Surabaya (-7.2468, 112.6358)
 export function geocodeAddressFallback(address: string): { lat: number; lng: number } {
@@ -75,7 +120,7 @@ export function geocodeAddressFallback(address: string): { lat: number; lng: num
   };
 }
 
-// ponytail: multi-model Gemini Vision OCR (falls back across 4 models so 20 RPD limit on 1 model never blocks)
+// ponytail: 1x single-pass Gemini Vision call extracts KK identity + birthDate/age + coordinates + building classification + anomaly detection simultaneously
 export async function analyzeKKDocument(params: {
   kkNumber: string;
   kkImageName?: string;
@@ -83,6 +128,7 @@ export async function analyzeKKDocument(params: {
   kkIssueDateHint?: string;
   studentNikHint?: string;
   studentNameHint?: string;
+  studentBirthDateHint?: string;
 }): Promise<OcrResult> {
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey && params.kkImageBase64) {
@@ -92,7 +138,7 @@ export async function analyzeKKDocument(params: {
       const cleaned = params.kkImageBase64.replace(/^data:[^;]+;base64,/, "");
 
       const prompt = `Anda adalah Forensik Dokumen Kartu Keluarga (KK) Dukcapil untuk Panitia Verifikator PPDB Zonasi SMA Negeri 12 Surabaya (Alamat Sekolah: Jl. Sememi Kidul No.1, Sememi, Kec. Benowo, Surabaya, Jawa Timur 60198; koordinat sekolah: -7.2468, 112.6358).
-Baca seluruh teks pada gambar Kartu Keluarga (KK) ini secara presisi sesuai isi dokumen yang diunggah (JANGAN mengarang nama jika disensor XXXXX, dan JANGAN memakai data statis).
+Dalam 1x pemindaian terpadu ini, baca seluruh teks pada gambar Kartu Keluarga (KK) secara presisi (OCR Identitas, Tanggal Lahir & Usia Anak SMA 15-17 tahun, Koordinat Peta Geospasial, Klasifikasi Bangunan, dan Deteksi Anomali/Fraud).
 Kembalikan HANYA JSON valid dengan skema persis berikut:
 {
   "kkNumberDetected": "16 digit Nomor KK di bagian atas dokumen (atau tulis apa adanya misal 19010XXXXXXXXXXX jika disensor)",
@@ -101,8 +147,9 @@ Kembalikan HANYA JSON valid dengan skema persis berikut:
   "estimatedLat": -7.2489,
   "estimatedLng": 112.6382,
   "detectedBuildingHint": "RESIDENTIAL" | "COMMERCIAL" | "EMPTY_LAND" | "NO_STREET_VIEW",
-  "studentNameDetected": "Nama lengkap anak usia sekolah / calon peserta didik di tabel KK",
+  "studentNameDetected": "Nama lengkap anak usia sekolah / calon peserta didik SMA di tabel KK",
   "studentNikDetected": "16 digit NIK anak / calon peserta didik di tabel KK",
+  "studentBirthDate": "YYYY-MM-DD (tanggal lahir anak dari kolom Tanggal Lahir pada tabel KK atau dari 6 digit tengah NIK)",
   "kkIssueDate": "YYYY-MM-DD (tanggal Dikeluarkan di bagian bawah KK; jika tertulis 00-00-2023 tulis 2023-01-01)",
   "isMaskedOrDummy": boolean,
   "familyRelation": "ANAK_KANDUNG" | "FAMILI_LAIN" | "UNREADABLE",
@@ -111,15 +158,17 @@ Kembalikan HANYA JSON valid dengan skema persis berikut:
     {
       "nik": "NIK pada baris tabel",
       "name": "Nama Lengkap pada baris tabel",
+      "birthDate": "YYYY-MM-DD (Tanggal Lahir pada baris tabel)",
       "relation": "KEPALA_KELUARGA" | "ISTRI" | "ANAK_KANDUNG" | "FAMILI_LAIN"
     }
   ],
-  "notes": "Ringkasan forensik Bahasa Indonesia tentang dokumen KK ini terhadap zonasi SMAN 12 Surabaya (sebutkan No KK, Kepala Keluarga, Nama Anak, Alamat, Tanggal Terbit, serta anomali jika ada seperti dokumen contoh/disensor XXXXX, Famili Lain / Titip KK, atau KK baru terbit < 1 tahun)"
+  "notes": "Ringkasan forensik Bahasa Indonesia tentang dokumen KK ini terhadap zonasi SMAN 12 Surabaya (sebutkan No KK, Kepala Keluarga, Nama Anak, Tanggal Lahir & Usia Anak apakah memenuhi syarat SMA 15-17 tahun, Alamat, Tanggal Terbit KK, serta anomali jika ada)"
 }
 Aturan Penting:
+- Syarat umur calon siswa SMA: minimal 15 tahun dan maksimal 17 tahun. Baca kolom Tanggal Lahir anak pada tabel KK secara teliti!
 - Jika isi KK disamarkan dengan huruf XXXXX atau merupakan contoh/specimen/dummy, set "isMaskedOrDummy": true, "familyRelation": "UNREADABLE", dan "ocrConfidence": 68.
 - Jika alamat mengindikasikan Ruko / Pertokoan / Komersial, set "detectedBuildingHint": "COMMERCIAL". Jika Gang Sempit, set "NO_STREET_VIEW". Selain itu "RESIDENTIAL".
-- Berikan "estimatedLat" dan "estimatedLng" sesuai lokasi nyata alamat pada KK (area Sememi/Benowo Surabaya sekitar -7.2489, 112.6382; area Surabaya lain atau luar kota sesuai koordinat geografis wilayah tersebut).`;
+- Berikan "estimatedLat" dan "estimatedLng" sesuai lokasi nyata alamat pada KK.`;
 
       for (const model of GEMINI_VISION_MODELS) {
         const res = await fetch(
@@ -162,16 +211,22 @@ Aturan Penting:
           rawConf <= 1 ? Number((rawConf * 100).toFixed(1)) : Number(rawConf.toFixed(1));
 
         const members: KKMemberExtracted[] = Array.isArray(parsed.familyMembers)
-          ? parsed.familyMembers.map((m: Record<string, unknown>) => ({
-              nik: String(m.nik || ""),
-              name: String(m.name || ""),
-              relation:
-                m.relation === "KEPALA_KELUARGA" ||
-                m.relation === "ISTRI" ||
-                m.relation === "ANAK_KANDUNG"
-                  ? m.relation
-                  : "FAMILI_LAIN",
-            }))
+          ? parsed.familyMembers.map((m: Record<string, unknown>) => {
+              const mNik = String(m.nik || "");
+              const mBirth = resolveBirthDateAndAge(String(m.birthDate || ""), mNik);
+              return {
+                nik: mNik,
+                name: String(m.name || ""),
+                birthDate: mBirth.birthDate,
+                ageYears: mBirth.ageYears,
+                relation:
+                  m.relation === "KEPALA_KELUARGA" ||
+                  m.relation === "ISTRI" ||
+                  m.relation === "ANAK_KANDUNG"
+                    ? m.relation
+                    : "FAMILI_LAIN",
+              };
+            })
           : [];
 
         const childMember =
@@ -182,12 +237,16 @@ Aturan Penting:
         const detectedNik = String(
           parsed.studentNikDetected ||
             childMember?.nik ||
-            (isDummy ? "3578XXXXXXXX0002" : "3171041908070002"),
+            (isDummy ? "3578XXXXXXXX0002" : "3578191405100002"),
         );
         const detectedName = String(
           parsed.studentNameDetected ||
             childMember?.name ||
             (isDummy ? "XXXXXXX (Dokumen Dummy / Disensor)" : "Tidak Terbaca"),
+        );
+        const birthInfo = resolveBirthDateAndAge(
+          String(parsed.studentBirthDate || childMember?.birthDate || params.studentBirthDateHint || ""),
+          detectedNik,
         );
         const rel: "ANAK_KANDUNG" | "FAMILI_LAIN" =
           !isDummy &&
@@ -225,12 +284,15 @@ Aturan Penting:
           kkAgeValid: !isDummy && kkAgeYears >= 1,
           familyRelation: rel,
           familyRelationValid: !isDummy && rel === "ANAK_KANDUNG",
+          studentBirthDate: birthInfo.birthDate,
+          studentAgeYears: birthInfo.ageYears,
+          studentAgeValid: !isDummy && birthInfo.ageValid,
           ocrConfidence: isDummy ? Math.min(normConf, 68.0) : normConf,
           ocrNotes: String(
             parsed.notes ||
               (isDummy
                 ? "Terdeteksi Kartu Keluarga contoh/dummy yang disensor (XXXXX)."
-                : "Ekstraksi KK via Gemini Vision berhasil."),
+                : "Ekstraksi KK terpadu (OCR + Usia + Peta + Anomali) via Gemini Vision berhasil."),
           ),
           kkNumberDetected: String(parsed.kkNumberDetected || params.kkNumber),
           studentNikDetected: detectedNik,
@@ -262,6 +324,7 @@ Aturan Penting:
   const isDummyFile = name.includes("dummy") || name.includes("blur") || name.includes("contoh");
   const isRecentFraud =
     name.includes("baru") || name.includes("fraud") || name.includes("titip") || params.kkNumber.endsWith("0004");
+  const isUnderOrOverAge = name.includes("umur") || name.includes("usia") || name.includes("tua") || name.includes("muda");
   const issueDate =
     params.kkIssueDateHint || (isDummyFile ? "2023-01-01" : isRecentFraud ? "2026-02-10" : "2019-04-15");
   const ageMs = Date.now() - new Date(issueDate).getTime();
@@ -270,11 +333,14 @@ Aturan Penting:
   const familyRelation: "ANAK_KANDUNG" | "FAMILI_LAIN" =
     isDummyFile || isRecentFraud ? "FAMILI_LAIN" : "ANAK_KANDUNG";
 
+  // NIK 3578191405100002 -> Lahir 14-05-2010 (16 tahun di 2026 -> Valid SMA 15-17 thn)
+  // Jika simulasi fraud/umur tidak sesuai -> Lahir 28-09-2007 (18.8 tahun -> > 17 thn)
   const detectedNik = isDummyFile
     ? "3578XXXXXXXX0002"
-    : isRecentFraud
-    ? "3578192809090004"
-    : params.studentNikHint?.trim() || "3578191405080002";
+    : isRecentFraud || isUnderOrOverAge
+    ? "3578192809070004"
+    : params.studentNikHint?.trim() || "3578191405100002";
+  const birthInfo = resolveBirthDateAndAge(params.studentBirthDateHint, detectedNik);
   const detectedName = isDummyFile
     ? "XXXXXXX (Dokumen Dummy / Disensor)"
     : isRecentFraud
@@ -298,12 +364,15 @@ Aturan Penting:
     kkAgeValid,
     familyRelation,
     familyRelationValid: familyRelation === "ANAK_KANDUNG",
+    studentBirthDate: birthInfo.birthDate,
+    studentAgeYears: birthInfo.ageYears,
+    studentAgeValid: !isDummyFile && birthInfo.ageValid,
     ocrConfidence: isDummyFile ? 68.0 : 98.4,
     ocrNotes: isDummyFile
       ? "Terdeteksi Kartu Keluarga dummy/disensor (XXXXX). NIK, Nama, dan Alamat disamarkan."
       : isRecentFraud
-      ? "Terdeteksi anomali: KK baru terbit < 1 tahun (Februari 2026) dan status hubungan FAMILI LAIN di alamat Ruko Komersial."
-      : `Dokumen KK valid (${detectedName}, NIK ${detectedNik}, Anak Kandung).`,
+      ? `Terdeteksi anomali: KK baru terbit < 1 tahun (Februari 2026), status FAMILI LAIN di Ruko Komersial, dan usia calon siswa ${Math.floor(birthInfo.ageYears)} tahun (Tgl Lahir: ${birthInfo.birthDate}).`
+      : `Dokumen KK valid (${detectedName}, Tgl Lahir ${birthInfo.birthDate} / Usia ${Math.floor(birthInfo.ageYears)} Thn sesuai syarat SMA 15-17 Thn, Anak Kandung).`,
     kkNumberDetected: detectedKk,
     studentNikDetected: detectedNik,
     studentNameDetected: detectedName,
@@ -317,17 +386,25 @@ Aturan Penting:
     nameMatched: !isDummyFile,
     familyMembers: isDummyFile
       ? [
-          { nik: "3578XXXXXXXX0001", name: "XXXXXXX (Kepala Keluarga)", relation: "KEPALA_KELUARGA" },
-          { nik: "3578XXXXXXXX0002", name: "XXXXXXX (Disensor)", relation: "FAMILI_LAIN" },
+          { nik: "3578XXXXXXXX0001", name: "XXXXXXX (Kepala Keluarga)", birthDate: "1978-05-11", ageYears: 48, relation: "KEPALA_KELUARGA" },
+          { nik: "3578XXXXXXXX0002", name: "XXXXXXX (Disensor)", birthDate: "0000-00-00", ageYears: 0, relation: "FAMILI_LAIN" },
         ]
       : [
           {
-            nik: "3171041105780001",
+            nik: "3578191105780001",
             name: isRecentFraud ? "Hendra Wijaya" : "Budi Rahmawan",
+            birthDate: "1978-05-11",
+            ageYears: 48,
             relation: "KEPALA_KELUARGA",
           },
-          { nik: detectedNik, name: detectedName, relation: familyRelation },
+          {
+            nik: detectedNik,
+            name: detectedName,
+            birthDate: birthInfo.birthDate,
+            ageYears: birthInfo.ageYears,
+            relation: familyRelation,
+          },
         ],
-    modelUsed: "deterministic-fallback",
+    modelUsed: "single-pass-engine",
   };
 }

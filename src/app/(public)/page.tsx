@@ -109,6 +109,16 @@ export default function HomePage() {
                         <div className="font-code-sm text-[11px] text-text-muted">
                           NIK: {a.student_nik}
                         </div>
+                        <div
+                          className={`font-code-sm text-[11px] font-bold ${
+                            (a.student_age_valid ?? true)
+                              ? "text-status-approved"
+                              : "text-status-fraud"
+                          }`}
+                        >
+                          Lahir: {a.student_birth_date || "-"} ({Math.floor(a.student_age_years ?? 16)} Thn{" "}
+                          {(a.student_age_valid ?? true) ? "✓" : "✗ Anomali Usia"})
+                        </div>
                       </td>
                       <td className="py-3 px-3 font-code-sm">
                         <div>{a.kk_number}</div>

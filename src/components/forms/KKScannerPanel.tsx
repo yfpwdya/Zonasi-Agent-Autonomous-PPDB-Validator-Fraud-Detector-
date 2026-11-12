@@ -2,7 +2,7 @@
 import React, { useRef, useState } from "react";
 import Link from "next/link";
 import type { ApplicationRecord, KKMemberExtracted } from "@/types";
-import { useCreateApplication, useOcrPreview, useVerifyLivePhoto } from "@/hooks/useApplications";
+import { useCreateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
 
 type Props = {
   onAuditCompleted?: (app: ApplicationRecord) => void;
@@ -22,9 +22,9 @@ function makeSampleKKDataUrl(kind: "valid" | "fraud_titip" | "fraud_baru"): {
       <text x="40" y="120" font-size="14" fill="#0f172a">Nama Kepala Keluarga : BUDI RAHMAWAN</text>
       <text x="40" y="145" font-size="14" fill="#0f172a">Alamat : JL. SEMEMI JAYA IV NO. 12, RT 003/RW 002, KEL. SEMEMI, KEC. BENOWO, SURABAYA</text>
       <rect x="40" y="175" width="820" height="160" fill="none" stroke="#334155" stroke-width="1.5"/>
-      <text x="55" y="205" font-size="13" font-weight="bold">1. BUDI RAHMAWAN | NIK: 3578191105780001 | Status: KEPALA KELUARGA</text>
-      <text x="55" y="245" font-size="13" font-weight="bold">2. SITI NURHALIZA | NIK: 3578195408810002 | Status: ISTRI</text>
-      <text x="55" y="285" font-size="14" font-weight="bold" fill="#047857">3. NADIA PUTRI RAHMAWATI | NIK: 3578191405080002 | Status: ANAK KANDUNG</text>
+      <text x="55" y="205" font-size="13" font-weight="bold">1. BUDI RAHMAWAN | NIK: 3578191105780001 | Lahir: 11-05-1978 | Status: KEPALA KELUARGA</text>
+      <text x="55" y="245" font-size="13" font-weight="bold">2. SITI NURHALIZA | NIK: 3578195408810002 | Lahir: 14-08-1981 | Status: ISTRI</text>
+      <text x="55" y="285" font-size="14" font-weight="bold" fill="#047857">3. NADIA PUTRI RAHMAWATI | NIK: 3578191405100002 | Lahir: 14-05-2010 (16 Thn) | Status: ANAK KANDUNG</text>
       <text x="40" y="420" font-size="14" font-weight="bold" fill="#0f172a">Dikeluarkan Tanggal : 15-04-2019 (Domisili Sah Sememi - Zonasi SMAN 12 Surabaya)</text>
     </svg>`;
     return {
@@ -40,8 +40,8 @@ function makeSampleKKDataUrl(kind: "valid" | "fraud_titip" | "fraud_baru"): {
       <text x="40" y="120" font-size="14" fill="#0f172a">Nama Kepala Keluarga : HENDRA WIJAYA</text>
       <text x="40" y="145" font-size="14" fill="#0f172a">Alamat : RUKO GRAND SEMEMI NIAGA BLOK B-08, KEC. BENOWO, SURABAYA</text>
       <rect x="40" y="175" width="820" height="160" fill="none" stroke="#334155" stroke-width="1.5"/>
-      <text x="55" y="205" font-size="13" font-weight="bold">1. HENDRA WIJAYA | NIK: 3578191105780009 | Status: KEPALA KELUARGA</text>
-      <text x="55" y="260" font-size="14" font-weight="bold" fill="#be123c">2. KEVIN PRATAMA WIJAYA | NIK: 3578192809090004 | Status: FAMILI LAIN</text>
+      <text x="55" y="205" font-size="13" font-weight="bold">1. HENDRA WIJAYA | NIK: 3578191105780009 | Lahir: 11-05-1978 | Status: KEPALA KELUARGA</text>
+      <text x="55" y="260" font-size="14" font-weight="bold" fill="#be123c">2. KEVIN PRATAMA WIJAYA | NIK: 3578192809070004 | Lahir: 28-09-2007 (18 Thn &gt; 17 Thn) | Status: FAMILI LAIN</text>
       <text x="40" y="420" font-size="14" font-weight="bold" fill="#be123c">Dikeluarkan Tanggal : 10-02-2026 (Baru Terbit 4 Bulan &amp; Status FAMILI LAIN)</text>
     </svg>`;
     return {
@@ -66,7 +66,6 @@ function makeSampleKKDataUrl(kind: "valid" | "fraud_titip" | "fraud_baru"): {
 
 export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const ocrMutation = useOcrPreview();
   const createAppMutation = useCreateApplication();
   const verifyCondMutation = useVerifyLivePhoto();
 
@@ -85,6 +84,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
   const [ocrNotes, setOcrNotes] = useState<string>("");
   const [modelUsed, setModelUsed] = useState<string>("gemini-3.5-flash");
 
+  // ponytail: 1x Single-Pass Input — langsung memanggil createAppMutation tanpa previewOcr terpisah agar tidak generate AI 2x!
   const processKKDataUrl = async (name: string, mimeType: string, dataUrl: string) => {
     setFileName(name);
     setPreviewUrl(dataUrl);
@@ -92,32 +92,22 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
     setErrorText(null);
 
     try {
-      // 1) Jalankan ekstraksi OCR Gemini Vision langsung dari gambar KK yang diunggah
-      const ocr = await ocrMutation.mutateAsync({
-        kk_number: "",
-        kk_image_name: name,
-        kk_image_base64: dataUrl,
-      });
-
-      setFamilyMembers(ocr.familyMembers || []);
-      setHeadOfFamily(ocr.headOfFamilyName || "-");
-      setOcrNotes(ocr.ocrNotes || "");
-      setModelUsed(ocr.modelUsed || "gemini-3.5-flash");
-
-      // 2) Simpan dan jalankan pipeline audit penuh (OCR + PostGIS Route Distance + Building Audit) ke Supabase
       const created = await createAppMutation.mutateAsync({
-        student_nik: ocr.studentNikDetected || "3578XXXXXXXX0002",
-        student_name: ocr.studentNameDetected || "Peserta Didik (Lihat KK)",
-        kk_number: ocr.kkNumberDetected || "19010XXXXXXXXXXX",
-        kk_issued_date: ocr.kkIssueDate,
-        address_text: ocr.addressDetected || "Alamat Hasil Ekstraksi KK",
-        latitude: ocr.estimatedLat ?? -7.2489,
-        longitude: ocr.estimatedLng ?? 112.6382,
+        student_nik: "",
+        student_name: "",
+        kk_number: "",
+        address_text: "",
+        latitude: 0,
+        longitude: 0,
         kk_file_name: name,
         kk_file_base64: dataUrl,
         kk_mime_type: mimeType,
       });
 
+      setFamilyMembers(created.family_members || []);
+      setHeadOfFamily(created.head_of_family || "-");
+      setOcrNotes("");
+      setModelUsed(created.model_used || "gemini-3.5-flash (1x Single-Pass)");
       setAuditResult(created);
       setScanningState("DONE");
       if (onAuditCompleted) onAuditCompleted(created);
@@ -348,8 +338,8 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                 </span>
               </div>
 
-              {/* Grid Data Hasil Bacaan KK (Berubah 100% Sesuai File yang Diupload) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Grid Data Hasil Bacaan KK (Berubah 100% Sesuai File yang Diupload - 1x Single-Pass AI) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="rounded-lg bg-white/10 p-3">
                   <span className="font-code-sm text-[11px] text-slate-300 block">
                     Nomor KK Terbaca
@@ -359,6 +349,27 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   </span>
                   <span className="font-code-sm text-[11px] text-slate-300 block mt-1">
                     Kepala Keluarga: {headOfFamily}
+                  </span>
+                </div>
+
+                <div className="rounded-lg bg-white/10 p-3">
+                  <span className="font-code-sm text-[11px] text-slate-300 block">
+                    Tgl Lahir &amp; Usia Siswa SMA
+                  </span>
+                  <span className="font-code-md text-sm font-bold text-white">
+                    {auditResult.student_birth_date || "-"} (
+                    {Math.floor(auditResult.student_age_years ?? 16)} Thn)
+                  </span>
+                  <span
+                    className={`font-code-sm text-[11px] font-bold block mt-1 ${
+                      (auditResult.student_age_valid ?? true)
+                        ? "text-emerald-300"
+                        : "text-rose-300"
+                    }`}
+                  >
+                    {(auditResult.student_age_valid ?? true)
+                      ? "✓ Sesuai Usia SMA (15–17 Thn)"
+                      : "✗ Anomali Usia (<15 / >17 Thn)"}
                   </span>
                 </div>
 

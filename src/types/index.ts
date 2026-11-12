@@ -30,6 +30,12 @@ export type ApplicationRecord = {
   created_at: string;
   kk_issued_date?: string;
   family_relation?: string;
+  student_birth_date?: string;
+  student_age_years?: number;
+  student_age_valid?: boolean;
+  head_of_family?: string;
+  family_members?: KKMemberExtracted[];
+  model_used?: string;
   address_text?: string;
   latitude?: number;
   longitude?: number;
