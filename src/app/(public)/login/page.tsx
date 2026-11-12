@@ -7,7 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("panitia.ppdb@sman1-jkt.sch.id");
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("panitia.ppdb@sman12-sby.sch.id");
   const [password, setPassword] = useState("Panitia2026!");
   const [fullName, setFullName] = useState("Drs. H. Bambang Sudibyo, M.Pd");
   const [nip, setNip] = useState("197608142003121004");
@@ -155,7 +156,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nama@sman1-jkt.sch.id"
+                  placeholder="nama@sman12-sby.sch.id"
                   className="w-full px-3.5 py-2.5 rounded-lg bg-surface-slate border border-border-slate text-text-heading font-body-sm focus:bg-surface-canvas focus:border-secondary focus:outline-none"
                 />
               </div>
@@ -164,15 +165,28 @@ export default function LoginPage() {
                 <label className="block font-label-md text-label-md text-text-heading mb-1.5">
                   Kata Sandi (Minimal 6 Karakter)
                 </label>
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-surface-slate border border-border-slate text-text-heading font-body-sm focus:bg-surface-canvas focus:border-secondary focus:outline-none"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    minLength={6}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-3.5 pr-24 py-2.5 rounded-lg bg-surface-slate border border-border-slate text-text-heading font-body-sm focus:bg-surface-canvas focus:border-secondary focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-md bg-surface-canvas hover:bg-surface-container border border-border-slate text-xs font-label-md text-text-heading flex items-center gap-1 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      {showPassword ? "visibility_off" : "visibility"}
+                    </span>
+                    <span>{showPassword ? "Hide" : "Show"}</span>
+                  </button>
+                </div>
               </div>
 
               {error && (
@@ -208,7 +222,7 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-5 pt-4 border-t border-border-slate flex items-center justify-between text-xs text-text-muted">
-              <span>Akun Demo Siap Pakai: <code>panitia.ppdb@sman1-jkt.sch.id</code></span>
+              <span>Akun Demo Siap Pakai: <code>panitia.ppdb@sman12-sby.sch.id</code></span>
               <span className="font-code-sm text-secondary">Sesi dikunci HttpOnly Cookie</span>
             </div>
           </div>

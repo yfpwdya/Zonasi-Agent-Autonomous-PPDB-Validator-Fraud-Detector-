@@ -1,17 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import type { ApplicationRecord, AuthUser } from "@/types";
-import { useApplications, useUpdateApplication } from "@/hooks/useApplications";
+import { useApplications, useUpdateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
 import { clearPanitiaSession } from "@/hooks/useAuth";
 import Link from "next/link";
 import { KKScannerPanel } from "@/components/forms/KKScannerPanel";
 
 export default function DashboardPage() {
-  const [mapLayer, setMapLayer] = useState<"hybrid" | "topo" | "heat">("hybrid");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "FRAUD" | "REVISION" | "APPROVED">("ALL");
   const { data, refetch } = useApplications();
   const updateApp = useUpdateApplication();
+  const verifyCond = useVerifyLivePhoto();
+  const [condDocType, setCondDocType] = useState("SKPWNI_DUKCAPIL");
+  const [condDocNumber, setCondDocNumber] = useState("");
+  const [condNote, setCondNote] = useState("");
+  const [condFileName, setCondFileName] = useState("");
   const applications = data?.applications ?? [];
   const dataSource = data?.source ?? "supabase";
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -74,7 +78,7 @@ export default function DashboardPage() {
     return true;
   });
 
-  const pageSize = 5;
+  const pageSize = 8;
   const totalPages = Math.max(1, Math.ceil(filteredApps.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
   const pagedApps = filteredApps.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -83,23 +87,23 @@ export default function DashboardPage() {
     applications.find((a) => a.status === "REJECTED") ||
     applications[0] || {
       id: "default",
-      tracking_id: "PPDB-2026-F91X",
-      student_nik: "3171042801080004",
-      student_name: "Budi Santoso",
-      kk_number: "3171041203260091",
-      kk_issued_date: "2026-01-10",
-      kk_age_label: "2 Bln (<1 Thn)",
-      family_relation: "FAMILI_LAIN",
-      address_text: "Jl. Bukit Duri Tanjakan No. 88 (Ruko Sentra Niaga)",
-      latitude: -6.2251,
-      longitude: 106.8589,
-      straight_distance_meters: 310,
-      real_route_distance_meters: 1380,
-      detected_building: "COMMERCIAL",
-      ocr_confidence: 95.8,
-      status: "REJECTED",
-      ai_reasoning_summary: "Anomali terdeteksi pada titik domisili dan masa berlaku KK.",
-      kk_document_url: "/uploads/kk_budi.jpg",
+      tracking_id: "PPDB-2026-X89K",
+      student_nik: "3578191504080002",
+      student_name: "Rizky Pratama Wijaya",
+      kk_number: "3578190401180009",
+      kk_issued_date: "2018-02-12",
+      kk_age_label: "8 Thn (≥1 Thn)",
+      family_relation: "ANAK_KANDUNG",
+      address_text: "Jl. Sememi Jaya IV No. 14, RT 004/RW 002, Kel. Sememi, Kec. Benowo, Surabaya 60198",
+      latitude: -7.2489,
+      longitude: 112.6382,
+      straight_distance_meters: 350,
+      real_route_distance_meters: 480,
+      detected_building: "RESIDENTIAL",
+      ocr_confidence: 99.4,
+      status: "APPROVED",
+      ai_reasoning_summary: "Dokumen KK valid dan berada dalam radius zonasi SMAN 12 Surabaya.",
+      kk_document_url: "/uploads/kk_rizky.jpg",
       live_geotag_photo_url: null,
       updated_at: new Date().toISOString(),
     };
@@ -509,152 +513,103 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            {/* Peta Geospasial PostGIS Interaktif & Inspector Panel */}
+            {/* Peta Geospasial PostGIS Interaktif (OpenStreetMap + OSRM) & Inspector Panel */}
             <section id="radar" className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-              {/* Map Container */}
+              {/* Map Container - Sama seperti halaman User (OpenStreetMap Live + OSRM) */}
               <div className="xl:col-span-8 bg-surface-canvas rounded-xl border border-border-slate shadow-sm p-5 sm:p-6 flex flex-col gap-4 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="font-headline-sm text-headline-sm text-text-heading font-bold">
-                      Radar Geospasial PostGIS (Radius Zonasi 1.200m)
+                      Peta Interaktif OpenStreetMap &amp; Rute OSRM (Radius Zonasi 1.200m)
                     </h2>
                     <span className="font-body-sm text-body-sm text-text-muted">
-                      Klik pin pendaftar pada peta untuk memuat detail ke panel Inspeksi Anomali di kanan
+                      Titik Acuan: <strong>SMA Negeri 12 Surabaya</strong> (-7.2468, 112.6358) • Klik pendaftar di bawah untuk memindahkan pin peta
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 bg-surface-slate rounded-lg p-1 self-start">
-                    <button
-                      type="button"
-                      onClick={() => setMapLayer("hybrid")}
-                      className={
-                        mapLayer === "hybrid"
-                          ? "px-3 py-1 bg-surface-canvas shadow-sm rounded font-label-md text-label-md text-secondary font-bold"
-                          : "px-3 py-1 rounded font-label-md text-label-md text-text-muted hover:text-text-heading"
-                      }
-                    >
-                      Hybrid
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setMapLayer("topo")}
-                      className={
-                        mapLayer === "topo"
-                          ? "px-3 py-1 bg-surface-canvas shadow-sm rounded font-label-md text-label-md text-secondary font-bold"
-                          : "px-3 py-1 rounded font-label-md text-label-md text-text-muted hover:text-text-heading"
-                      }
-                    >
-                      Batas RW
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setMapLayer("heat")}
-                      className={
-                        mapLayer === "heat"
-                          ? "px-3 py-1 bg-surface-canvas shadow-sm rounded font-label-md text-label-md text-secondary font-bold"
-                          : "px-3 py-1 rounded font-label-md text-label-md text-text-muted hover:text-text-heading"
-                      }
-                    >
-                      Heatmap
-                    </button>
-                  </div>
+                  <a
+                    href={`https://www.openstreetmap.org/?mlat=${(activeCase.latitude ?? activeCase.home_lat ?? -7.2489).toFixed(5)}&mlon=${(activeCase.longitude ?? activeCase.home_lng ?? 112.6382).toFixed(5)}#map=16/${(activeCase.latitude ?? activeCase.home_lat ?? -7.2489).toFixed(5)}/${(activeCase.longitude ?? activeCase.home_lng ?? 112.6382).toFixed(5)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-tint-blue text-secondary font-code-sm text-xs font-bold hover:opacity-90 self-start"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                    <span>Buka Peta Penuh</span>
+                  </a>
                 </div>
 
-                {/* Map Display with dynamic clickable pins */}
-                <div className="relative w-full h-[420px] rounded-xl overflow-hidden bg-surface-slate border border-border-slate">
-                  <div
-                    className={`w-full h-full bg-cover bg-center transition-all duration-300 ${
-                      mapLayer === "topo"
-                        ? "grayscale contrast-125"
-                        : mapLayer === "heat"
-                        ? "hue-rotate-15 saturate-150"
-                        : ""
-                    }`}
-                    style={{
-                      backgroundImage:
-                        "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBWwev_YZnliq12vwr0z5yg3HvIvupz4Mytg6-9b2VflmYu4GvMmaJGNLvprYkgAuLYDJH5rDsPJt7aMRuU4RafIS5dFqgCEJ3qEBlgymZdgh3yWQwJpqRv2nzqYaAS_KQxXYCGMwrZX9B6AILlHwuQGERO8P4BBMVQ0dtIqNc2LBJggD3ykETuabV0i0onS5qUUg8eZbezEMC6o4UiNuxbIvTzAowWiOvHzulcnB4')",
-                    }}
-                  />
-                  {/* Floating Coordinate Indicator */}
-                  <div className="absolute top-3 left-3 bg-surface-canvas/95 backdrop-blur-md rounded-lg p-2.5 shadow-md flex flex-col gap-0.5 max-w-xs border border-border-slate">
-                    <div className="flex items-center gap-1.5 font-code-sm text-code-sm text-text-heading font-semibold">
-                      <span className="material-symbols-outlined text-[16px] text-secondary">explore</span>
-                      {(activeCase.latitude ?? activeCase.home_lat ?? -6.2297).toFixed(4)}, {(activeCase.longitude ?? activeCase.home_lng ?? 106.8532).toFixed(4)} ({activeCase.student_name})
-                    </div>
-                    <span className="font-body-sm text-[11px] text-text-muted">
-                      Mode Layer: {mapLayer.toUpperCase()} • Jarak Rute: {activeCase.real_route_distance_meters}m
-                    </span>
-                  </div>
-
-                  {/* Interactive Pins from Live Applications */}
-                  <div className="absolute inset-0 p-4 flex flex-col justify-between pointer-events-none">
-                    <div className="flex flex-wrap justify-end gap-2 pointer-events-auto">
-                      {applications
-                        .filter((a) => a.status === "REJECTED")
-                        .map((a) => (
-                          <button
-                            key={a.tracking_id}
-                            type="button"
-                            onClick={() => setSelectedApp(a)}
-                            className={`flex items-center gap-1.5 bg-status-fraud-bg/95 backdrop-blur px-3 py-1.5 rounded-full shadow-md border transition-transform hover:scale-105 ${
-                              activeCase.tracking_id === a.tracking_id
-                                ? "border-status-fraud ring-2 ring-status-fraud/40"
-                                : "border-status-fraud-border"
-                            }`}
-                          >
-                            <span className="w-2.5 h-2.5 rounded-full bg-status-fraud animate-ping" />
-                            <span className="font-code-sm text-xs text-status-fraud font-bold">
-                              {a.student_name} ({(a.straight_distance_meters ?? a.straight_line_distance_meters ?? 0)}m • RUKO)
-                            </span>
-                          </button>
-                        ))}
-                    </div>
-
-                    {/* Center School Marker */}
-                    <div className="self-center flex flex-col items-center">
-                      <div className="w-11 h-11 rounded-full bg-secondary text-on-secondary flex items-center justify-center shadow-xl ring-4 ring-secondary/25">
-                        <span className="material-symbols-outlined text-[22px]">school</span>
+                {/* Live OpenStreetMap Embed (Sama seperti halaman User) */}
+                {(() => {
+                  const lat = activeCase.latitude ?? activeCase.home_lat ?? -7.2489;
+                  const lng = activeCase.longitude ?? activeCase.home_lng ?? 112.6382;
+                  const d = 0.005;
+                  const osmEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${(lng - d).toFixed(5)}%2C${(lat - d).toFixed(5)}%2C${(lng + d).toFixed(5)}%2C${(lat + d).toFixed(5)}&layer=mapnik&marker=${lat.toFixed(5)}%2C${lng.toFixed(5)}`;
+                  return (
+                    <div className="relative w-full h-[380px] rounded-xl overflow-hidden bg-slate-900 border border-border-slate flex flex-col">
+                      <iframe
+                        key={`${activeCase.tracking_id}-${lat}-${lng}`}
+                        title="Peta Interaktif Zonasi SMAN 12 Surabaya"
+                        src={osmEmbed}
+                        className="w-full flex-1 border-0"
+                        loading="lazy"
+                      />
+                      <div className="bg-slate-900/95 backdrop-blur px-4 py-2.5 text-white flex flex-wrap items-center justify-between gap-2 border-t border-white/10">
+                        <div className="font-code-sm text-xs truncate max-w-xl">
+                          <span className="text-cyan-400 font-bold">Pin Domisili KK ({activeCase.student_name}):</span>{" "}
+                          {activeCase.address_text || activeCase.address || "Jl. Sememi Jaya IV No. 14, Surabaya"} ({lat.toFixed(5)}, {lng.toFixed(5)})
+                        </div>
+                        <div className="flex items-center gap-2 font-code-sm text-xs">
+                          <span className="px-2 py-0.5 rounded bg-secondary text-on-secondary font-bold">
+                            Rute OSRM ke SMAN 12: {activeCase.real_route_distance_meters}m
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold">
+                            Fasad: {activeCase.detected_building || "RESIDENTIAL"}
+                          </span>
+                        </div>
                       </div>
-                      <span className="bg-surface-canvas px-2.5 py-0.5 rounded-md shadow text-[11px] font-label-md text-text-heading font-bold mt-1 border border-border-slate">
-                        SMAN 12 Surabaya (Pusat Zonasi Sememi)
-                      </span>
                     </div>
+                  );
+                })()}
 
-                    {/* Bottom Pins: Approved & Revision */}
-                    <div className="flex flex-wrap items-center gap-2 pointer-events-auto pb-8 sm:pb-0">
-                      {applications
-                        .filter((a) => a.status !== "REJECTED")
-                        .slice(0, 4)
-                        .map((a) => {
-                          const isRev =
-                            a.status === "NEEDS_LIVE_PHOTO" || a.status === "NEEDS_REVISION";
-                          return (
-                            <button
-                              key={a.tracking_id}
-                              type="button"
-                              onClick={() => setSelectedApp(a)}
-                              className={`flex items-center gap-1.5 backdrop-blur px-2.5 py-1 rounded-full shadow border transition-transform hover:scale-105 ${
-                                isRev
-                                  ? "bg-status-revision-bg/95 border-status-revision-border text-status-revision"
-                                  : "bg-status-approved-bg/95 border-status-approved-border text-status-approved"
-                              } ${
-                                activeCase.tracking_id === a.tracking_id
-                                  ? "ring-2 ring-secondary"
-                                  : ""
-                              }`}
-                            >
-                              <span
-                                className={`w-2 h-2 rounded-full ${
-                                  isRev ? "bg-status-revision" : "bg-status-approved"
-                                }`}
-                              />
-                              <span className="font-code-sm text-[11px] font-semibold">
-                                {a.student_name.split(" ")[0]} ({a.real_route_distance_meters}m)
-                              </span>
-                            </button>
-                          );
-                        })}
-                    </div>
-                  </div>
+                {/* Daftar Pin Cepat Seluruh Berkas Riwayat */}
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <span className="font-code-sm text-xs text-text-muted mr-1">
+                    Pilih Titik Rumah Berkas ({applications.length}):
+                  </span>
+                  {applications.slice(0, 10).map((a) => {
+                    const isFraud = a.status === "REJECTED";
+                    const isRev =
+                      a.status === "NEEDS_LIVE_PHOTO" ||
+                      a.status === "NEEDS_REVISION" ||
+                      a.status === "MANUAL_REVIEW";
+                    const isSelected = activeCase.tracking_id === a.tracking_id;
+                    return (
+                      <button
+                        key={a.tracking_id}
+                        type="button"
+                        onClick={() => setSelectedApp(a)}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-code-sm text-xs transition-all border ${
+                          isFraud
+                            ? "bg-status-fraud-bg text-status-fraud border-status-fraud-border font-bold"
+                            : isRev
+                            ? "bg-status-revision-bg text-status-revision border-status-revision-border font-semibold"
+                            : "bg-status-approved-bg text-status-approved border-status-approved-border font-semibold"
+                        } ${isSelected ? "ring-2 ring-secondary scale-[1.03]" : "opacity-85 hover:opacity-100"}`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            isFraud
+                              ? "bg-status-fraud"
+                              : isRev
+                              ? "bg-status-revision"
+                              : "bg-status-approved"
+                          }`}
+                        />
+                        <span>
+                          {a.student_name.split(" ")[0]} ({a.real_route_distance_meters}m)
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -718,24 +673,23 @@ export default function DashboardPage() {
                       </div>
                     </div>
 
-                    {/* Preview Thumbnail */}
-                    <div className="relative w-full h-32 rounded-lg overflow-hidden border border-border-slate bg-slate-900">
-                      <img
-                        className="w-full h-full object-cover"
-                        alt={activeCase.student_name}
-                        src={
-                          (activeCase.kk_document_url || activeCase.kk_image_url || '')?.startsWith("http")
-                            ? (activeCase.kk_document_url || activeCase.kk_image_url || '')
-                            : "https://lh3.googleusercontent.com/aida-public/AB6AXuD75CPTSZdgWu9WF_nHJaeeHib3XrpB4JyzRic5A75T6XlQEDgVyhZormvYb62S--pOL6GtwUG1ulLWoWE4MmNMpOjJq7R2ZEJBqlMjGmvSlZwBlTfGd8uyEekhzXdCZASpBOAfva7aK1ggH6e3YRQFvytukxiYe6akl-cTDXkHRFj96caHBvKxZA-imjPuKdG6ed1vLPI2hnObIpCgxog8ro5h7GvDOhCWD79c3Us"
-                        }
-                      />
-                      <div className="absolute bottom-2 left-2 right-2 bg-surface-canvas/95 px-2.5 py-1 rounded text-[11px] font-label-md text-text-heading flex items-center justify-between">
-                        <span className="truncate">
-                          Bangunan: <strong>{activeCase.detected_building}</strong>
+                    {/* Detail Alamat & Relasi KK */}
+                    <div className="rounded-lg bg-surface-canvas border border-border-slate p-3 space-y-1.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-text-muted">No. KK &amp; Terbit:</span>
+                        <span className="font-code-sm font-semibold text-text-heading">
+                          {activeCase.kk_number} ({activeCase.kk_issued_date || activeCase.kk_issue_date})
                         </span>
-                        <span className="font-code-sm text-secondary font-bold">
-                          {(activeCase.family_relation || (activeCase.family_relation_valid ? 'ANAK_KANDUNG' : 'FAMILI_LAIN'))}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-text-muted">Relasi &amp; Bangunan:</span>
+                        <span className="font-code-sm font-bold text-secondary">
+                          {activeCase.family_relation || (activeCase.family_relation_valid ? "ANAK_KANDUNG" : "FAMILI_LAIN")} • {activeCase.detected_building}
                         </span>
+                      </div>
+                      <div className="text-text-heading pt-1 border-t border-border-slate">
+                        <span className="text-text-muted block text-[11px]">Alamat Domisili KK:</span>
+                        <span className="font-medium">{activeCase.address_text || activeCase.address}</span>
                       </div>
                     </div>
 
@@ -1215,31 +1169,36 @@ export default function DashboardPage() {
 
               {/* Grid 3 Bukti Forensik Dinamis */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Bukti 1: Dokumen / Visual */}
+                {/* Bukti 1: Peta OpenStreetMap Live & Alamat KK */}
                 <div className="bg-surface-slate rounded-xl p-4 border border-border-slate flex flex-col justify-between">
                   <div className="flex flex-col gap-2">
                     <span className="font-label-md text-xs text-secondary font-bold uppercase tracking-wider">
-                      Bukti 1 • Visual & Dokumen KK
+                      Bukti 1 • Peta Domisili KK (OpenStreetMap)
                     </span>
-                    <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border-slate bg-slate-900">
-                      <img
-                        src={
-                          (activeCase.kk_document_url || activeCase.kk_image_url || '')?.startsWith("http")
-                            ? (activeCase.kk_document_url || activeCase.kk_image_url || '')
-                            : "https://lh3.googleusercontent.com/aida-public/AB6AXuD75CPTSZdgWu9WF_nHJaeeHib3XrpB4JyzRic5A75T6XlQEDgVyhZormvYb62S--pOL6GtwUG1ulLWoWE4MmNMpOjJq7R2ZEJBqlMjGmvSlZwBlTfGd8uyEekhzXdCZASpBOAfva7aK1ggH6e3YRQFvytukxiYe6akl-cTDXkHRFj96caHBvKxZA-imjPuKdG6ed1vLPI2hnObIpCgxog8ro5h7GvDOhCWD79c3Us"
-                        }
-                        alt={activeCase.student_name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute bottom-2 left-2 right-2 bg-surface-canvas/90 backdrop-blur px-2 py-1 rounded text-[11px] font-label-md text-text-heading flex items-center justify-between">
-                        <span>Fasad: {activeCase.detected_building}</span>
-                        <span className="font-bold text-secondary">
-                          OCR {activeCase.ocr_confidence}%
-                        </span>
-                      </div>
-                    </div>
+                    {(() => {
+                      const lat = activeCase.latitude ?? activeCase.home_lat ?? -7.2489;
+                      const lng = activeCase.longitude ?? activeCase.home_lng ?? 112.6382;
+                      const d = 0.005;
+                      const osmEmbed = `https://www.openstreetmap.org/export/embed.html?bbox=${(lng - d).toFixed(5)}%2C${(lat - d).toFixed(5)}%2C${(lng + d).toFixed(5)}%2C${(lat + d).toFixed(5)}&layer=mapnik&marker=${lat.toFixed(5)}%2C${lng.toFixed(5)}`;
+                      return (
+                        <div className="relative w-full h-40 rounded-lg overflow-hidden border border-border-slate bg-slate-900">
+                          <iframe
+                            title="Mini Map Investigasi"
+                            src={osmEmbed}
+                            className="w-full h-full border-0"
+                            loading="lazy"
+                          />
+                          <div className="absolute bottom-1.5 left-1.5 right-1.5 bg-surface-canvas/95 px-2 py-0.5 rounded text-[10px] font-code-sm text-text-heading flex items-center justify-between">
+                            <span>Fasad: {activeCase.detected_building}</span>
+                            <span className="font-bold text-secondary">
+                              OCR {activeCase.ocr_confidence}%
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                     <p className="text-xs text-text-muted leading-relaxed">
-                      Alamat: {(activeCase.address_text || activeCase.address || '-')}
+                      Alamat: {(activeCase.address_text || activeCase.address || "-")}
                     </p>
                   </div>
                 </div>
@@ -1314,6 +1273,101 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Form Verifikasi Berkas Bersyarat (SKPWNI / SK Pindah Tugas / Domisili Bencana / Foto Geotag) */}
+              <div className="bg-surface-slate rounded-xl p-4 border border-border-slate space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h4 className="font-label-lg text-label-lg text-text-heading font-bold">
+                      Form Verifikasi Berkas Bersyarat (Pindah Rumah Sah &lt; 1 Tahun / Mitigasi Gang Sempit)
+                    </h4>
+                    <p className="font-body-sm text-xs text-text-muted">
+                      Unggah bukti SKPWNI Dukcapil, SK Pindah Tugas Orang Tua, atau Foto Rumah Geotag untuk meloloskan berkas ke status APPROVED:
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <label className="font-code-sm text-[11px] text-text-muted block mb-1">
+                      Jenis Surat Pembuktian
+                    </label>
+                    <select
+                      value={condDocType}
+                      onChange={(e) => setCondDocType(e.target.value)}
+                      className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2.5 py-2 text-text-heading font-body-sm text-xs"
+                    >
+                      <option value="SKPWNI_DUKCAPIL">1. SKPWNI Dukcapil (Pindah 1 Keluarga)</option>
+                      <option value="SK_PINDAH_TUGAS_ORTU">2. SK Pindah Tugas Ortu + SKD</option>
+                      <option value="SURAT_DOMISILI_BENCANA">3. Surat Domisili Bencana (BPBD)</option>
+                      <option value="FOTO_FASAD_GEOTAG">4. Foto Fasad Rumah Geotag</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="font-code-sm text-[11px] text-text-muted block mb-1">
+                      Nomor Surat Resmi
+                    </label>
+                    <input
+                      type="text"
+                      value={condDocNumber}
+                      onChange={(e) => setCondDocNumber(e.target.value)}
+                      placeholder="470/192/SKPWNI/436.7.19/2026"
+                      className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2.5 py-2 text-text-heading font-code-sm text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-code-sm text-[11px] text-text-muted block mb-1">
+                      File Surat / Foto Geotag
+                    </label>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) setCondFileName(f.name);
+                      }}
+                      className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2 py-1.5 text-text-heading font-code-sm text-xs file:mr-2 file:py-0.5 file:px-2 file:rounded file:border-0 file:bg-secondary file:text-white file:text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-code-sm text-[11px] text-text-muted block mb-1">
+                      Catatan Pemeriksaan
+                    </label>
+                    <input
+                      type="text"
+                      value={condNote}
+                      onChange={(e) => setCondNote(e.target.value)}
+                      placeholder="Pindah 1 keluarga sah ke Sememi"
+                      className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2.5 py-2 text-text-heading font-body-sm text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    disabled={verifyCond.isPending}
+                    onClick={async () => {
+                      await verifyCond.mutateAsync({
+                        tracking_id: activeCase.tracking_id,
+                        lat: activeCase.latitude ?? activeCase.home_lat ?? -7.2489,
+                        lng: activeCase.longitude ?? activeCase.home_lng ?? 112.6382,
+                        photo_name: condFileName || `${condDocType.toLowerCase()}_verified.pdf`,
+                        doc_type: condDocType,
+                        doc_number: condDocNumber || "470/SKPWNI-SBY/2026",
+                        note: condNote || `Disetujui oleh ${authUser.full_name}`,
+                      });
+                      setModalOpen(false);
+                      showToast(
+                        `Berkas bersyarat ${condDocType} tervalidasi -> Status ${activeCase.tracking_id} diubah menjadi APPROVED ✓`,
+                      );
+                    }}
+                    className="px-4 py-2 rounded-lg bg-secondary hover:bg-primary text-on-secondary font-label-md text-xs font-bold shadow transition-all disabled:opacity-50"
+                  >
+                    {verifyCond.isPending
+                      ? "Memvalidasi Berkas..."
+                      : "✓ Validasi Berkas Bersyarat & Setujui (APPROVED)"}
+                  </button>
                 </div>
               </div>
             </div>
