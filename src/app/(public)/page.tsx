@@ -1,11 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import gsap from "gsap";
 import { KKScannerPanel } from "@/components/forms/KKScannerPanel";
 import { useApplications } from "@/hooks/useApplications";
 import { usePanitiaSession } from "@/hooks/useAuth";
 
 export default function HomePage() {
+  const pageRef = useRef<HTMLDivElement | null>(null);
   const panitia = usePanitiaSession();
   const { data } = useApplications();
   const allApps = data?.applications ?? [];
@@ -25,14 +27,41 @@ export default function HomePage() {
     return () => window.removeEventListener("zonasi:my-apps-updated", syncMyIds);
   }, []);
 
+  // ponytail: GSAP entrance + stagger sesuai UI/UX Pro Max & GSAP skill (compositor-only, menghormati prefers-reduced-motion)
+  useEffect(() => {
+    if (!pageRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        "[data-gsap='home-section']",
+        { autoAlpha: 0, y: 18 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.45,
+          stagger: 0.08,
+          ease: "power2.out",
+          clearProps: "transform",
+        },
+      );
+    }, pageRef);
+    return () => ctx.revert();
+  }, []);
+
   // ponytail: di halaman publik (user), hanya tampilkan berkas yang baru saja dimasukkan oleh user pada sesi ini agar privasi pendaftar lain terjaga. Seluruh berkas lintas user tetap masuk otomatis ke /dashboard panitia.
   const myIdSet = new Set(myTrackingIds.map((id) => id.toUpperCase()));
   const apps = allApps.filter((a) => myIdSet.has(a.tracking_id.toUpperCase()));
 
   return (
-    <div className="max-w-7xl w-full mx-auto px-margin py-space-xl space-y-10 text-text-body">
+    <div
+      ref={pageRef}
+      className="max-w-7xl w-full mx-auto px-margin py-space-xl space-y-10 text-text-body"
+    >
         {/* Hero Khusus Verifikasi PPDB */}
-        <section className="rounded-2xl bg-gradient-to-br from-primary via-primary to-primary-container text-on-primary p-6 sm:p-8 shadow-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+        <section
+          data-gsap="home-section"
+          className="rounded-2xl bg-gradient-to-br from-primary via-primary to-primary-container text-on-primary p-6 sm:p-8 shadow-lg flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
+        >
           <div className="space-y-3 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-primary-fixed font-code-sm text-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -78,7 +107,10 @@ export default function HomePage() {
         />
 
         {/* Daftar Berkas KK Milik User Ini Saja (Privasi Terjaga, Data User Lain Disensor/Disembunyikan) */}
-        <section className="bg-surface-canvas rounded-2xl border border-border-slate shadow-sm p-5 sm:p-6 space-y-4">
+        <section
+          data-gsap="home-section"
+          className="bg-surface-canvas rounded-2xl border border-border-slate shadow-sm p-5 sm:p-6 space-y-4"
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <div className="flex items-center gap-2">

@@ -1,6 +1,7 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import gsap from "gsap";
 import type { ApplicationRecord, KKMemberExtracted } from "@/types";
 import { useCreateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
 
@@ -66,6 +67,7 @@ function makeSampleKKDataUrl(kind: "valid" | "fraud_titip" | "fraud_baru"): {
 
 export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const resultCardRef = useRef<HTMLDivElement | null>(null);
   const createAppMutation = useCreateApplication();
   const verifyCondMutation = useVerifyLivePhoto();
 
@@ -144,9 +146,37 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
     void processKKDataUrl(sample.fileName, "image/svg+xml", sample.dataUrl);
   };
 
+  // ponytail: GSAP stagger reveal saat hasil scan KK selesai diekstrak AI
+  useEffect(() => {
+    if (scanningState !== "DONE" || !resultCardRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        resultCardRef.current,
+        { autoAlpha: 0, y: 14 },
+        { autoAlpha: 1, y: 0, duration: 0.38, ease: "power2.out", clearProps: "transform" },
+      );
+      gsap.fromTo(
+        "[data-gsap='kk-metric']",
+        { autoAlpha: 0, scale: 0.94, y: 10 },
+        {
+          autoAlpha: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.36,
+          stagger: 0.06,
+          ease: "back.out(1.4)",
+          clearProps: "transform",
+        },
+      );
+    }, resultCardRef);
+    return () => ctx.revert();
+  }, [scanningState, auditResult?.tracking_id]);
+
   return (
     <section
       id="scanner-kk"
+      data-gsap="home-section"
       className="bg-surface-canvas rounded-2xl border-2 border-secondary/30 shadow-md p-5 sm:p-6 space-y-5"
     >
       {/* Header Scanner Khusus Panitia */}
@@ -319,7 +349,10 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
           )}
 
           {scanningState === "DONE" && auditResult && (
-            <div className="rounded-xl bg-text-heading text-on-primary p-5 space-y-4 shadow-lg border border-secondary/40">
+            <div
+              ref={resultCardRef}
+              className="rounded-xl bg-text-heading text-on-primary p-5 space-y-4 shadow-lg border border-secondary/40"
+            >
               {/* Baris Status Keputusan Utama */}
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/15">
                 <div className="space-y-0.5">
@@ -352,7 +385,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
 
               {/* Grid Data Hasil Bacaan KK (Berubah 100% Sesuai File yang Diupload - 1x Single-Pass AI) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <div className="rounded-lg bg-white/10 p-3">
+                <div data-gsap="kk-metric" className="rounded-lg bg-white/10 p-3">
                   <span className="font-code-sm text-[11px] text-slate-300 block">
                     Nomor KK Terbaca
                   </span>
@@ -364,7 +397,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   </span>
                 </div>
 
-                <div className="rounded-lg bg-white/10 p-3">
+                <div data-gsap="kk-metric" className="rounded-lg bg-white/10 p-3">
                   <span className="font-code-sm text-[11px] text-slate-300 block">
                     Tgl Lahir &amp; Usia Siswa SMA
                   </span>
@@ -385,7 +418,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   </span>
                 </div>
 
-                <div className="rounded-lg bg-white/10 p-3">
+                <div data-gsap="kk-metric" className="rounded-lg bg-white/10 p-3">
                   <span className="font-code-sm text-[11px] text-slate-300 block">
                     Tanggal Terbit &amp; Usia KK
                   </span>
@@ -403,7 +436,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   </span>
                 </div>
 
-                <div className="rounded-lg bg-white/10 p-3">
+                <div data-gsap="kk-metric" className="rounded-lg bg-white/10 p-3">
                   <span className="font-code-sm text-[11px] text-slate-300 block">
                     Status Hubungan &amp; Skor OCR
                   </span>

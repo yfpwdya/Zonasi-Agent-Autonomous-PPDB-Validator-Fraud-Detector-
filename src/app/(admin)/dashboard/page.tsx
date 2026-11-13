@@ -1,11 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
 import type { ApplicationRecord, AuthUser } from "@/types";
 import { useApplications, useUpdateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
 import { clearPanitiaSession } from "@/hooks/useAuth";
 import Link from "next/link";
 
 export default function DashboardPage() {
+  const dashboardRef = useRef<HTMLElement | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "FRAUD" | "REVISION" | "APPROVED">("ALL");
   const { data, refetch } = useApplications();
@@ -46,6 +48,28 @@ export default function DashboardPage() {
     } catch {
       // ignore storage error
     }
+  }, []);
+
+  // ponytail: GSAP Bento Card Stagger pada Dashboard Panitia sesuai preset motion.csv (back.out(1.4), prefers-reduced-motion safe)
+  useEffect(() => {
+    if (!dashboardRef.current) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        "[data-gsap='kpi-card']",
+        { autoAlpha: 0, scale: 0.94, y: 14 },
+        {
+          autoAlpha: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.4,
+          stagger: 0.06,
+          ease: "back.out(1.4)",
+          clearProps: "transform",
+        },
+      );
+    }, dashboardRef);
+    return () => ctx.revert();
   }, []);
 
   const showToast = (msg: string) => {
@@ -363,10 +387,13 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <main id="ringkasan" className="flex-1 bg-surface">
+        <main id="ringkasan" ref={dashboardRef} className="flex-1 bg-surface">
           <div className="flex flex-col w-full max-w-[1440px] mx-auto gap-6 p-4 sm:p-6 lg:p-8">
             {/* Header Panel Panitia */}
-            <section className="bg-surface-canvas rounded-xl border border-border-slate shadow-sm p-5 sm:p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5">
+            <section
+              data-gsap="kpi-card"
+              className="bg-surface-canvas rounded-xl border border-border-slate shadow-sm p-5 sm:p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5"
+            >
               <div className="flex flex-col gap-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="px-2.5 py-0.5 rounded-full bg-surface-tint-blue font-code-sm text-code-sm text-secondary font-semibold">
@@ -430,7 +457,10 @@ export default function DashboardPage() {
 
             {/* Metric Analytics Cards (100% Live Database Counts) */}
             <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              <div className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between">
+              <div
+                data-gsap="kpi-card"
+                className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-label-md text-label-md text-text-muted uppercase tracking-wider">
                     Total Pendaftar
@@ -453,7 +483,10 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between">
+              <div
+                data-gsap="kpi-card"
+                className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-label-md text-label-md text-status-approved uppercase tracking-wider">
                     Disetujui Otomatis
@@ -476,7 +509,10 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between">
+              <div
+                data-gsap="kpi-card"
+                className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-label-md text-label-md text-status-revision uppercase tracking-wider">
                     Revisi / Foto Mandiri
@@ -499,7 +535,10 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between">
+              <div
+                data-gsap="kpi-card"
+                className="bg-surface-canvas rounded-xl p-5 border border-border-slate shadow-sm flex flex-col justify-between"
+              >
                 <div className="flex items-center justify-between">
                   <span className="font-label-md text-label-md text-status-fraud uppercase tracking-wider">
                     Anomali / Fraud
