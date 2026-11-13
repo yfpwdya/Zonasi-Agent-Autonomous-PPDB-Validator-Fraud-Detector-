@@ -22,7 +22,6 @@ export default function DashboardPage() {
   const selectedApp = applications.find((a) => a.tracking_id === selectedId) ?? null;
   const setSelectedApp = (a: ApplicationRecord) => setSelectedId(a.tracking_id);
   const [modalOpen, setModalOpen] = useState(false);
-  const [sidakScheduled, setSidakScheduled] = useState<Record<string, boolean>>({});
   const [notifiedIds, setNotifiedIds] = useState<Record<string, boolean>>({});
   const [exportLabel, setExportLabel] = useState("Ekspor Berita Acara (CSV/Excel)");
   const [syncLabel, setSyncLabel] = useState("Sinkronisasi Data Dukcapil & Supabase");
@@ -219,28 +218,9 @@ export default function DashboardPage() {
             href="#ringkasan"
           >
             <span className="material-symbols-outlined text-[20px]">space_dashboard</span>
-            <span className="font-label-lg text-label-lg">Ringkasan Verifikasi</span>
+            <span className="font-label-lg text-label-lg">Dashboard Verifikasi</span>
           </a>
-          <a
-            className="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all"
-            href="#antrean"
-          >
-            <span className="flex items-center gap-space-sm">
-              <span className="material-symbols-outlined text-[20px]">rule</span>
-              <span className="font-label-lg text-label-lg">Antrean Validasi AI</span>
-            </span>
-            <span className="px-2 py-0.5 rounded-full bg-surface-container text-text-heading font-code-sm text-[11px] font-bold">
-              {totalCount}
-            </span>
-          </a>
-          <a
-            className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all"
-            href="#radar"
-          >
-            <span className="material-symbols-outlined text-[20px]">explore</span>
-            <span className="font-label-lg text-label-lg">Radar Geofence PostGIS</span>
-          </a>
-          {activeCase ? (
+          {activeCase && (
             <Link
               className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all"
               href={`/track/${encodeURIComponent(activeCase.tracking_id)}`}
@@ -248,22 +228,14 @@ export default function DashboardPage() {
               <span className="material-symbols-outlined text-[20px]">history_edu</span>
               <span className="font-label-lg text-label-lg">Log Forensik Dokumen</span>
             </Link>
-          ) : (
-            <a
-              className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all"
-              href="#scanner-kk"
-            >
-              <span className="material-symbols-outlined text-[20px]">history_edu</span>
-              <span className="font-label-lg text-label-lg">Log Forensik Dokumen</span>
-            </a>
           )}
-          <a
+          <Link
             className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-secondary font-semibold bg-surface-tint-blue/50 hover:bg-surface-tint-blue transition-all"
-            href="#scanner-kk"
+            href="/"
           >
             <span className="material-symbols-outlined text-[20px]">document_scanner</span>
-            <span className="font-label-lg text-label-lg">Scan &amp; Audit File KK</span>
-          </a>
+            <span className="font-label-lg text-label-lg">Halaman Scan KK Publik</span>
+          </Link>
         </nav>
         <div className="px-space-md pt-space-md mt-auto flex flex-col gap-space-xs">
           <div className="p-space-sm rounded-xl bg-surface-slate border border-border-slate flex flex-col gap-1">
@@ -1291,15 +1263,7 @@ export default function DashboardPage() {
                       <div className="flex items-center justify-between">
                         <span className="text-text-muted">Koordinat GPS:</span>
                         <span className="font-code-sm text-text-heading">
-                          {(activeCase.latitude ?? activeCase.home_lat ?? -6.2297).toFixed(4)}, {(activeCase.longitude ?? activeCase.home_lng ?? 106.8532).toFixed(4)}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-text-muted">Status Sidak Posko:</span>
-                        <span className="font-code-sm text-status-approved font-bold">
-                          {sidakScheduled[activeCase.tracking_id]
-                            ? "TERJADWAL ✓"
-                            : "Belum Dijadwalkan"}
+                          {(activeCase.latitude ?? activeCase.home_lat ?? -7.2468).toFixed(4)}, {(activeCase.longitude ?? activeCase.home_lng ?? 112.6358).toFixed(4)}
                         </span>
                       </div>
                     </div>
@@ -1413,21 +1377,6 @@ export default function DashboardPage() {
                 Tutup
               </button>
               <div className="w-full sm:w-auto flex flex-wrap items-center gap-2 justify-end">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSidakScheduled((p) => ({ ...p, [activeCase.tracking_id]: true }));
-                    showToast(`Tim Sidak Posko dijadwalkan untuk lokasi ${activeCase.student_name}.`);
-                  }}
-                  className="px-3.5 py-2 rounded-lg bg-surface-container text-secondary font-label-md text-xs font-bold hover:bg-surface-tint-blue transition-colors flex items-center gap-1.5"
-                >
-                  <span className="material-symbols-outlined text-[18px]">local_shipping</span>
-                  <span>
-                    {sidakScheduled[activeCase.tracking_id]
-                      ? "Sidak Posko Terjadwal ✓"
-                      : "Jadwalkan Sidak Lapangan"}
-                  </span>
-                </button>
                 <button
                   type="button"
                   onClick={() =>

@@ -140,7 +140,7 @@ export default function LoginPage() {
                       >
                         <option value="KETUA_VERIFIKATOR">Ketua Verifikator</option>
                         <option value="AUDITOR_FORENSIK">Auditor Forensik AI</option>
-                        <option value="PETUGAS_POSKO">Petugas Sidak Posko</option>
+                        <option value="OPERATOR_PPDB">Operator Verifikasi PPDB</option>
                       </select>
                     </div>
                   </div>
