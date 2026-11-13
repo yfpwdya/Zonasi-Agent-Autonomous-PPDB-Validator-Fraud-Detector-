@@ -153,10 +153,10 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
       <div className="space-y-3 pb-4 border-b border-border-slate">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-tint-blue text-secondary font-code-sm text-xs font-bold">
           <span className="material-symbols-outlined text-[16px]">document_scanner</span>
-          <span>AI INSTANT KK FORENSIC SCANNER • KHUSUS PANITIA VERIFIKATOR</span>
+          <span>1X SINGLE-PASS AI KK SCANNER • SMA NEGERI 12 SURABAYA</span>
         </div>
         <h2 className="font-headline-md text-headline-md text-text-heading font-bold">
-          Unggah File Kartu Keluarga (KK) — Deteksi Anomali &amp; Jarak Otomatis
+          Unggah File Kartu Keluarga (KK) — Deteksi Anomali, Usia Siswa (15–17 Thn) &amp; Jarak Otomatis
         </h2>
         <p className="font-body-sm text-body-sm text-text-muted leading-relaxed">
           Titik Acuan Sekolah:{" "}
@@ -164,7 +164,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
             SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Sememi, Kec. Benowo, Surabaya 60198)
           </strong>
           . Cukup unggah foto/scan Kartu Keluarga — <strong>Gemini Vision AI</strong> otomatis membaca{" "}
-          <strong>Nomor KK, NIK, Nama Anak, Alamat, Tanggal Terbit, Status Hubungan Keluarga</strong>, menghitung jarak ke{" "}
+          <strong>Nomor KK, memilih Anak Usia SMA (15–17 Thn), NIK, Alamat, Tanggal Terbit KK, Status Hubungan Keluarga</strong>, menghitung jarak ke{" "}
           <strong>SMAN 12 Surabaya</strong> via <strong>OpenStreetMap / OSRM</strong>, dan mendeteksi indikasi kecurangan zonasi.
         </p>
       </div>
@@ -643,17 +643,33 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
               {/* Aksi Lanjutan Panitia */}
               <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                 <span className="font-code-sm text-xs text-emerald-300">
-                  ✓ Berkas otomatis masuk ke Tabel Antrean &amp; Peta PostGIS di bawah (ID:{" "}
+                  ✓ Berkas otomatis tersimpan di Riwayat Anda &amp; dikirim ke Dashboard Panitia (ID:{" "}
                   <strong>{auditResult.tracking_id}</strong>)
                 </span>
                 {!compact && (
-                  <Link
-                    href={`/track/${encodeURIComponent(auditResult.tracking_id)}`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-secondary text-on-secondary font-label-md text-xs font-bold hover:opacity-95"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                    <span>Buka Lembar Forensik Lengkap ({auditResult.tracking_id})</span>
-                  </Link>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setScanningState("IDLE");
+                        setAuditResult(null);
+                        setFileName(null);
+                        setPreviewUrl(null);
+                        setCondStatusMsg("");
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-white font-label-md text-xs font-semibold transition-all"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">refresh</span>
+                      <span>Pindai KK Lain</span>
+                    </button>
+                    <Link
+                      href={`/track/${encodeURIComponent(auditResult.tracking_id)}`}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-secondary text-on-secondary font-label-md text-xs font-bold hover:opacity-95"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+                      <span>Buka Lembar Forensik Lengkap ({auditResult.tracking_id})</span>
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>

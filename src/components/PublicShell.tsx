@@ -21,8 +21,8 @@ export function PublicHeader() {
       }
     };
     syncMyIds();
-    window.addEventListener("zonasi-my-history-change", syncMyIds);
-    return () => window.removeEventListener("zonasi-my-history-change", syncMyIds);
+    window.addEventListener("zonasi:my-apps-updated", syncMyIds);
+    return () => window.removeEventListener("zonasi:my-apps-updated", syncMyIds);
   }, [pathname]);
 
   const navItems = [

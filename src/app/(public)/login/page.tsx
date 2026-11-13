@@ -47,7 +47,7 @@ export default function LoginPage() {
                 Portal Otoritas Panitia & Verifikator PPDB
               </h1>
               <p className="font-body-sm text-body-sm text-slate-300 leading-relaxed">
-                Seluruh tindakan investigasi kecurangan, penjadwalan sidak lapangan, dan override berkas dicatat dalam audit trail berkekuatan hukum dengan identitas NIP terverifikasi.
+                Seluruh tindakan investigasi kecurangan, verifikasi berkas bersyarat, dan override keputusan panitia pada PPDB SMA Negeri 12 Surabaya dicatat dalam audit trail berkekuatan hukum dengan identitas NIP terverifikasi.
               </p>
             </div>
 

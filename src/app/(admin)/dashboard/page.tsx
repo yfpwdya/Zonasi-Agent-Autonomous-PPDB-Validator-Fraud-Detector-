@@ -26,11 +26,12 @@ export default function DashboardPage() {
   const [exportLabel, setExportLabel] = useState("Ekspor Berita Acara (CSV/Excel)");
   const [syncLabel, setSyncLabel] = useState("Sinkronisasi Data Dukcapil & Supabase");
   const [currentPage, setCurrentPage] = useState(1);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser>({
     id: "default-auditor",
-    email: "panitia.ppdb@sman1-jkt.sch.id",
-    full_name: "Budi Santoso, S.Kom",
-    nip: "198804122015031002",
+    email: "panitia.ppdb@sman12-sby.sch.id",
+    full_name: "Drs. H. Bambang Sudibyo, M.Pd",
+    nip: "197608142003121004",
     role: "KETUA_VERIFIKATOR",
   });
   const [toastMsg, setToastMsg] = useState<string | null>(null);
@@ -271,6 +272,16 @@ export default function DashboardPage() {
       <div className="flex-1 min-w-0 lg:pl-72 flex flex-col">
         <header className="sticky top-0 right-0 h-16 bg-surface-canvas/90 backdrop-blur-md border-b border-border-slate z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              aria-label="Buka menu navigasi panitia"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="lg:hidden p-2 rounded-lg bg-surface-slate text-text-heading hover:bg-surface-container shrink-0"
+            >
+              <span className="material-symbols-outlined text-[20px]">
+                {mobileMenuOpen ? "close" : "menu"}
+              </span>
+            </button>
             <span className="font-headline-sm text-headline-sm text-text-heading font-bold truncate">
               Panel Pengawasan Geospasial
             </span>
@@ -304,6 +315,53 @@ export default function DashboardPage() {
             </div>
           </div>
         </header>
+
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-surface-canvas border-b border-border-slate px-4 py-3 flex flex-col gap-2 shadow-md z-30">
+            <a
+              href="#ringkasan"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-tint-blue text-secondary font-label-lg text-sm font-bold"
+            >
+              <span className="material-symbols-outlined text-[18px]">space_dashboard</span>
+              <span>Dashboard Verifikasi</span>
+            </a>
+            {activeCase && (
+              <Link
+                href={`/track/${encodeURIComponent(activeCase.tracking_id)}`}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-text-heading hover:bg-surface-slate font-label-lg text-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">history_edu</span>
+                <span>Log Forensik Dokumen ({activeCase.tracking_id})</span>
+              </Link>
+            )}
+            <Link
+              href="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-secondary font-label-lg text-sm font-semibold hover:bg-surface-slate"
+            >
+              <span className="material-symbols-outlined text-[18px]">document_scanner</span>
+              <span>Halaman Scan KK Publik</span>
+            </Link>
+            <div className="flex items-center gap-2 pt-2 border-t border-border-slate">
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 text-center py-2 rounded-lg bg-surface-slate text-secondary font-label-md text-xs font-bold"
+              >
+                Ganti Akun
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex-1 text-center py-2 rounded-lg bg-status-fraud-bg text-status-fraud font-label-md text-xs font-bold"
+              >
+                Keluar
+              </button>
+            </div>
+          </div>
+        )}
 
         <main id="ringkasan" className="flex-1 bg-surface">
           <div className="flex flex-col w-full max-w-[1440px] mx-auto gap-6 p-4 sm:p-6 lg:p-8">
@@ -699,16 +757,23 @@ export default function DashboardPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 rounded-xl border border-dashed border-border-slate bg-surface-slate/40 gap-2">
+                  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 rounded-xl border border-dashed border-border-slate bg-surface-slate/40 gap-3">
                     <span className="material-symbols-outlined text-[36px] text-text-muted">
                       folder_off
                     </span>
                     <h3 className="font-headline-sm text-headline-sm text-text-heading font-bold">
-                      Belum Ada Berkas KK
+                      Belum Ada Berkas KK Masuk
                     </h3>
                     <p className="font-body-sm text-xs text-text-muted max-w-xs">
-                      Belum ada berkas KK yang diunggah. Unggah berkas KK di Scanner di atas atau halaman depan untuk memunculkan hasil inspeksi otomatis di sini.
+                      Belum ada berkas KK yang diunggah pendaftar. Silakan buka Halaman Scan KK Publik untuk mengunggah atau menguji sampel berkas KK.
                     </p>
+                    <Link
+                      href="/"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-on-secondary font-label-md text-xs font-bold hover:opacity-95 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">upload_file</span>
+                      <span>Buka Halaman Scan KK →</span>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -891,8 +956,18 @@ export default function DashboardPage() {
                               {app.tracking_id}
                             </Link>
                           </td>
-                          <td className="py-3.5 px-4 font-semibold text-text-heading whitespace-nowrap">
-                            {app.student_name}
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <div className="font-semibold text-text-heading">{app.student_name}</div>
+                            <div
+                              className={`font-code-sm text-[11px] font-bold ${
+                                (app.student_age_valid ?? true)
+                                  ? "text-status-approved"
+                                  : "text-status-fraud"
+                              }`}
+                            >
+                              Lahir: {app.student_birth_date || "-"} ({Math.floor(app.student_age_years ?? 16)} Thn{" "}
+                              {(app.student_age_valid ?? true) ? "✓" : "✗ Anomali Usia"})
+                            </div>
                           </td>
                           <td className="py-3.5 px-4 font-code-sm text-xs text-text-muted whitespace-nowrap">
                             <div>{app.student_nik}</div>
