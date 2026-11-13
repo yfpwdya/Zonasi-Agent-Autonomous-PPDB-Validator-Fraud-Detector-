@@ -35,10 +35,10 @@ export type OcrResult = {
 };
 
 const GEMINI_VISION_MODELS = [
-  "gemini-3.5-flash",
-  "gemini-3.5-flash-lite",
-  "gemini-3.1-flash-lite",
+  "gemini-flash-lite-latest",
   "gemini-3-flash-preview",
+  "gemini-flash-latest",
+  "gemini-3.1-flash-lite-preview",
 ];
 
 // ponytail: parse tanggal lahir dari kolom Tanggal Lahir KK atau dari 6 digit tengah NIK (DDMMYY; wanita DD+40)
@@ -56,7 +56,9 @@ export function resolveBirthDateAndAge(rawBirthDate?: string, nik?: string): {
     isoDate = `${yyyy}-${mm}-${dd}`;
   }
 
-  if (!isoDate && nik) {
+  // 6 digit tengah NIK Dukcapil (DDMMYY; wanita DD+40) adalah sumber kebenaran kriptografis tanggal lahir
+  let nikDate = "";
+  if (nik) {
     const digits = nik.replace(/\D/g, "");
     if (digits.length === 16) {
       let dd = Number(digits.slice(6, 8));
@@ -65,9 +67,14 @@ export function resolveBirthDateAndAge(rawBirthDate?: string, nik?: string): {
       if (dd > 40) dd -= 40;
       if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
         const yyyy = yy <= 30 ? 2000 + yy : 1900 + yy;
-        isoDate = `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+        nikDate = `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
       }
     }
+  }
+
+  // Jika tahun dari OCR meleset > 1 tahun dari NIK 16-digit yang valid, prioritaskan tanggal dari NIK
+  if (nikDate && (!isoDate || Math.abs(Number(isoDate.slice(0, 4)) - Number(nikDate.slice(0, 4))) > 1)) {
+    isoDate = nikDate;
   }
 
   if (!isoDate) {
@@ -180,7 +187,8 @@ export async function analyzeKKDocument(params: {
   studentBirthDateHint?: string;
 }): Promise<OcrResult> {
   const geminiKey = process.env.GEMINI_API_KEY;
-  if (geminiKey && params.kkImageBase64) {
+  const isSvgPreset = (params.kkImageBase64 || "").startsWith("data:image/svg+xml");
+  if (geminiKey && params.kkImageBase64 && !isSvgPreset) {
     try {
       const mimeMatch = params.kkImageBase64.match(/^data:([^;]+);base64,/);
       const mimeType = mimeMatch?.[1] || "image/jpeg";
@@ -219,155 +227,175 @@ Aturan Penting Pemilihan Calon Siswa di Tabel KK:
 3. Jika isi KK disamarkan dengan huruf XXXXX atau merupakan contoh/specimen/dummy, set "isMaskedOrDummy": true, "familyRelation": "UNREADABLE", dan "ocrConfidence": 68.`;
 
       for (const model of GEMINI_VISION_MODELS) {
-        const res = await axios.post(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
-          {
-            contents: [
-              {
-                parts: [
-                  { text: prompt },
-                  { inline_data: { mime_type: mimeType, data: cleaned } },
-                ],
-              },
-            ],
-            generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
-          },
-          { timeout: 25000, validateStatus: () => true },
-        );
+        try {
+          const res = await axios.post(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+            {
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    { inline_data: { mime_type: mimeType, data: cleaned } },
+                  ],
+                },
+              ],
+              generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
+            },
+            { timeout: 14000, validateStatus: () => true },
+          );
 
-        if (res.status < 200 || res.status >= 300) continue;
+          if (res.status < 200 || res.status >= 300) continue;
 
-        const data = res.data;
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-        const parsed = JSON.parse(text);
-        const isDummy =
-          Boolean(parsed.isMaskedOrDummy) ||
-          parsed.familyRelation === "UNREADABLE" ||
-          String(parsed.kkNumberDetected || "").includes("XXX") ||
-          String(parsed.studentNameDetected || "").includes("XXX");
+          const data = res.data;
+          const rawText = String(data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}")
+            .replace(/^```json\s*/i, "")
+            .replace(/^```\s*/i, "")
+            .replace(/\s*```$/i, "")
+            .trim();
+          const parsed = JSON.parse(rawText);
+          const isDummy =
+            Boolean(parsed.isMaskedOrDummy) ||
+            parsed.familyRelation === "UNREADABLE" ||
+            String(parsed.kkNumberDetected || "").includes("XXX") ||
+            String(parsed.studentNameDetected || "").includes("XXX");
 
-        const rawDate = String(parsed.kkIssueDate || "2023-01-01").replace(/-00/g, "-01");
-        const parsedTime = new Date(rawDate).getTime();
-        const validDate = Number.isNaN(parsedTime) ? "2023-01-01" : rawDate;
-        const ageMs = Date.now() - new Date(validDate).getTime();
-        const kkAgeYears = Math.max(0, Number((ageMs / (365.25 * 86400_000)).toFixed(1)));
-        const rawConf = Number(parsed.ocrConfidence ?? 95);
-        const normConf =
-          rawConf <= 1 ? Number((rawConf * 100).toFixed(1)) : Number(rawConf.toFixed(1));
+          const rawDate = String(parsed.kkIssueDate || "2023-01-01").replace(/-00/g, "-01");
+          const parsedTime = new Date(rawDate).getTime();
+          const validDate = Number.isNaN(parsedTime) ? "2023-01-01" : rawDate;
+          const ageMs = Date.now() - new Date(validDate).getTime();
+          const kkAgeYears = Math.max(0, Number((ageMs / (365.25 * 86400_000)).toFixed(1)));
+          const rawConf = Number(parsed.ocrConfidence ?? 95);
+          const normConf =
+            rawConf <= 1 ? Number((rawConf * 100).toFixed(1)) : Number(rawConf.toFixed(1));
 
-        const members: KKMemberExtracted[] = Array.isArray(parsed.familyMembers)
-          ? parsed.familyMembers.map((m: Record<string, unknown>) => {
-              const mNik = String(m.nik || "");
-              const mBirth = resolveBirthDateAndAge(String(m.birthDate || ""), mNik);
-              return {
-                nik: mNik,
-                name: String(m.name || ""),
-                birthDate: mBirth.birthDate,
-                ageYears: mBirth.ageYears,
-                relation:
-                  m.relation === "KEPALA_KELUARGA" ||
-                  m.relation === "ISTRI" ||
-                  m.relation === "ANAK_KANDUNG"
-                    ? m.relation
-                    : "FAMILI_LAIN",
-              };
-            })
-          : [];
+          const members: KKMemberExtracted[] = Array.isArray(parsed.familyMembers)
+            ? parsed.familyMembers.map((m: Record<string, unknown>) => {
+                const mNik = String(m.nik || "");
+                const mBirth = resolveBirthDateAndAge(String(m.birthDate || ""), mNik);
+                return {
+                  nik: mNik,
+                  name: String(m.name || ""),
+                  birthDate: mBirth.birthDate,
+                  ageYears: mBirth.ageYears,
+                  relation:
+                    m.relation === "KEPALA_KELUARGA" ||
+                    m.relation === "ISTRI" ||
+                    m.relation === "ANAK_KANDUNG"
+                      ? m.relation
+                      : "FAMILI_LAIN",
+                };
+              })
+            : [];
 
-        // Pilih anak yang usianya paling memungkinkan untuk masuk SMA (15-17 tahun), bukan asal baris anak pertama!
-        const bestChild = selectBestStudentCandidate(
-          members,
-          String(parsed.studentNameDetected || ""),
-          String(parsed.studentNikDetected || ""),
-        );
+          // Pilih anak yang usianya paling memungkinkan untuk masuk SMA (15-17 tahun), bukan asal baris anak pertama!
+          const bestChild = selectBestStudentCandidate(
+            members,
+            String(parsed.studentNameDetected || ""),
+            String(parsed.studentNikDetected || ""),
+          );
 
-        const detectedNik = String(
-          bestChild?.nik ||
-            parsed.studentNikDetected ||
-            (isDummy ? "3578XXXXXXXX0002" : "3578191405100002"),
-        );
-        const detectedName = String(
-          bestChild?.name ||
-            parsed.studentNameDetected ||
-            (isDummy ? "XXXXXXX (Dokumen Dummy / Disensor)" : "Tidak Terbaca"),
-        );
-        const birthInfo = resolveBirthDateAndAge(
-          String(bestChild?.birthDate || parsed.studentBirthDate || params.studentBirthDateHint || ""),
-          detectedNik,
-        );
-        const rel: "ANAK_KANDUNG" | "FAMILI_LAIN" =
-          !isDummy &&
-          (bestChild?.relation === "ANAK_KANDUNG" || parsed.familyRelation === "ANAK_KANDUNG")
-            ? "ANAK_KANDUNG"
-            : "FAMILI_LAIN";
+          const detectedNik = String(
+            bestChild?.nik ||
+              parsed.studentNikDetected ||
+              (isDummy ? "3578XXXXXXXX0002" : "0000000000000000"),
+          );
+          const detectedName = String(
+            bestChild?.name ||
+              parsed.studentNameDetected ||
+              (isDummy ? "XXXXXXX (Dokumen Dummy / Disensor)" : "Tidak Terbaca"),
+          );
+          const birthInfo = resolveBirthDateAndAge(
+            String(bestChild?.birthDate || parsed.studentBirthDate || params.studentBirthDateHint || ""),
+            detectedNik,
+          );
+          const rel: "ANAK_KANDUNG" | "FAMILI_LAIN" =
+            !isDummy &&
+            (bestChild?.relation === "ANAK_KANDUNG" || parsed.familyRelation === "ANAK_KANDUNG")
+              ? "ANAK_KANDUNG"
+              : "FAMILI_LAIN";
 
-        const rawAddress = String(parsed.addressDetected || "").trim();
-        const addressDetected =
-          rawAddress && rawAddress !== "XXXXXXX"
-            ? rawAddress
-            : isDummy
-            ? `Dokumen Dummy / Alamat Disensor (${params.kkImageName || "KK Contoh"})`
-            : "Jl. Sememi Jaya IV No. 12, Kel. Sememi, Kec. Benowo, Surabaya";
+          const rawAddress = String(parsed.addressDetected || "").trim();
+          const addressDetected =
+            rawAddress && rawAddress !== "XXXXXXX"
+              ? rawAddress
+              : isDummy
+              ? `Dokumen Dummy / Alamat Disensor (${params.kkImageName || "KK Contoh"})`
+              : "Alamat Tidak Terbaca pada KK";
 
-        const fallbackGeo = geocodeAddressFallback(addressDetected);
-        const estimatedLat =
-          !isDummy &&
-          typeof parsed.estimatedLat === "number" &&
-          parsed.estimatedLat >= -11 &&
-          parsed.estimatedLat <= 6
-            ? Number(parsed.estimatedLat.toFixed(6))
-            : fallbackGeo.lat;
-        const estimatedLng =
-          !isDummy &&
-          typeof parsed.estimatedLng === "number" &&
-          parsed.estimatedLng >= 95 &&
-          parsed.estimatedLng <= 141
-            ? Number(parsed.estimatedLng.toFixed(6))
-            : fallbackGeo.lng;
+          const fallbackGeo = geocodeAddressFallback(addressDetected);
+          const estimatedLat =
+            !isDummy &&
+            typeof parsed.estimatedLat === "number" &&
+            parsed.estimatedLat >= -11 &&
+            parsed.estimatedLat <= 6
+              ? Number(parsed.estimatedLat.toFixed(6))
+              : fallbackGeo.lat;
+          const estimatedLng =
+            !isDummy &&
+            typeof parsed.estimatedLng === "number" &&
+            parsed.estimatedLng >= 95 &&
+            parsed.estimatedLng <= 141
+              ? Number(parsed.estimatedLng.toFixed(6))
+              : fallbackGeo.lng;
 
-        return {
-          kkIssueDate: validDate,
-          kkAgeYears,
-          kkAgeValid: !isDummy && kkAgeYears >= 1,
-          familyRelation: rel,
-          familyRelationValid: !isDummy && rel === "ANAK_KANDUNG",
-          studentBirthDate: birthInfo.birthDate,
-          studentAgeYears: birthInfo.ageYears,
-          studentAgeValid: !isDummy && birthInfo.ageValid,
-          ocrConfidence: isDummy ? Math.min(normConf, 68.0) : normConf,
-          ocrNotes: String(
-            parsed.notes ||
-              (isDummy
-                ? "Terdeteksi Kartu Keluarga contoh/dummy yang disensor (XXXXX)."
-                : `Terpilih calon siswa SMA: ${detectedName} (Lahir: ${birthInfo.birthDate}, Usia: ${Math.floor(birthInfo.ageYears)} Thn).`),
-          ),
-          kkNumberDetected: String(parsed.kkNumberDetected || params.kkNumber),
-          studentNikDetected: detectedNik,
-          studentNameDetected: detectedName,
-          headOfFamilyName: String(parsed.headOfFamilyName || (isDummy ? "XXXXXXX" : "-")),
-          addressDetected,
-          estimatedLat,
-          estimatedLng,
-          isMaskedOrDummy: isDummy,
-          detectedBuildingHint:
-            parsed.detectedBuildingHint === "COMMERCIAL" ||
-            parsed.detectedBuildingHint === "EMPTY_LAND" ||
-            parsed.detectedBuildingHint === "NO_STREET_VIEW"
-              ? parsed.detectedBuildingHint
-              : "RESIDENTIAL",
-          nikMatched: !isDummy,
-          nameMatched: !isDummy,
-          familyMembers: members,
-          modelUsed: model,
-        };
+          return {
+            kkIssueDate: validDate,
+            kkAgeYears,
+            kkAgeValid: !isDummy && kkAgeYears >= 1,
+            familyRelation: rel,
+            familyRelationValid: !isDummy && rel === "ANAK_KANDUNG",
+            studentBirthDate: birthInfo.birthDate,
+            studentAgeYears: birthInfo.ageYears,
+            studentAgeValid: !isDummy && birthInfo.ageValid,
+            ocrConfidence: isDummy ? Math.min(normConf, 68.0) : normConf,
+            ocrNotes: String(
+              parsed.notes ||
+                (isDummy
+                  ? "Terdeteksi Kartu Keluarga contoh/dummy yang disensor (XXXXX)."
+                  : `Terpilih calon siswa SMA: ${detectedName} (Lahir: ${birthInfo.birthDate}, Usia: ${Math.floor(birthInfo.ageYears)} Thn).`),
+            ),
+            kkNumberDetected: String(parsed.kkNumberDetected || params.kkNumber),
+            studentNikDetected: detectedNik,
+            studentNameDetected: detectedName,
+            headOfFamilyName: String(parsed.headOfFamilyName || (isDummy ? "XXXXXXX" : "-")),
+            addressDetected,
+            estimatedLat,
+            estimatedLng,
+            isMaskedOrDummy: isDummy,
+            detectedBuildingHint:
+              parsed.detectedBuildingHint === "COMMERCIAL" ||
+              parsed.detectedBuildingHint === "EMPTY_LAND" ||
+              parsed.detectedBuildingHint === "NO_STREET_VIEW"
+                ? parsed.detectedBuildingHint
+                : "RESIDENTIAL",
+            nikMatched: !isDummy,
+            nameMatched: !isDummy,
+            familyMembers: members,
+            modelUsed: model,
+          };
+        } catch {
+          continue;
+        }
       }
     } catch {
-      // fall through to deterministic heuristic
+      // fall through only if base64 decoding fails
     }
   }
 
-  // Deterministic fallback when no base64 or offline
+  // Deterministic fallback ONLY for preset SVG samples (image/svg+xml aren't supported by Gemini Vision) or offline mode
   const name = (params.kkImageName || "").toLowerCase();
+  const isPresetSample =
+    name.includes("kk_valid_nadia") ||
+    name.includes("kk_fraud_titipkk") ||
+    name.includes("kk_dummy_disensor") ||
+    (params.kkImageBase64 || "").startsWith("data:image/svg+xml");
+
+  if (!isPresetSample && params.kkImageBase64) {
+    throw new Error(
+      "Layanan AI OCR sedang sibuk atau koneksi ke Gemini Vision terputus. Silakan klik Pindai Ulang agar data KK asli Anda diekstrak secara akurat.",
+    );
+  }
+
   const isDummyFile = name.includes("dummy") || name.includes("blur") || name.includes("contoh");
   const isRecentFraud =
     name.includes("baru") || name.includes("fraud") || name.includes("titip") || params.kkNumber.endsWith("0004");

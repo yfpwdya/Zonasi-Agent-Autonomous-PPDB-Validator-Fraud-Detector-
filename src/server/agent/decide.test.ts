@@ -58,6 +58,11 @@ test("resolveBirthDateAndAge: extracts birth date from KK or NIK and enforces 15
   const tooOld18FromNik = resolveBirthDateAndAge(undefined, "3578192809070004");
   assert.equal(tooOld18FromNik.birthDate, "2007-09-28");
   assert.equal(tooOld18FromNik.ageValid, false);
+
+  // Jika OCR salah baca tahun lahir (misal 2010) padahal 6 digit tengah NIK menunjukkan 27-06-2018 (3216072706180005), wajib koreksi ke 2018-06-27
+  const correctedFromNik = resolveBirthDateAndAge("2010-06-27", "3216072706180005");
+  assert.equal(correctedFromNik.birthDate, "2018-06-27");
+  assert.equal(correctedFromNik.ageValid, false);
 });
 
 test("selectBestStudentCandidate: picks the sibling whose age is closest to SMA (15-17 yrs) instead of older adult sibling", () => {
