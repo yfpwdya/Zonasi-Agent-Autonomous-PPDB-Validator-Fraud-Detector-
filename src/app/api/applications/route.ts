@@ -336,7 +336,7 @@ export async function POST(req: NextRequest) {
         // Match exact columns in 0001_init_zonasi_schema.sql
         const dbPayload = {
           tracking_id: record.tracking_id,
-          student_nik: `${record.student_nik.slice(0, 12)}${uniqueSuffix}`,
+          student_nik: record.student_nik,
           student_name: record.student_name,
           kk_number: record.kk_number,
           home_lat: record.home_lat,
@@ -357,11 +357,31 @@ export async function POST(req: NextRequest) {
           updated_at: nowIso,
         };
 
-        const { data: appRow } = await sb
+        const { data: existingDup } = await sb
           .from("applications")
-          .upsert(dbPayload, { onConflict: "tracking_id" })
-          .select("id")
-          .single();
+          .select("id, tracking_id")
+          .or(`tracking_id.eq.${record.tracking_id},kk_number.eq.${record.kk_number}`)
+          .limit(1)
+          .maybeSingle();
+
+        let appRow: { id: string } | null = null;
+        if (existingDup?.id) {
+          record.tracking_id = String(existingDup.tracking_id || record.tracking_id);
+          const { data: updatedRow } = await sb
+            .from("applications")
+            .update({ ...dbPayload, tracking_id: record.tracking_id })
+            .eq("id", existingDup.id)
+            .select("id")
+            .single();
+          appRow = updatedRow;
+        } else {
+          const { data: insertedRow } = await sb
+            .from("applications")
+            .insert(dbPayload)
+            .select("id")
+            .single();
+          appRow = insertedRow;
+        }
 
         if (appRow?.id) {
           record.id = String(appRow.id);

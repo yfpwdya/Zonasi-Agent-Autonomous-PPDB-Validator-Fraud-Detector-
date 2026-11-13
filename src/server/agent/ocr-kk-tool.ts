@@ -72,18 +72,65 @@ export function resolveBirthDateAndAge(rawBirthDate?: string, nik?: string): {
     isoDate = "2010-05-14";
   }
 
-  // Hitung usia per tahun berjalan PPDB (2026) atau waktu nyata
-  const refTime = Math.max(Date.now(), new Date("2026-07-01T00:00:00Z").getTime());
+  // Hitung usia per tahun berjalan
+  const refTime = Date.now();
   const birthTime = new Date(isoDate).getTime();
   const ageYears = Number.isNaN(birthTime)
     ? 16.0
     : Math.max(0, Number(((refTime - birthTime) / (365.25 * 86400_000)).toFixed(1)));
 
-  // Syarat usia masuk SMA: minimal 15 tahun, paling tua 17 tahun (15.0 <= usia < 18.0 / <= 17.9)
+  // Syarat usia masuk SMA: minimal 15 tahun, paling tua 17 tahun (15 <= usia bulat <= 17)
   const wholeAge = Math.floor(ageYears);
   const ageValid = wholeAge >= 15 && wholeAge <= 17;
 
   return { birthDate: isoDate, ageYears, ageValid };
+}
+
+// ponytail: pilih anggota keluarga (ANAK_KANDUNG / FAMILI_LAIN) yang umurnya paling memungkinkan untuk masuk SMA (15-17 tahun)
+export function selectBestStudentCandidate(
+  members: KKMemberExtracted[],
+  aiPickedName?: string,
+  aiPickedNik?: string,
+): KKMemberExtracted | undefined {
+  if (!members || members.length === 0) return undefined;
+
+  // Kandidat anak adalah semua baris yang BUKAN Kepala Keluarga / Istri
+  const children = members.filter(
+    (m) => m.relation !== "KEPALA_KELUARGA" && m.relation !== "ISTRI",
+  );
+  const pool = children.length > 0 ? children : members;
+
+  // 1) Prioritas utama: Anak yang usianya tepat memenuhi syarat SMA (15 s.d. 17 tahun)
+  const validSmaChildren = pool.filter((m) => {
+    const w = Math.floor(m.ageYears ?? 0);
+    return w >= 15 && w <= 17;
+  });
+  if (validSmaChildren.length > 0) {
+    // Jika AI memilih salah satu di antara yang valid 15-17 tahun, gunakan itu; jika tidak, ambil yang paling dekat 16 tahun
+    const aiMatch = validSmaChildren.find(
+      (m) =>
+        (aiPickedNik && m.nik === aiPickedNik) ||
+        (aiPickedName && m.name.toLowerCase() === aiPickedName.toLowerCase()),
+    );
+    return (
+      aiMatch ||
+      validSmaChildren.sort(
+        (a, b) => Math.abs((a.ageYears ?? 16) - 16) - Math.abs((b.ageYears ?? 16) - 16),
+      )[0]
+    );
+  }
+
+  // 2) Jika tidak ada yang tepat 15-17 tahun (misal di KK ada beberapa kakak-beradik usia 25 thn dan 18 thn),
+  // pilih anak yang usianya PALING MENDEKATI rentang SMA (15-17 tahun / titik tengah 16.0 tahun), bukan kakak tertua!
+  const sortedByClosenessToSma = [...pool].sort((a, b) => {
+    const ageA = a.ageYears ?? 99;
+    const ageB = b.ageYears ?? 99;
+    const distA = ageA < 15 ? 15 - ageA : ageA > 17 ? ageA - 17 : 0;
+    const distB = ageB < 15 ? 15 - ageB : ageB > 17 ? ageB - 17 : 0;
+    return distA - distB;
+  });
+
+  return sortedByClosenessToSma[0];
 }
 
 // ponytail: deterministic address-to-coordinate lookup relative to SMAN 12 Surabaya (-7.2468, 112.6358)
@@ -147,9 +194,9 @@ Kembalikan HANYA JSON valid dengan skema persis berikut:
   "estimatedLat": -7.2489,
   "estimatedLng": 112.6382,
   "detectedBuildingHint": "RESIDENTIAL" | "COMMERCIAL" | "EMPTY_LAND" | "NO_STREET_VIEW",
-  "studentNameDetected": "Nama lengkap anak usia sekolah / calon peserta didik SMA di tabel KK",
-  "studentNikDetected": "16 digit NIK anak / calon peserta didik di tabel KK",
-  "studentBirthDate": "YYYY-MM-DD (tanggal lahir anak dari kolom Tanggal Lahir pada tabel KK atau dari 6 digit tengah NIK)",
+  "studentNameDetected": "Nama lengkap ANAK yang usianya paling memungkinkan untuk masuk SMA (prioritaskan anak usia 15-17 tahun / kelahiran 2009-2011; jika ada beberapa anak di KK, JANGAN pilih kakak yang sudah kuliah/dewasa usia >18 tahun atau adik SD, pilih anak yang usianya paling dekat dengan 15-17 tahun!)",
+  "studentNikDetected": "16 digit NIK dari anak yang dipilih sebagai studentNameDetected",
+  "studentBirthDate": "YYYY-MM-DD (tanggal lahir dari anak yang dipilih sebagai studentNameDetected)",
   "kkIssueDate": "YYYY-MM-DD (tanggal Dikeluarkan di bagian bawah KK; jika tertulis 00-00-2023 tulis 2023-01-01)",
   "isMaskedOrDummy": boolean,
   "familyRelation": "ANAK_KANDUNG" | "FAMILI_LAIN" | "UNREADABLE",
@@ -162,13 +209,12 @@ Kembalikan HANYA JSON valid dengan skema persis berikut:
       "relation": "KEPALA_KELUARGA" | "ISTRI" | "ANAK_KANDUNG" | "FAMILI_LAIN"
     }
   ],
-  "notes": "Ringkasan forensik Bahasa Indonesia tentang dokumen KK ini terhadap zonasi SMAN 12 Surabaya (sebutkan No KK, Kepala Keluarga, Nama Anak, Tanggal Lahir & Usia Anak apakah memenuhi syarat SMA 15-17 tahun, Alamat, Tanggal Terbit KK, serta anomali jika ada)"
+  "notes": "Ringkasan forensik Bahasa Indonesia tentang dokumen KK ini terhadap zonasi SMAN 12 Surabaya (sebutkan No KK, Kepala Keluarga, Nama Anak yang dipilih, Tanggal Lahir & Usia Anak apakah memenuhi syarat SMA 15-17 tahun, Alamat, Tanggal Terbit KK, serta anomali jika ada)"
 }
-Aturan Penting:
-- Syarat umur calon siswa SMA: minimal 15 tahun dan maksimal 17 tahun. Baca kolom Tanggal Lahir anak pada tabel KK secara teliti!
-- Jika isi KK disamarkan dengan huruf XXXXX atau merupakan contoh/specimen/dummy, set "isMaskedOrDummy": true, "familyRelation": "UNREADABLE", dan "ocrConfidence": 68.
-- Jika alamat mengindikasikan Ruko / Pertokoan / Komersial, set "detectedBuildingHint": "COMMERCIAL". Jika Gang Sempit, set "NO_STREET_VIEW". Selain itu "RESIDENTIAL".
-- Berikan "estimatedLat" dan "estimatedLng" sesuai lokasi nyata alamat pada KK.`;
+Aturan Penting Pemilihan Calon Siswa di Tabel KK:
+1. Di dalam Kartu Keluarga sering terdapat lebih dari 1 anak (kakak dan adik). Wajib ekstrak SEMUA baris anggota keluarga lengkap dengan "birthDate" (YYYY-MM-DD) ke dalam array "familyMembers".
+2. Untuk "studentNameDetected", "studentNikDetected", dan "studentBirthDate", PILIH ANAK yang usianya memenuhi syarat masuk SMA (15 s.d. 17 tahun) atau yang tanggal lahirnya paling mendekati usia SMA (15-17 tahun). JANGAN mengambil anak pertama jika anak pertama sudah berusia dewasa (misal lahir tahun 2000 / usia 26 tahun) sementara ada adik yang lebih muda!
+3. Jika isi KK disamarkan dengan huruf XXXXX atau merupakan contoh/specimen/dummy, set "isMaskedOrDummy": true, "familyRelation": "UNREADABLE", dan "ocrConfidence": 68.`;
 
       for (const model of GEMINI_VISION_MODELS) {
         const res = await fetch(
@@ -229,28 +275,30 @@ Aturan Penting:
             })
           : [];
 
-        const childMember =
-          members.find((m) => m.relation === "ANAK_KANDUNG") ||
-          members.find((m) => m.relation === "FAMILI_LAIN") ||
-          members[members.length - 1];
+        // Pilih anak yang usianya paling memungkinkan untuk masuk SMA (15-17 tahun), bukan asal baris anak pertama!
+        const bestChild = selectBestStudentCandidate(
+          members,
+          String(parsed.studentNameDetected || ""),
+          String(parsed.studentNikDetected || ""),
+        );
 
         const detectedNik = String(
-          parsed.studentNikDetected ||
-            childMember?.nik ||
+          bestChild?.nik ||
+            parsed.studentNikDetected ||
             (isDummy ? "3578XXXXXXXX0002" : "3578191405100002"),
         );
         const detectedName = String(
-          parsed.studentNameDetected ||
-            childMember?.name ||
+          bestChild?.name ||
+            parsed.studentNameDetected ||
             (isDummy ? "XXXXXXX (Dokumen Dummy / Disensor)" : "Tidak Terbaca"),
         );
         const birthInfo = resolveBirthDateAndAge(
-          String(parsed.studentBirthDate || childMember?.birthDate || params.studentBirthDateHint || ""),
+          String(bestChild?.birthDate || parsed.studentBirthDate || params.studentBirthDateHint || ""),
           detectedNik,
         );
         const rel: "ANAK_KANDUNG" | "FAMILI_LAIN" =
           !isDummy &&
-          (childMember?.relation === "ANAK_KANDUNG" || parsed.familyRelation === "ANAK_KANDUNG")
+          (bestChild?.relation === "ANAK_KANDUNG" || parsed.familyRelation === "ANAK_KANDUNG")
             ? "ANAK_KANDUNG"
             : "FAMILI_LAIN";
 
@@ -292,7 +340,7 @@ Aturan Penting:
             parsed.notes ||
               (isDummy
                 ? "Terdeteksi Kartu Keluarga contoh/dummy yang disensor (XXXXX)."
-                : "Ekstraksi KK terpadu (OCR + Usia + Peta + Anomali) via Gemini Vision berhasil."),
+                : `Terpilih calon siswa SMA: ${detectedName} (Lahir: ${birthInfo.birthDate}, Usia: ${Math.floor(birthInfo.ageYears)} Thn).`),
           ),
           kkNumberDetected: String(parsed.kkNumberDetected || params.kkNumber),
           studentNikDetected: detectedNik,
@@ -333,8 +381,6 @@ Aturan Penting:
   const familyRelation: "ANAK_KANDUNG" | "FAMILI_LAIN" =
     isDummyFile || isRecentFraud ? "FAMILI_LAIN" : "ANAK_KANDUNG";
 
-  // NIK 3578191405100002 -> Lahir 14-05-2010 (16 tahun di 2026 -> Valid SMA 15-17 thn)
-  // Jika simulasi fraud/umur tidak sesuai -> Lahir 28-09-2007 (18.8 tahun -> > 17 thn)
   const detectedNik = isDummyFile
     ? "3578XXXXXXXX0002"
     : isRecentFraud || isUnderOrOverAge

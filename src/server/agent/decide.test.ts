@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { decideVerificationStatus } from "./orchestrator.ts";
-import { resolveBirthDateAndAge } from "./ocr-kk-tool.ts";
+import { resolveBirthDateAndAge, selectBestStudentCandidate } from "./ocr-kk-tool.ts";
 
 test("decideVerificationStatus: APPROVED when all checks pass (including SMA age 15-17 yrs)", () => {
   const res = decideVerificationStatus({
@@ -58,4 +58,49 @@ test("resolveBirthDateAndAge: extracts birth date from KK or NIK and enforces 15
   const tooOld18FromNik = resolveBirthDateAndAge(undefined, "3578192809070004");
   assert.equal(tooOld18FromNik.birthDate, "2007-09-28");
   assert.equal(tooOld18FromNik.ageValid, false);
+});
+
+test("selectBestStudentCandidate: picks the sibling whose age is closest to SMA (15-17 yrs) instead of older adult sibling", () => {
+  const family = [
+    {
+      nik: "3578061001720001",
+      name: "EDY WIDODO",
+      birthDate: "1972-01-10",
+      ageYears: 54.4,
+      relation: "KEPALA_KELUARGA" as const,
+    },
+    {
+      nik: "3578060306000004",
+      name: "MAJID PUTRA WIDYA",
+      birthDate: "2000-06-03",
+      ageYears: 26.0,
+      relation: "ANAK_KANDUNG" as const,
+    },
+    {
+      nik: "3578061606070004",
+      name: "YAFI PUTRA WIDYA",
+      birthDate: "2007-06-16",
+      ageYears: 18.9,
+      relation: "ANAK_KANDUNG" as const,
+    },
+  ];
+
+  // Walaupun AI sempat menyebut nama kakak tertua (MAJID, 26 thn), fungsi harus memilih anak yang usianya paling dekat rentang SMA 15-17 thn (YAFI, 18.9 thn)
+  const picked = selectBestStudentCandidate(family, "MAJID PUTRA WIDYA", "3578060306000004");
+  assert.equal(picked?.name, "YAFI PUTRA WIDYA");
+  assert.equal(picked?.nik, "3578061606070004");
+
+  // Jika ada adik yang pas berusia 15-17 tahun (misal 16 tahun), wajib pilih adik tersebut
+  const familyWith16 = [
+    ...family,
+    {
+      nik: "3578061405100002",
+      name: "ADIK PUTRA WIDYA",
+      birthDate: "2010-05-14",
+      ageYears: 16.0,
+      relation: "ANAK_KANDUNG" as const,
+    },
+  ];
+  const picked16 = selectBestStudentCandidate(familyWith16, "MAJID PUTRA WIDYA");
+  assert.equal(picked16?.name, "ADIK PUTRA WIDYA");
 });

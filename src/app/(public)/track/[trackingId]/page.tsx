@@ -60,7 +60,7 @@ export default function TrackPage({
           const app: ApplicationRecord = fetchedApp;
           setAppData(app);
           setStudentName(app.student_name);
-          if (app.kk_image_url?.startsWith("http")) {
+          if (app.kk_image_url?.startsWith("http") || app.kk_image_url?.startsWith("data:")) {
             setUploadedPreviewUrl(app.kk_image_url);
           }
           const now = new Date().toTimeString().slice(0, 8);
@@ -741,13 +741,22 @@ export default function TrackPage({
                     <div className="grid grid-cols-2 gap-2 mb-2">
                       <div className="relative p-2 bg-cyan-50/60 rounded z-10">
                         <span className="absolute -top-2 right-1 bg-secondary text-white font-code-sm text-[8px] px-1 rounded uppercase">
-                          Nama Terdaftar
+                          Anak Usia SMA (15–17 Thn)
                         </span>
                         <p className="font-code-sm text-[10px] text-slate-500 leading-tight">
-                          Nama Calon Siswa
+                          Calon Siswa Terdeteksi
                         </p>
                         <p className="font-body-md text-[12px] font-bold text-slate-900 leading-tight truncate">
                           {appData.student_name}
+                        </p>
+                        <p
+                          className={`font-code-sm text-[10px] font-bold leading-tight mt-0.5 ${
+                            (appData.student_age_valid ?? true)
+                              ? "text-status-approved"
+                              : "text-status-fraud"
+                          }`}
+                        >
+                          Lahir: {appData.student_birth_date || "-"} ({Math.floor(appData.student_age_years ?? 16)} Thn)
                         </p>
                       </div>
                       <div className="relative p-2 bg-emerald-50/60 rounded z-10">
