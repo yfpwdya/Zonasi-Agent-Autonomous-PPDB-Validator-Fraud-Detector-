@@ -1103,7 +1103,6 @@ export default function DashboardPage() {
       {/* Modal Dialog Investigasi Forensik & Override Panitia (Dynamic per Selected Applicant) */}
       {modalOpen && activeCase && (
         <div
-          id="modal-forensic-investigation"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-on-surface/60 backdrop-blur-sm overflow-y-auto"
         >
           <div className="bg-surface-canvas rounded-2xl shadow-xl w-full max-w-5xl my-auto overflow-hidden flex flex-col border border-border-slate max-h-[92vh]">

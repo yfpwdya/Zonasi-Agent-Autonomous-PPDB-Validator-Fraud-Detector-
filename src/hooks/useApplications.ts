@@ -4,7 +4,6 @@ import {
   createApplication,
   getApplication,
   getApplications,
-  previewOcr,
   updateApplication,
   verifyLivePhoto,
 } from "@/api/applications";
@@ -49,4 +48,3 @@ export const useCreateApplication = () => {
 };
 export const useUpdateApplication = () => useAppMutation(updateApplication);
 export const useVerifyLivePhoto = () => useAppMutation(verifyLivePhoto);
-export const useOcrPreview = () => useMutation({ mutationFn: previewOcr });

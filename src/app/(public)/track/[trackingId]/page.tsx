@@ -1,7 +1,6 @@
 "use client";
 import { use, useEffect, useRef, useState } from "react";
 import { FadeIn } from "@/components/animations/FadeIn";
-import { supabaseBrowser } from "@/lib/supabase";
 import type { ApplicationRecord } from "@/types";
 import { useApplication, useCreateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
 import { usePanitiaSession } from "@/hooks/useAuth";
@@ -160,29 +159,8 @@ export default function TrackPage({
       idx++;
     }, 3500);
 
-    const channel = supabaseBrowser
-      ?.channel(`track-${trackingId}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "agent_audit_logs" },
-        (payload) => {
-          const now = new Date().toTimeString().slice(0, 8);
-          setExtraLogs((prev) => [
-            ...prev,
-            {
-              time: now,
-              agent: String((payload.new as Record<string, unknown>)?.step_name || "SUPABASE-RT"),
-              color: "text-cyan-400",
-              msg: String((payload.new as Record<string, unknown>)?.detail_message || "Pembaruan status realtime diterima."),
-            },
-          ]);
-        }
-      )
-      .subscribe();
-
     return () => {
       clearInterval(timer);
-      if (channel && supabaseBrowser) supabaseBrowser.removeChannel(channel);
     };
   }, [trackingId]);
 
@@ -1283,9 +1261,9 @@ export default function TrackPage({
               ) : (
                 <a
                   className="flex items-center justify-center gap-1 px-space-md py-space-sm rounded-lg bg-primary text-on-primary hover:bg-secondary font-label-lg text-label-lg transition-colors w-full md:w-auto"
-                  href="/daftar"
+                  href="/"
                 >
-                  <span>Daftar Berkas Baru</span>
+                  <span>Unggah Berkas KK Baru</span>
                   <span className="material-symbols-outlined text-[18px]">chevron_right</span>
                 </a>
               )}

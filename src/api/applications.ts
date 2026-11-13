@@ -2,7 +2,6 @@ import { api } from "./client";
 import type {
   ApplicationRecord,
   CreateApplicationInput,
-  OcrResult,
   UpdateApplicationInput,
 } from "@/types";
 
@@ -23,14 +22,6 @@ export const createApplication = async (input: CreateApplicationInput) =>
 export const updateApplication = async (input: UpdateApplicationInput) =>
   (await api.patch<{ application: ApplicationRecord | null; ok: boolean }>("/applications", input))
     .data;
-
-export const previewOcr = async (input: {
-  kk_number: string;
-  kk_image_name: string;
-  kk_image_base64?: string;
-  student_nik?: string;
-  student_name?: string;
-}) => (await api.post<{ ocr: OcrResult }>("/ocr-preview", input)).data.ocr;
 
 export const verifyLivePhoto = async (input: {
   tracking_id: string;

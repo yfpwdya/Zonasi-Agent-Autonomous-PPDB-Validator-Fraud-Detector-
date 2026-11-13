@@ -1,3 +1,4 @@
+import axios from "axios";
 import { analyzeKKDocument, type OcrResult } from "./ocr-kk-tool.ts";
 import { calculateGeospatialDistances, type RouteMetrics } from "./route-distance-tool.ts";
 import {
@@ -143,14 +144,11 @@ export async function runZonasiAgentPipeline(params: {
   let osrmMeters = params.overrideRouteMeters;
   if (!osrmMeters) {
     try {
-      const r = await fetch(
+      const { data: j } = await axios.get(
         `https://router.project-osrm.org/route/v1/driving/${resolvedLng},${resolvedLat};${params.schoolLng},${params.schoolLat}?overview=false`,
-        { signal: AbortSignal.timeout(2500) },
+        { timeout: 2500 },
       );
-      if (r.ok) {
-        const j = await r.json();
-        if (typeof j?.routes?.[0]?.distance === "number") osrmMeters = Math.round(j.routes[0].distance);
-      }
+      if (typeof j?.routes?.[0]?.distance === "number") osrmMeters = Math.round(j.routes[0].distance);
     } catch {
       /* fallback ke kalkulasi lokal */
     }

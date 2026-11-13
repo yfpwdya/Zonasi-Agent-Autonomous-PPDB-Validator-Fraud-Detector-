@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export type KKMemberExtracted = {
   nik: string;
   name: string;
@@ -134,7 +136,7 @@ export function selectBestStudentCandidate(
 }
 
 // ponytail: deterministic address-to-coordinate lookup relative to SMAN 12 Surabaya (-7.2468, 112.6358)
-export function geocodeAddressFallback(address: string): { lat: number; lng: number } {
+function geocodeAddressFallback(address: string): { lat: number; lng: number } {
   const lower = (address || "").toLowerCase();
   if (lower.includes("xxxx") || lower.includes("dummy") || lower.includes("disensor")) {
     return { lat: -7.2695, lng: 112.6625 }; // ~3.880m (Luar Zonasi / Dummy)
@@ -217,28 +219,25 @@ Aturan Penting Pemilihan Calon Siswa di Tabel KK:
 3. Jika isi KK disamarkan dengan huruf XXXXX atau merupakan contoh/specimen/dummy, set "isMaskedOrDummy": true, "familyRelation": "UNREADABLE", dan "ocrConfidence": 68.`;
 
       for (const model of GEMINI_VISION_MODELS) {
-        const res = await fetch(
+        const res = await axios.post(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    { text: prompt },
-                    { inline_data: { mime_type: mimeType, data: cleaned } },
-                  ],
-                },
-              ],
-              generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
-            }),
+            contents: [
+              {
+                parts: [
+                  { text: prompt },
+                  { inline_data: { mime_type: mimeType, data: cleaned } },
+                ],
+              },
+            ],
+            generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
           },
+          { timeout: 25000, validateStatus: () => true },
         );
 
-        if (!res.ok) continue;
+        if (res.status < 200 || res.status >= 300) continue;
 
-        const data = await res.json();
+        const data = res.data;
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
         const parsed = JSON.parse(text);
         const isDummy =

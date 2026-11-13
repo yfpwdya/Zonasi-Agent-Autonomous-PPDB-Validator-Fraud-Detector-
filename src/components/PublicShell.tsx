@@ -1,18 +1,36 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { clearPanitiaSession, usePanitiaSession } from "@/hooks/useAuth";
-
-const NAV_ITEMS = [
-  { href: "/", label: "Scanner KK & Beranda Audit" },
-  { href: "/track/PPDB-2026-X89K", label: "Inspeksi Forensik KK", matchPrefix: "/track" },
-];
 
 export function PublicHeader() {
   const pathname = usePathname();
   const panitia = usePanitiaSession();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [latestTrackingId, setLatestTrackingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncMyIds = () => {
+      try {
+        const raw = sessionStorage.getItem("zonasi_my_tracking_ids");
+        const parsed: string[] = raw ? JSON.parse(raw) : [];
+        setLatestTrackingId(parsed[0] || null);
+      } catch {
+        setLatestTrackingId(null);
+      }
+    };
+    syncMyIds();
+    window.addEventListener("zonasi-my-history-change", syncMyIds);
+    return () => window.removeEventListener("zonasi-my-history-change", syncMyIds);
+  }, [pathname]);
+
+  const navItems = [
+    { href: "/", label: "Scanner KK & Beranda Audit", matchPrefix: undefined as string | undefined },
+    ...(latestTrackingId
+      ? [{ href: `/track/${encodeURIComponent(latestTrackingId)}`, label: `Inspeksi Berkas (${latestTrackingId})`, matchPrefix: "/track" }]
+      : []),
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full bg-surface/85 backdrop-blur-md shadow-xs border-b border-border-slate">
@@ -26,13 +44,13 @@ export function PublicHeader() {
               Zonasi-Agent
             </span>
             <span className="font-code-sm text-code-sm text-secondary font-medium tracking-wider uppercase mt-0.5">
-              Workspace Audit KK Panitia PPDB
+              SMA Negeri 12 Surabaya • Verifikasi KK
             </span>
           </div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-space-lg">
-          {NAV_ITEMS.map((it) => {
+          {navItems.map((it) => {
             const active = it.matchPrefix
               ? pathname?.startsWith(it.matchPrefix)
               : pathname === it.href;
@@ -107,7 +125,7 @@ export function PublicHeader() {
 
       {mobileOpen && (
         <div className="md:hidden border-t border-border-slate bg-surface-canvas px-margin py-space-md flex flex-col gap-2 shadow-lg">
-          {NAV_ITEMS.map((it) => (
+          {navItems.map((it) => (
             <Link
               key={it.href}
               href={it.href}
@@ -151,17 +169,17 @@ export function PublicFooter() {
           </div>
           <div>
             <span className="font-headline-sm text-sm text-primary font-bold block">
-              Zonasi-Agent • Sistem Audit Forensik Kartu Keluarga PPDB
+              Zonasi-Agent • Sistem Audit Forensik Kartu Keluarga PPDB SMAN 12 Surabaya
             </span>
             <span className="font-body-sm text-xs text-text-muted">
-              Khusus Panitia Verifikator Sekolah • Ekstraksi Otomatis Gemini Vision &amp; Validasi Radius PostGIS
+              1x Single-Pass Gemini Vision • Validasi Usia SMA (15–17 Thn) &amp; Rute OSRM OpenStreetMap
             </span>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-status-approved-bg text-status-approved font-code-sm text-xs">
             <span className="w-2 h-2 rounded-full bg-status-approved animate-pulse" />
-            Gemini 3.5 Flash Vision + PostGIS Aktif
+            Gemini Vision + OpenStreetMap Aktif
           </span>
           <Link
             href={panitia ? "/dashboard" : "/login"}
