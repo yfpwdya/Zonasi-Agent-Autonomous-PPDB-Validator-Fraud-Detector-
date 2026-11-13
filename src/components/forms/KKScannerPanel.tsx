@@ -110,6 +110,18 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
       setModelUsed(created.model_used || "gemini-3.5-flash (1x Single-Pass)");
       setAuditResult(created);
       setScanningState("DONE");
+      // ponytail: simpan tracking_id milik sesi user ini di sessionStorage agar riwayat di halaman publik hanya menampilkan berkas milik user sendiri
+      if (typeof window !== "undefined") {
+        try {
+          const raw = window.sessionStorage.getItem("zonasi_my_tracking_ids");
+          const prev: string[] = raw ? JSON.parse(raw) : [];
+          const next = Array.from(new Set([created.tracking_id, ...prev]));
+          window.sessionStorage.setItem("zonasi_my_tracking_ids", JSON.stringify(next));
+          window.dispatchEvent(new Event("zonasi:my-apps-updated"));
+        } catch {
+          // ignore storage quota errors
+        }
+      }
       if (onAuditCompleted) onAuditCompleted(created);
     } catch (err) {
       setScanningState("ERROR");

@@ -4,7 +4,6 @@ import type { ApplicationRecord, AuthUser } from "@/types";
 import { useApplications, useUpdateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
 import { clearPanitiaSession } from "@/hooks/useAuth";
 import Link from "next/link";
-import { KKScannerPanel } from "@/components/forms/KKScannerPanel";
 
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -398,16 +397,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             </section>
-
-            {/* Mesin Utama Panitia: Upload File Kartu Keluarga -> Deteksi Otomatis */}
-            <KKScannerPanel
-              onAuditCompleted={(createdApp) => {
-                setSelectedId(createdApp.tracking_id);
-                showToast(
-                  `File KK berhasil dipindai: ${createdApp.student_name} (No.KK ${createdApp.kk_number}) -> ${createdApp.status}`,
-                );
-              }}
-            />
 
             {/* Metric Analytics Cards (100% Live Database Counts) */}
             <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
