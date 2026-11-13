@@ -177,15 +177,15 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
     <section
       id="scanner-kk"
       data-gsap="home-section"
-      className="bg-surface-canvas rounded-2xl border-2 border-secondary/30 shadow-md p-5 sm:p-6 space-y-5"
+      className="bg-[#FFFFFF] rounded-2xl border-2 border-[#1E3A8A]/25 shadow-md p-5 sm:p-6 space-y-5"
     >
-      {/* Header Scanner Khusus Panitia */}
-      <div className="space-y-3 pb-4 border-b border-border-slate">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-tint-blue text-secondary font-code-sm text-xs font-bold">
-          <span className="material-symbols-outlined text-[16px]">document_scanner</span>
-          <span>1X SINGLE-PASS AI KK SCANNER • SMA NEGERI 12 SURABAYA</span>
+      {/* Header Scanner Ramah Orang Tua & Calon Siswa */}
+      <div className="space-y-3 pb-4 border-b border-slate-200">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#1E3A8A] font-code-sm text-xs font-extrabold border border-blue-200">
+          <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">document_scanner</span>
+          <span>FORMULIR UNGGAH BERKAS KK (1X SINGLE-PASS AI) • SMAN 12 SURABAYA</span>
         </div>
-        <h2 className="font-headline-md text-headline-md text-text-heading font-bold">
+        <h2 className="font-headline-md text-headline-md text-[#1E293B] font-extrabold">
           Unggah File Kartu Keluarga (KK) — Deteksi Anomali, Usia Siswa (15–17 Thn) &amp; Jarak Otomatis
         </h2>
         <p className="font-body-sm text-body-sm text-text-muted leading-relaxed">
@@ -282,8 +282,8 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                 Begitu file dipilih, seluruh data identitas, alamat, peta jarak, dan status anomali di kanan langsung berubah mengikuti isi file KK.
               </span>
             </div>
-            <span className="px-4 py-2 rounded-lg bg-secondary text-on-secondary font-label-md text-xs font-bold shadow-sm">
-              Pilih File Kartu Keluarga dari Komputer
+            <span className="px-5 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-[#1E293B] font-label-md text-xs sm:text-sm font-extrabold shadow-sm transition-colors">
+              Pilih File Kartu Keluarga dari Komputer / HP
             </span>
           </div>
 
