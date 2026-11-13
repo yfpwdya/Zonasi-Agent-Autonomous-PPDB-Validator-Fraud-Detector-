@@ -2,321 +2,361 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { clearPanitiaSession, usePanitiaSession } from "@/hooks/useAuth";
+import { clearPanitiaSession, usePanitiaSession } from "@/hooks/usePanitiaSession";
 
-export function PublicHeader() {
+export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const panitia = usePanitiaSession();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [latestTrackingId, setLatestTrackingId] = useState<string | null>(null);
+  const isTrack = pathname.startsWith("/track");
+  const isLogin = pathname.startsWith("/login");
+  const authUser = usePanitiaSession();
+  const [recentTrackId, setRecentTrackId] = useState<string>("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const syncMyIds = () => {
+    const syncMyTrackId = () => {
       try {
         const raw = sessionStorage.getItem("zonasi_my_tracking_ids");
-        const parsed: string[] = raw ? JSON.parse(raw) : [];
-        setLatestTrackingId(parsed[0] || null);
+        const ids: string[] = raw ? JSON.parse(raw) : [];
+        setRecentTrackId(ids[0] || "");
       } catch {
-        setLatestTrackingId(null);
+        setRecentTrackId("");
       }
     };
-    syncMyIds();
-    window.addEventListener("zonasi:my-apps-updated", syncMyIds);
-    return () => window.removeEventListener("zonasi:my-apps-updated", syncMyIds);
+    syncMyTrackId();
+    window.addEventListener("zonasi:my-apps-updated", syncMyTrackId);
+    window.addEventListener("zonasi-session-updated", syncMyTrackId);
+    window.addEventListener("storage", syncMyTrackId);
+    return () => {
+      window.removeEventListener("zonasi:my-apps-updated", syncMyTrackId);
+      window.removeEventListener("zonasi-session-updated", syncMyTrackId);
+      window.removeEventListener("storage", syncMyTrackId);
+    };
   }, [pathname]);
 
-  const navItems = [
+  const navLinks = [
     { href: "/#beranda", label: "Beranda" },
-    { href: "/#alur-pendaftaran", label: "Alur Pendaftaran" },
-    { href: "/#jalur-kuota", label: "Jalur & Kuota" },
-    { href: "/#syarat-pendaftaran", label: "Syarat" },
-    { href: "/#jadwal-penting", label: "Jadwal" },
-    { href: "/#faq-ppdb", label: "FAQ" },
+    { href: "/#alur-verifikasi", label: "Alur Verifikasi AI" },
+    { href: "/#kuota-jalur", label: "Parameter & Kuota" },
+    { href: "/#syarat-berkas", label: "Aturan Forensik" },
+    { href: "/#jadwal-verifikasi", label: "Jadwal Audit" },
+    { href: "/#faq-panitia", label: "Panduan & FAQ" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#FFFFFF]/95 backdrop-blur-md shadow-sm border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-        {/* Kiri: Logo & Nama Sekolah */}
-        <Link className="flex items-center gap-3 group shrink-0" href="/">
-          <div className="w-11 h-11 rounded-xl bg-[#1E3A8A] flex items-center justify-center text-white shadow-sm group-hover:bg-[#1e40af] transition-colors relative">
-            <span className="material-symbols-outlined text-[24px]">school</span>
-            <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#F59E0B] border-2 border-white flex items-center justify-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#1E293B]">
+      {/* Top Official Utility Strip — Zonasi-Agent Tool Identity */}
+      <div className="bg-[#1E3A8A] text-white border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 font-medium">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F59E0B] text-[#1E293B] font-bold text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#1E293B] animate-pulse" />
+              AUTONOMOUS AI VALIDATOR ACTIVE
+            </span>
+            <span className="hidden md:inline text-white/90">
+              Zonasi-Agent v2.6 • Mesin Verifikasi Berkas &amp; Deteksi Kecurangan KK Panitia PPDB
             </span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-base sm:text-lg text-[#1E3A8A] font-extrabold tracking-tight leading-none">
-              SMA Negeri 12 Surabaya
+          <div className="flex items-center gap-4 text-white/90 font-code-sm text-[11px]">
+            <span className="hidden sm:inline-flex items-center gap-1">
+              <span className="material-symbols-outlined text-[14px] text-[#F59E0B]">my_location</span>
+              Patokan Ukur Geospasial: SMAN 12 Surabaya (-7.2468, 112.6358 • Radius 1.200 m)
             </span>
-            <span className="text-[11px] text-[#475569] font-semibold tracking-wider uppercase mt-1">
-              Portal Resmi PPDB &amp; Verifikasi AI Zonasi
-            </span>
-          </div>
-        </Link>
-
-        {/* Tengah: Menu Navigasi (Beranda, Alur Pendaftaran, Jalur & Kuota, Syarat, Jadwal, FAQ) */}
-        <nav className="hidden xl:flex items-center gap-6" aria-label="Navigasi Utama PPDB">
-          {navItems.map((it) => (
-            <Link
-              key={it.href}
-              href={it.href}
-              className="text-sm font-semibold text-[#475569] hover:text-[#1E3A8A] transition-colors py-1"
-            >
-              {it.label}
-            </Link>
-          ))}
-          {latestTrackingId && (
-            <Link
-              href={`/track/${encodeURIComponent(latestTrackingId)}`}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F8FAFC] border border-slate-200 text-xs font-bold text-[#1E3A8A] hover:border-[#1E3A8A] transition-colors"
-            >
-              <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
-              <span>Berkas Saya ({latestTrackingId})</span>
-            </Link>
-          )}
-        </nav>
-
-        {/* Kanan: Tombol Login (Outline Biru) & Daftar Sekarang (Solid Amber #F59E0B) */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {panitia ? (
-            <>
+            {recentTrackId && (
               <Link
-                href="/dashboard"
-                title={`Masuk sebagai ${panitia.full_name} (NIP ${panitia.nip})`}
-                className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white text-xs sm:text-sm font-bold transition-all"
+                href={`/track/${encodeURIComponent(recentTrackId)}`}
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-white/15 hover:bg-white/25 text-white font-semibold transition-colors"
               >
-                <span className="material-symbols-outlined text-[18px]">space_dashboard</span>
-                <span>Dashboard Panitia ({panitia.full_name.split(" ")[0]})</span>
+                <span className="material-symbols-outlined text-[13px] text-[#F59E0B]">fact_check</span>
+                Inspeksi Sesi ({recentTrackId})
               </Link>
-              <button
-                type="button"
-                onClick={() => clearPanitiaSession()}
-                className="hidden md:inline-flex items-center gap-1 px-3 py-2.5 rounded-xl text-xs font-bold text-[#DC2626] hover:bg-red-50 transition-colors"
-                title="Keluar dari sesi Panitia"
-              >
-                <span className="material-symbols-outlined text-[18px]">logout</span>
-                <span>Keluar</span>
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white text-xs sm:text-sm font-bold transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">login</span>
-              <span>Login</span>
-            </Link>
-          )}
-
-          <Link
-            href="/#scanner-kk"
-            className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-[#1E293B] font-extrabold text-xs sm:text-sm shadow-sm hover:shadow-md transition-all cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[18px]">how_to_reg</span>
-            <span>Daftar Sekarang</span>
-          </Link>
-
-          <button
-            type="button"
-            aria-label="Buka menu navigasi"
-            onClick={() => setMobileOpen((v) => !v)}
-            className="xl:hidden p-2.5 rounded-xl bg-[#F8FAFC] border border-slate-200 text-[#1E293B] hover:bg-slate-100"
-          >
-            <span className="material-symbols-outlined text-[22px]">
-              {mobileOpen ? "close" : "menu"}
-            </span>
-          </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Menu Mobile Responsif (Mobile-First) */}
-      {mobileOpen && (
-        <div className="xl:hidden border-t border-slate-200 bg-[#FFFFFF] px-4 py-4 flex flex-col gap-1.5 shadow-md">
-          {navItems.map((it) => (
-            <Link
-              key={it.href}
-              href={it.href}
-              onClick={() => setMobileOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-semibold text-[#1E293B] hover:bg-[#F8FAFC] hover:text-[#1E3A8A]"
-            >
-              {it.label}
-            </Link>
-          ))}
-          {latestTrackingId && (
-            <Link
-              href={`/track/${encodeURIComponent(latestTrackingId)}`}
-              onClick={() => setMobileOpen(false)}
-              className="px-3.5 py-2.5 rounded-xl text-sm font-bold text-[#16A34A] bg-emerald-50"
-            >
-              Inspeksi Berkas Saya ({latestTrackingId})
-            </Link>
-          )}
-          <div className="pt-2 mt-1 border-t border-slate-200 flex flex-col sm:flex-row gap-2">
-            {panitia ? (
-              <>
+      {/* Sticky Navbar (Zonasi-Agent Committee Tool Brand left, menu center, Login + Scan KK right) */}
+      <header className="sticky top-0 z-40 bg-[#FFFFFF]/95 backdrop-blur-md border-b border-[#E2E8F0] shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+          {/* Left: Logo & Nama Sistem Zonasi-Agent */}
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-[#1E3A8A] flex items-center justify-center text-white shadow-sm group-hover:bg-[#172554] transition-colors relative">
+              <span className="material-symbols-outlined text-[24px]">shield_person</span>
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-[#F59E0B] border-2 border-white flex items-center justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1E293B]" />
+              </span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-headline-sm text-base sm:text-lg font-extrabold text-[#1E3A8A] tracking-tight leading-none">
+                  Zonasi-Agent
+                </span>
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-[#EFF6FF] text-[#1E3A8A] border border-[#1E3A8A]/20 font-code-sm text-[10px] font-bold">
+                  PANITIA TOOLS
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-[#475569] font-medium mt-0.5">
+                Autonomous PPDB Validator &amp; Fraud Detector
+              </p>
+            </div>
+          </Link>
+
+          {/* Center: Menu Navigasi */}
+          <nav
+            aria-label="Navigasi Utama"
+            className="hidden xl:flex items-center gap-1"
+          >
+            {navLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="px-3 py-2 rounded-lg text-sm font-semibold text-[#475569] hover:text-[#1E3A8A] hover:bg-[#F8FAFC] transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+            {isTrack && (
+              <span className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[#EFF6FF] text-[#1E3A8A] border border-[#1E3A8A]/20">
+                Mode Inspeksi Forensik
+              </span>
+            )}
+          </nav>
+
+          {/* Right: Tombol Login/Dashboard Panitia (Outline Biru) & Pindai KK Sekarang (Solid Amber) */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            {authUser ? (
+              <div className="hidden sm:flex items-center gap-2">
                 <Link
                   href="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex-1 text-center px-4 py-2.5 rounded-xl border-2 border-[#1E3A8A] text-[#1E3A8A] text-sm font-bold"
+                  className="px-4 py-2.5 rounded-xl border-2 border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white text-xs sm:text-sm font-bold transition-all inline-flex items-center gap-1.5"
                 >
-                  Buka Dashboard Panitia
+                  <span className="material-symbols-outlined text-[18px]">space_dashboard</span>
+                  <span>Dashboard Panitia ({authUser.full_name.split(" ")[0]})</span>
                 </Link>
                 <button
                   type="button"
-                  onClick={() => {
-                    clearPanitiaSession();
-                    setMobileOpen(false);
-                  }}
-                  className="px-4 py-2.5 rounded-xl bg-red-50 text-[#DC2626] text-sm font-bold"
+                  onClick={() => clearPanitiaSession()}
+                  title="Keluar Sesi Panitia"
+                  className="p-2.5 rounded-xl border border-[#CBD5E1] text-[#475569] hover:text-[#DC2626] hover:border-[#DC2626] transition-colors"
                 >
-                  Keluar Sesi
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
                 </button>
-              </>
+              </div>
             ) : (
               <Link
                 href="/login"
-                onClick={() => setMobileOpen(false)}
-                className="flex-1 text-center px-4 py-2.5 rounded-xl border-2 border-[#1E3A8A] text-[#1E3A8A] text-sm font-bold"
+                className={`px-4 py-2.5 rounded-xl border-2 border-[#1E3A8A] text-xs sm:text-sm font-bold transition-all inline-flex items-center gap-1.5 ${
+                  isLogin
+                    ? "bg-[#1E3A8A] text-white"
+                    : "bg-white text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white"
+                }`}
               >
-                Login Panitia PPDB
+                <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                <span>Login Panitia</span>
               </Link>
             )}
+
             <Link
               href="/#scanner-kk"
-              onClick={() => setMobileOpen(false)}
-              className="flex-1 text-center px-4 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-[#1E293B] text-sm font-extrabold"
+              className="px-4 sm:px-5 py-2.5 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-[#1E293B] text-xs sm:text-sm font-extrabold shadow-sm hover:shadow-md transition-all inline-flex items-center gap-1.5"
             >
-              Daftar Sekarang (Upload KK)
+              <span className="material-symbols-outlined text-[18px]">document_scanner</span>
+              <span>Pindai KK Sekarang</span>
             </Link>
-          </div>
-        </div>
-      )}
-    </header>
-  );
-}
 
-export function PublicFooter() {
-  const panitia = usePanitiaSession();
-  return (
-    <footer className="w-full bg-[#1E3A8A] text-white mt-auto border-t-4 border-[#F59E0B]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8">
-        {/* Kolom 1: Identitas Resmi Sekolah */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-[#F59E0B]">
-              <span className="material-symbols-outlined text-[24px]">school</span>
-            </div>
-            <div>
-              <span className="text-lg font-extrabold tracking-tight block text-white">
-                SMA Negeri 12 Surabaya
+            {/* Mobile Hamburger Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              aria-label="Buka menu navigasi"
+              className="xl:hidden p-2.5 rounded-xl border border-[#E2E8F0] text-[#1E293B] hover:bg-[#F8FAFC]"
+            >
+              <span className="material-symbols-outlined text-[22px]">
+                {mobileMenuOpen ? "close" : "menu"}
               </span>
-              <span className="text-xs text-amber-300 font-semibold uppercase tracking-wider">
-                Panitia Resmi PPDB Tahun Ajaran 2026/2027
-              </span>
-            </div>
-          </div>
-          <p className="text-sm text-blue-100 leading-relaxed">
-            Layanan Penerimaan Peserta Didik Baru (PPDB) berbasis verifikasi cerdas Kartu Keluarga (1x Single-Pass AI Vision), validasi usia SMA (15–17 Tahun), dan pengukuran rute jalan raya OSRM OpenStreetMap secara transparan, akuntabel, dan bebas kecurangan.
-          </p>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-medium text-emerald-300">
-            <span className="w-2 h-2 rounded-full bg-[#16A34A] animate-pulse" />
-            <span>Server Verifikasi AI &amp; Geofence PostGIS Aktif 24 Jam</span>
+            </button>
           </div>
         </div>
 
-        {/* Kolom 2: Kontak Panitia & Helpdesk WhatsApp */}
-        <div className="lg:col-span-4 space-y-3">
-          <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#F59E0B]">
-            Layanan Bantuan &amp; Kontak Panitia
-          </h3>
-          <ul className="space-y-2.5 text-sm text-blue-100">
-            <li className="flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-[#F59E0B] shrink-0 mt-0.5">
-                location_on
-              </span>
-              <span>
-                Jl. Sememi Kidul No.1, Kel. Sememi, Kec. Benowo, Kota Surabaya, Jawa Timur 60198
-              </span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-[#F59E0B] shrink-0">
-                support_agent
-              </span>
-              <span>Helpdesk WhatsApp Panitia: 0812-3456-1212 (Respon Cepat)</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-[#F59E0B] shrink-0">
-                call
-              </span>
-              <span>Telepon Posko Sekolah: (031) 7404812 • info@sman12-sby.sch.id</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-[18px] text-[#F59E0B] shrink-0">
-                schedule
-              </span>
-              <span>Jam Layanan Posko: Senin – Sabtu (07.30 – 16.00 WIB)</span>
-            </li>
-          </ul>
-        </div>
-
-        {/* Kolom 3: Peta Lokasi Singkat & Tautan Cepat */}
-        <div className="lg:col-span-4 space-y-3">
-          <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#F59E0B]">
-            Titik Koordinat Zonasi &amp; Lokasi Sekolah
-          </h3>
-          <div className="rounded-xl bg-white/10 border border-white/15 p-4 space-y-2.5">
-            <div className="flex items-center justify-between text-xs text-blue-100">
-              <span className="font-semibold text-white">Titik Pusat Geofence:</span>
-              <span className="font-mono text-amber-300">-7.2468, 112.6358</span>
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="xl:hidden bg-[#FFFFFF] border-t border-[#E2E8F0] px-4 py-4 shadow-md space-y-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {navLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3 py-2.5 rounded-xl bg-[#F8FAFC] hover:bg-[#EFF6FF] text-xs font-semibold text-[#1E293B] hover:text-[#1E3A8A] border border-[#E2E8F0]"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
-            <p className="text-xs text-blue-100 leading-relaxed">
-              Radius Prioritas Zonasi: <strong>1.200 Meter</strong> dari gerbang utama SMA Negeri 12 Surabaya (Kec. Benowo &amp; sekitarnya).
+            <div className="pt-2 border-t border-[#E2E8F0] flex flex-wrap items-center justify-between gap-2">
+              {authUser ? (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-[#1E3A8A] text-white text-xs font-bold text-center"
+                >
+                  Buka Dashboard Pengawas Panitia ({authUser.full_name})
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 px-4 rounded-xl border-2 border-[#1E3A8A] text-[#1E3A8A] text-xs font-bold text-center"
+                >
+                  Login / Registrasi Akun Panitia Verifikator
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">{children}</div>
+
+      {/* Footer Resmi — Zonasi-Agent Autonomous PPDB Validator & Fraud Detector */}
+      <footer className="bg-[#1E3A8A] text-white mt-auto border-t-4 border-[#F59E0B]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-white/15">
+            {/* Kolom 1: Identitas Tools Zonasi-Agent */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#F59E0B] text-[#1E293B] flex items-center justify-center font-extrabold shadow-sm">
+                  <span className="material-symbols-outlined text-[24px]">shield_person</span>
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold tracking-tight text-white">
+                    Zonasi-Agent
+                  </h3>
+                  <p className="text-xs text-white/80">
+                    Autonomous PPDB Validator &amp; Fraud Detector
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-white/80 leading-relaxed">
+                Sistem bantu verifikasi otonom untuk Panitia PPDB dalam mengaudit keaslian Kartu Keluarga (KK), memvalidasi usia calon siswa (15–17 tahun), menghitung jarak rute darat OSRM + PostGIS, serta mendeteksi anomali titip KK.
+              </p>
+              <div className="pt-1 flex items-center gap-2 text-[11px] font-code-sm text-[#F59E0B]">
+                <span className="material-symbols-outlined text-[16px]">verified</span>
+                <span>Single-Pass Gemini Vision + PostGIS + OSRM</span>
+              </div>
+            </div>
+
+            {/* Kolom 2: Navigasi Modul & Pintasan Panitia */}
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#F59E0B]">
+                Modul &amp; Pintasan Sistem
+              </h4>
+              <ul className="space-y-2 text-xs text-white/85">
+                <li>
+                  <Link href="/#scanner-kk" className="hover:text-[#F59E0B] transition-colors">
+                    → AI KK Forensic Scanner (1x Single-Pass)
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/#cek-status-cepat" className="hover:text-[#F59E0B] transition-colors">
+                    → Lacak Nomor Berkas / Inspeksi 3 Pilar
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/#alur-verifikasi" className="hover:text-[#F59E0B] transition-colors">
+                    → 5 Tahap Pipeline Audit Otonom
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/dashboard" className="hover:text-[#F59E0B] transition-colors">
+                    → Dashboard Pengawas &amp; Override Panitia
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/login" className="hover:text-[#F59E0B] transition-colors">
+                    → Portal Autentikasi Panitia Verifikator
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            {/* Kolom 3: Dukungan Teknis & Posko Verifikator */}
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#F59E0B]">
+                Dukungan Teknis &amp; Posko Audit
+              </h4>
+              <div className="space-y-2 text-xs text-white/85">
+                <p className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-[#F59E0B] shrink-0 mt-0.5">
+                    support_agent
+                  </span>
+                  <span>
+                    Helpdesk Tim Verifikator:{" "}
+                    <strong className="text-white">+62 811-3400-1200</strong>
+                  </span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-[#F59E0B] shrink-0 mt-0.5">
+                    schedule
+                  </span>
+                  <span>
+                    Operasional Server AI: <strong>24 Jam Real-Time</strong> (Posko Fisik: 07.30 – 16.00 WIB)
+                  </span>
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-[#F59E0B] shrink-0 mt-0.5">
+                    mail
+                  </span>
+                  <span>auditor@zonasi-agent.id</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Kolom 4: Titik Tolak Ukur Geospasial Saat Ini */}
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#F59E0B]">
+                Titik Tolak Ukur Geospasial Aktif
+              </h4>
+              <p className="text-xs text-white/85 leading-relaxed">
+                <strong>Patokan Sekolah Uji:</strong> SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Kec. Benowo, Surabaya 60198)
+              </p>
+              <div className="p-3 rounded-xl bg-white/10 border border-white/15 space-y-1.5 text-[11px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/75">Koordinat Titik Nol:</span>
+                  <span className="font-code-sm font-bold text-[#F59E0B]">-7.2468, 112.6358</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/75">Batas Radius Zonasi:</span>
+                  <span className="font-code-sm font-bold text-white">1.200 Meter</span>
+                </div>
+                <a
+                  href="https://www.openstreetmap.org/?mlat=-7.2468&mlon=112.6358#map=16/-7.2468/112.6358"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-1 text-[#F59E0B] hover:underline font-bold"
+                >
+                  <span className="material-symbols-outlined text-[14px]">map</span>
+                  <span>Buka Titik Ukur di OpenStreetMap ↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/75">
+            <p>
+              © 2026 <strong className="text-white">Zonasi-Agent</strong> — Autonomous PPDB Validator &amp; Fraud Detector. Digunakan untuk Otomasi Verifikasi &amp; Audit Panitia PPDB.
             </p>
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <a
-                href="https://www.openstreetmap.org/?mlat=-7.2468&mlon=112.6358#map=16/-7.2468/112.6358"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F59E0B] hover:bg-[#D97706] text-[#1E293B] text-xs font-extrabold transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">map</span>
-                <span>Buka Peta Lokasi SMAN 12</span>
-              </a>
-              <Link
-                href={panitia ? "/dashboard" : "/login"}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors"
-              >
-                <span className="material-symbols-outlined text-[16px]">verified_user</span>
-                <span>{panitia ? "Posko Panitia" : "Portal Panitia"}</span>
-              </Link>
+            <div className="flex items-center gap-3 font-code-sm text-[11px]">
+              <span className="px-2.5 py-1 rounded bg-white/10 text-white">
+                WCAG AA Compliant
+              </span>
+              <span className="px-2.5 py-1 rounded bg-white/10 text-[#F59E0B]">
+                PostGIS + OSRM Active
+              </span>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Bottom Copyright Bar */}
-      <div className="border-t border-white/15 bg-[#172e6e]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-blue-200">
-          <span>
-            © 2026 Panitia Resmi PPDB SMA Negeri 12 Surabaya — Dinas Pendidikan Provinsi Jawa Timur. Hak Cipta Dilindungi.
-          </span>
-          <div className="flex items-center gap-4">
-            <a href="#alur-pendaftaran" className="hover:text-white transition-colors">
-              Alur PPDB
-            </a>
-            <a href="#jalur-kuota" className="hover:text-white transition-colors">
-              Kuota Jalur
-            </a>
-            <a href="#jadwal-penting" className="hover:text-white transition-colors">
-              Jadwal Resmi
-            </a>
-            <a href="#cek-status-cepat" className="hover:text-white transition-colors">
-              Cek Status
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </div>
   );
 }

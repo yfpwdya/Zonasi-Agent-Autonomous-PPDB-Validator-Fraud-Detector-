@@ -216,76 +216,79 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Fixed Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-72 bg-surface-canvas border-r border-border-slate shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 hidden lg:flex flex-col pt-space-md pb-space-lg">
-        <div className="px-space-lg mb-space-lg flex items-center gap-space-sm">
-          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm shrink-0">
-            <span className="material-symbols-outlined text-[20px]">policy</span>
+      {/* Fixed Sidebar — Pro Max Navy #1E3A8A + Amber #F59E0B */}
+      <aside className="fixed left-0 top-0 h-full w-72 bg-[#1E3A8A] text-white border-r border-white/10 shadow-xl z-50 hidden lg:flex flex-col pt-5 pb-6">
+        <div className="px-6 mb-6 flex items-center gap-3 pb-4 border-b border-white/15">
+          <div className="w-10 h-10 rounded-xl bg-[#F59E0B] flex items-center justify-center text-[#1E293B] shadow-sm shrink-0 font-extrabold">
+            <span className="material-symbols-outlined text-[22px]">shield_person</span>
           </div>
           <div className="flex flex-col">
-            <span className="font-headline-sm text-headline-sm text-text-heading font-bold leading-none">
+            <span className="text-base text-white font-extrabold tracking-tight leading-none">
               Zonasi-Agent
             </span>
-            <span className="font-code-sm text-code-sm text-secondary mt-0.5">
-              Konsol Panitia PPDB
+            <span className="font-code-sm text-[11px] text-[#F59E0B] font-bold mt-1">
+              COMMAND CENTER PANITIA
             </span>
           </div>
         </div>
-        <div className="px-space-lg mb-space-sm">
-          <span className="font-code-sm text-code-sm text-text-muted uppercase tracking-wider">
-            Navigasi Audit
+        <div className="px-6 mb-2">
+          <span className="font-code-sm text-[11px] text-white/65 uppercase tracking-wider font-bold">
+            Modul Verifikator
           </span>
         </div>
-        <nav className="flex-1 px-space-md flex flex-col gap-1">
+        <nav className="flex-1 px-4 flex flex-col gap-1.5">
           <a
             aria-current="page"
-            className="flex items-center gap-space-sm px-space-md py-space-sm transition-all bg-surface-tint-blue text-secondary font-headline-sm rounded-lg"
+            className="flex items-center gap-3 px-4 py-3 transition-all bg-[#F59E0B] text-[#1E293B] font-extrabold rounded-xl shadow-sm text-sm"
             href="#ringkasan"
           >
             <span className="material-symbols-outlined text-[20px]">space_dashboard</span>
-            <span className="font-label-lg text-label-lg">Dashboard Verifikasi</span>
+            <span>Dashboard Pengawas</span>
           </a>
           {activeCase && (
             <Link
-              className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-slate hover:text-on-surface transition-all"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white/85 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold"
               href={`/track/${encodeURIComponent(activeCase.tracking_id)}`}
             >
-              <span className="material-symbols-outlined text-[20px]">history_edu</span>
-              <span className="font-label-lg text-label-lg">Log Forensik Dokumen</span>
+              <span className="material-symbols-outlined text-[20px] text-[#F59E0B]">history_edu</span>
+              <span>Inspeksi 3 Pilar ({activeCase.tracking_id})</span>
             </Link>
           )}
           <Link
-            className="flex items-center gap-space-sm px-space-md py-space-sm rounded-lg text-secondary font-semibold bg-surface-tint-blue/50 hover:bg-surface-tint-blue transition-all"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-white hover:bg-white/15 font-semibold bg-white/10 border border-white/15 transition-all text-sm mt-1"
             href="/"
           >
-            <span className="material-symbols-outlined text-[20px]">document_scanner</span>
-            <span className="font-label-lg text-label-lg">Halaman Scan KK Publik</span>
+            <span className="material-symbols-outlined text-[20px] text-[#F59E0B]">document_scanner</span>
+            <span>Buka Pemindai KK (AI)</span>
           </Link>
         </nav>
-        <div className="px-space-md pt-space-md mt-auto flex flex-col gap-space-xs">
-          <div className="p-space-sm rounded-xl bg-surface-slate border border-border-slate flex flex-col gap-1">
+        <div className="px-4 pt-4 mt-auto flex flex-col gap-2.5 border-t border-white/15">
+          <div className="p-3.5 rounded-xl bg-white/10 border border-white/15 flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="font-code-sm text-code-sm text-text-muted">Database Engine</span>
-              <span className="w-2 h-2 rounded-full bg-status-approved" />
+              <span className="font-code-sm text-[11px] text-white/75">Mesin Geospasial</span>
+              <span className="w-2 h-2 rounded-full bg-[#4ADE80] animate-pulse" />
             </div>
-            <span className="font-code-sm text-code-sm text-text-heading font-semibold">
+            <span className="font-code-sm text-xs text-white font-bold">
               {dataSource === "supabase" ? "Supabase PostGIS Cloud" : "Local Fallback Store"}
             </span>
+            <span className="text-[10px] text-[#F59E0B] font-semibold">
+              Tolak Ukur: SMAN 12 Sby (1.200m)
+            </span>
           </div>
-          <div className="flex items-center gap-1.5 pt-1">
+          <div className="flex items-center gap-2 pt-1">
             <Link
               href="/login"
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-surface-slate hover:bg-surface-container text-secondary font-label-md text-label-md transition-all"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all border border-white/15"
             >
-              <span className="material-symbols-outlined text-[18px]">switch_account</span>
-              <span>Ganti Akun</span>
+              <span className="material-symbols-outlined text-[16px]">switch_account</span>
+              <span>Akun</span>
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-error hover:bg-status-fraud-bg font-label-md text-label-md transition-all"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[#DC2626] hover:opacity-90 text-white font-bold text-xs transition-all"
             >
-              <span className="material-symbols-outlined text-[18px]">logout</span>
+              <span className="material-symbols-outlined text-[16px]">logout</span>
               <span>Keluar</span>
             </button>
           </div>
@@ -306,8 +309,8 @@ export default function DashboardPage() {
                 {mobileMenuOpen ? "close" : "menu"}
               </span>
             </button>
-            <span className="font-headline-sm text-headline-sm text-text-heading font-bold truncate">
-              Panel Pengawasan Geospasial
+            <span className="font-headline-sm text-headline-sm text-[#1E3A8A] font-extrabold truncate">
+              Zonasi-Agent • Konsol Otoritas Verifikator Panitia
             </span>
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-approved-bg border border-status-approved-border shrink-0">
               <span className="w-2 h-2 rounded-full bg-status-approved animate-pulse" />
@@ -392,63 +395,63 @@ export default function DashboardPage() {
             {/* Header Panel Panitia */}
             <section
               data-gsap="kpi-card"
-              className="bg-surface-canvas rounded-xl border border-border-slate shadow-sm p-5 sm:p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5"
+              className="bg-[#1E3A8A] text-white rounded-2xl border-b-4 border-[#F59E0B] shadow-md p-5 sm:p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5"
             >
               <div className="flex flex-col gap-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2.5 py-0.5 rounded-full bg-surface-tint-blue font-code-sm text-code-sm text-secondary font-semibold">
-                    Zonasi-Agent Sentinel v3.4
+                  <span className="px-3 py-1 rounded-full bg-[#F59E0B] font-code-sm text-xs text-[#1E293B] font-extrabold">
+                    Zonasi-Agent Command Center v3.4
                   </span>
-                  <span className="flex items-center gap-1 font-body-sm text-body-sm text-text-muted">
-                    <span className="material-symbols-outlined text-[16px] text-secondary">domain</span>
-                    SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Kec. Benowo, Surabaya 60198)
+                  <span className="flex items-center gap-1 font-body-sm text-xs sm:text-sm text-white/85">
+                    <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">my_location</span>
+                    Tolak Ukur Geospasial Aktif: SMA Negeri 12 Surabaya (-7.2468, 112.6358 • Radius 1.200m)
                   </span>
                 </div>
-                <h1 className="font-headline-md text-headline-md text-text-heading font-bold">
-                  Dashboard Pengawas PPDB — Posko Zonasi Cerdas
+                <h1 className="font-headline-md text-xl sm:text-2xl text-white font-extrabold">
+                  Zonasi-Agent — Dashboard Otoritas Verifikator &amp; Audit Fraud PPDB
                 </h1>
-                <p className="font-body-sm text-body-sm text-text-muted">
-                  Pemantauan anomali geospasial real-time, audit forensik Kartu Keluarga (Gemini 3 Flash), dan deteksi manipulasi PostGIS.
+                <p className="font-body-sm text-xs sm:text-sm text-white/80">
+                  Tools otonom Panitia PPDB untuk memantau antrean ekstraksi Kartu Keluarga (Gemini Vision), memvalidasi jarak OSRM + PostGIS, dan meng-override keputusan berkas.
                 </p>
               </div>
 
               {/* Quick Status Pills */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full xl:w-auto shrink-0">
-                <div className="bg-surface-slate rounded-xl p-4 min-w-[210px] border border-border-slate">
+                <div className="bg-[#FFFFFF] text-[#1E293B] rounded-xl p-4 min-w-[210px] border-l-4 border-[#16A34A] shadow-sm">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-label-md text-label-md text-text-muted">Terisi Kuota Lolos</span>
-                    <span className="font-code-sm text-code-sm text-secondary font-semibold">
+                    <span className="text-xs font-bold text-[#475569]">Rasio Berkas Lulus</span>
+                    <span className="font-code-sm text-xs text-[#16A34A] font-extrabold">
                       {passRate}%
                     </span>
                   </div>
-                  <div className="font-code-lg text-code-lg text-text-heading font-bold">
+                  <div className="text-lg text-[#1E293B] font-extrabold">
                     {approvedCount}{" "}
-                    <span className="font-body-sm text-body-sm text-text-muted font-normal">
-                      / {totalCount} Berkas Masuk
+                    <span className="text-xs text-[#475569] font-normal">
+                      / {totalCount} Berkas Diaudit
                     </span>
                   </div>
-                  <div className="w-full bg-surface-container h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-[#E2E8F0] h-2 rounded-full mt-2 overflow-hidden">
                     <div
-                      className="bg-secondary h-full rounded-full transition-all"
+                      className="bg-[#16A34A] h-full rounded-full transition-all"
                       style={{ width: `${Math.min(100, Math.max(10, passRate))}%` }}
                     />
                   </div>
                 </div>
 
-                <div className="bg-status-revision-bg rounded-xl p-4 min-w-[210px] border border-status-revision-border">
+                <div className="bg-[#FFFFFF] text-[#1E293B] rounded-xl p-4 min-w-[210px] border-l-4 border-[#F59E0B] shadow-sm">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="font-label-md text-label-md text-status-revision font-semibold">
+                    <span className="text-xs text-[#D97706] font-extrabold">
                       Antrean Tindakan Panitia
                     </span>
-                    <span className="w-2 h-2 rounded-full bg-status-revision animate-ping" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B] animate-ping" />
                   </div>
-                  <div className="font-code-lg text-code-lg text-text-heading font-bold">
+                  <div className="text-lg text-[#1E293B] font-extrabold">
                     {revisionCount + fraudCount}{" "}
-                    <span className="font-body-sm text-body-sm text-text-muted font-normal">
+                    <span className="text-xs text-[#475569] font-normal">
                       Kasus Perlu Tinjauan
                     </span>
                   </div>
-                  <span className="font-code-sm text-code-sm text-status-revision block mt-2">
+                  <span className="font-code-sm text-xs text-[#DC2626] font-bold block mt-2">
                     {fraudCount} Fraud Kritis • {revisionCount} Revisi Berkas
                   </span>
                 </div>
@@ -940,7 +943,7 @@ export default function DashboardPage() {
               <div className="overflow-x-auto rounded-xl border border-border-slate">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-surface-slate text-text-muted font-label-md text-label-md border-b border-border-slate">
+                    <tr className="bg-[#1E3A8A] text-white font-code-sm text-xs uppercase tracking-wider">
                       <th className="py-3.5 px-4">No</th>
                       <th className="py-3.5 px-4">Tracking ID</th>
                       <th className="py-3.5 px-4">Nama Calon Siswa</th>
@@ -1220,15 +1223,15 @@ export default function DashboardPage() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-on-surface/60 backdrop-blur-sm overflow-y-auto"
         >
           <div className="bg-surface-canvas rounded-2xl shadow-xl w-full max-w-5xl my-auto overflow-hidden flex flex-col border border-border-slate max-h-[92vh]">
-            {/* Header Modal */}
-            <div className="px-6 py-4 bg-surface-slate border-b border-border-slate flex items-start justify-between gap-4 shrink-0">
+            {/* Header Modal — Pro Max Navy #1E3A8A */}
+            <div className="px-6 py-4 bg-[#1E3A8A] text-white border-b-2 border-[#F59E0B] flex items-start justify-between gap-4 shrink-0">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  <span className="font-code-md text-code-md text-text-heading font-bold flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-status-fraud text-[20px]">
+                  <span className="font-code-md text-code-md text-white font-extrabold flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[#F59E0B] text-[20px]">
                       gavel
                     </span>
-                    Berkas Investigasi & Override Panitia #{activeCase.tracking_id}
+                    Berkas Investigasi &amp; Override Panitia #{activeCase.tracking_id}
                   </span>
                   <span
                     className={`px-2.5 py-0.5 rounded-full font-code-sm text-xs font-bold flex items-center gap-1 ${
@@ -1242,25 +1245,25 @@ export default function DashboardPage() {
                     STATUS SAAT INI: {activeCase.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-4 text-[13px] text-text-muted flex-wrap pt-0.5">
+                <div className="flex items-center gap-4 text-[13px] text-white/85 flex-wrap pt-0.5">
                   <span>
-                    <strong className="text-text-heading">Nama Siswa:</strong>{" "}
+                    <strong className="text-white">Nama Siswa:</strong>{" "}
                     {activeCase.student_name}
                   </span>
                   <span>
-                    <strong className="text-text-heading">NIK:</strong> {activeCase.student_nik}
+                    <strong className="text-white">NIK:</strong> {activeCase.student_nik}
                   </span>
                   <span>
-                    <strong className="text-text-heading">No. KK:</strong> {activeCase.kk_number}
+                    <strong className="text-white">No. KK:</strong> {activeCase.kk_number}
                   </span>
-                  <span className="font-code-sm text-secondary bg-surface-tint-blue px-2 py-0.5 rounded font-semibold">
+                  <span className="font-code-sm text-[#1E293B] bg-[#F59E0B] px-2 py-0.5 rounded font-extrabold">
                     Verifikator Aktif: {authUser.full_name}
                   </span>
                 </div>
               </div>
               <button
                 type="button"
-                className="p-1.5 rounded-lg text-text-muted hover:text-text-heading hover:bg-surface-container transition-colors shrink-0"
+                className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors shrink-0"
                 onClick={() => setModalOpen(false)}
               >
                 <span className="material-symbols-outlined text-[22px]">close</span>
