@@ -2,10 +2,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { setPanitiaSession } from "@/hooks/usePanitiaSession";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function PanitiaLoginPage() {
   const router = useRouter();
+  const authMutation = useAuth();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("panitia.ppdb@sman12-sby.sch.id");
   const [password, setPassword] = useState("PanitiaPPDB2026!");
@@ -14,48 +15,39 @@ export default function PanitiaLoginPage() {
   const [nip, setNip] = useState("");
   const [roleTitle, setRoleTitle] = useState("AUDITOR_FORENSIK");
   const [schoolName, setSchoolName] = useState("SMA Negeri 12 Surabaya (Tolak Ukur)");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
     setSuccessMsg(null);
     try {
-      const { data: json } = await axios.post("/api/auth", {
+      await authMutation.mutateAsync({
         action: mode,
         email,
         password,
-        full_name: fullName,
+        fullName,
         nip,
-        role_title: roleTitle,
-        school_name: schoolName,
+        role: roleTitle,
       });
-      if (!json.ok) {
-        setError(json.error || "Autentikasi gagal");
-      } else {
-        setPanitiaSession(json.user);
-        setSuccessMsg(
-          mode === "register"
-            ? "Registrasi Akun Panitia Berhasil! Mengalihkan ke Dashboard..."
-            : "Login Berhasil! Mengalihkan ke Dashboard Pengawas...",
-        );
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 600);
-      }
+      setSuccessMsg(
+        mode === "register"
+          ? "Registrasi Akun Panitia Berhasil! Mengalihkan ke Dashboard..."
+          : "Login Berhasil! Mengalihkan ke Dashboard Pengawas...",
+      );
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 600);
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.data?.error) {
         setError(String(err.response.data.error));
       } else {
         setError(String(err));
       }
-    } finally {
-      setLoading(false);
     }
   };
+  const loading = authMutation.isPending;
 
   return (
     <div className="flex-1 flex items-center justify-center px-4 py-10 sm:py-14 bg-[#F8FAFC]">

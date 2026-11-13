@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { clearPanitiaSession, usePanitiaSession } from "@/hooks/usePanitiaSession";
+import { clearPanitiaSession, usePanitiaSession } from "@/hooks/useAuth";
 
 export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

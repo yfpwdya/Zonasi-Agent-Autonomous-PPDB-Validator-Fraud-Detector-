@@ -138,7 +138,8 @@ const FAQ_ITEMS = [
 
 export default function PublicTrackingPage() {
   const router = useRouter();
-  const { data: apps = [], isLoading } = useApplications();
+  const { data, isLoading } = useApplications();
+  const apps = data?.applications ?? [];
   const [searchQuery, setSearchQuery] = useState("");
   const [statusLookupQuery, setStatusLookupQuery] = useState("");
   const [statusLookupError, setStatusLookupError] = useState("");
@@ -204,7 +205,7 @@ export default function PublicTrackingPage() {
 
   const approvedCount = apps.filter((a) => a.status === "APPROVED").length;
   const revisionCount = apps.filter(
-    (a) => a.status === "NEEDS_REVISION" || a.status === "PENDING_FIELD_CHECK",
+    (a) => a.status === "NEEDS_REVISION" || a.status === "NEEDS_LIVE_PHOTO",
   ).length;
   const rejectedCount = apps.filter((a) => a.status === "REJECTED").length;
 
