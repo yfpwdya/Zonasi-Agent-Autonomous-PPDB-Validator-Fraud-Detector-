@@ -1,5 +1,6 @@
 "use client";
 import { use, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { FadeIn } from "@/components/animations/FadeIn";
 import type { ApplicationRecord } from "@/types";
 import { useApplication, useCreateApplication, useVerifyLivePhoto } from "@/hooks/useApplications";
@@ -283,16 +284,21 @@ export default function TrackPage({
               </span>
             </div>
           </div>
-          <div className="bg-surface-canvas rounded-xl shadow-xl p-space-lg mb-space-xl relative overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="bg-surface-canvas rounded-2xl border border-border-slate shadow-lg p-5 sm:p-6 mb-space-xl relative overflow-hidden"
+          >
             <div className="absolute -right-16 -top-16 w-64 h-64 bg-secondary-container/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-space-lg relative z-10">
-              <div className="space-y-space-xs">
-                <div className="flex flex-wrap items-center gap-space-xs">
-                  <span className="font-code-lg text-code-lg text-primary tracking-tight font-bold bg-surface-tint-blue px-space-sm py-1 rounded-lg">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 relative z-10">
+              <div className="space-y-2.5 min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-code-sm text-xs sm:text-sm text-[#1E3A8A] tracking-tight font-extrabold bg-[#EFF6FF] border border-[#1E3A8A]/20 px-3 py-1 rounded-lg">
                     {trackingId}
                   </span>
                   <div
-                    className={`flex items-center gap-1.5 px-space-sm py-1 rounded-full font-label-md text-label-md shadow-sm ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-code-sm text-xs font-extrabold shadow-sm ${
                       appData?.status === "APPROVED"
                         ? "bg-status-approved text-on-primary"
                         : appData?.status === "REJECTED"
@@ -302,7 +308,7 @@ export default function TrackPage({
                         : "bg-secondary text-on-secondary"
                     }`}
                   >
-                    <span className={`material-symbols-outlined text-[16px] ${scanningOcr ? "animate-spin" : ""}`}>
+                    <span className={`material-symbols-outlined text-[15px] ${scanningOcr ? "animate-spin" : ""}`}>
                       {appData?.status === "APPROVED"
                         ? "verified"
                         : appData?.status === "REJECTED"
@@ -310,10 +316,10 @@ export default function TrackPage({
                         : appData?.status === "NEEDS_REVISION" || appData?.status === "NEEDS_LIVE_PHOTO"
                         ? "warning"
                         : "smart_toy"}
-                    </span>{' '}
+                    </span>
                     <span>
                       {scanningOcr
-                        ? "MEMINDAI ULANG BERKAS KK DENGAN GEMINI 3 FLASH..."
+                        ? "MEMINDAI ULANG BERKAS KK DENGAN GEMINI VISION..."
                         : appData?.status === "APPROVED"
                         ? "LOLOS VERIFIKASI ZONASI OTOMATIS (APPROVED)"
                         : appData?.status === "REJECTED"
@@ -326,45 +332,47 @@ export default function TrackPage({
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-wrap items-baseline gap-x-space-md gap-y-1 pt-1">
-                  <h1 className="font-headline-md text-headline-md text-text-heading">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-0.5">
+                  <h1 className="text-xl sm:text-2xl font-extrabold text-[#1E293B] tracking-tight">
                     {appData?.student_name || studentName}
                   </h1>
-                  <div className="flex items-center gap-space-xs text-text-muted font-code-md text-code-md">
-                    <span>NIK:</span>{' '}
-                    <span className="text-text-heading font-semibold">
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-[#F8FAFC] border border-[#E2E8F0] text-[#475569] font-code-sm text-xs">
+                    <span>NIK:</span>
+                    <span className="text-[#1E293B] font-bold">
                       {appData?.student_nik
                         ? `${appData.student_nik.slice(0, 4)}**********${appData.student_nik.slice(-2)}`
                         : "3174**********02"}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1 text-text-body font-body-md text-body-md">
-                    <span className="material-symbols-outlined text-secondary text-[18px]">
+                  <div className="inline-flex items-center gap-1.5 text-[#334155] text-xs sm:text-sm">
+                    <span className="material-symbols-outlined text-[#1E3A8A] text-[17px]">
                       school
-                    </span>{' '}
-                    <span>Pilihan:</span>{' '}
-                    <span className="font-semibold text-text-heading">
+                    </span>
+                    <span className="text-[#475569]">Patokan Ukur:</span>
+                    <span className="font-bold text-[#1E293B]">
                       {appData?.school_name || "SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Benowo)"}
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-space-sm w-full sm:w-auto self-end lg:self-center">
-                <button
-                  className="flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-heading font-label-lg text-label-lg shadow-sm transition-all w-full sm:w-auto"
+              <div className="flex items-center gap-3 w-full sm:w-auto self-end lg:self-center shrink-0">
+                <motion.button
+                  whileHover={{ y: -1, scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E3A8A] hover:bg-[#172554] text-white font-bold text-xs sm:text-sm shadow-sm transition-all w-full sm:w-auto"
                   id="btnDownloadReceipt"
                   type="button"
                   onClick={handleDownloadReceipt}
                 >
-                  <span className="material-symbols-outlined text-[20px] text-secondary">
+                  <span className="material-symbols-outlined text-[18px] text-[#F59E0B]">
                     qr_code_2
-                  </span>{' '}
-                  <span>
-                    {receiptDownloaded ? "Tanda Terima PDF Terunduh ✓" : "Unduh Tanda Terima Digital"}
                   </span>
-                </button>
-                <div className="hidden sm:flex flex-col items-center justify-center p-2 bg-surface-slate rounded-lg shadow-sm">
-                  <svg className="w-12 h-12 text-primary" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <span>
+                    {receiptDownloaded ? "Tanda Terima Terunduh ✓" : "Unduh Tanda Terima Digital"}
+                  </span>
+                </motion.button>
+                <div className="hidden sm:flex flex-col items-center justify-center p-2 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl shadow-sm shrink-0">
+                  <svg className="w-11 h-11 text-[#1E3A8A]" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                     <rect height="16" rx="2" stroke="currentColor" strokeWidth="3" width="16" x="4" y="4" />
                     <rect fill="currentColor" height="8" width="8" x="8" y="8" />
                     <rect height="16" rx="2" stroke="currentColor" strokeWidth="3" width="16" x="28" y="4" />
@@ -382,26 +390,33 @@ export default function TrackPage({
                 </div>
               </div>
             </div>
-            <div className="w-full bg-surface-container rounded-full h-1.5 mt-space-md overflow-hidden">
+            <div className="w-full bg-surface-container rounded-full h-1.5 mt-4 overflow-hidden">
               <div
                 className="bg-gradient-to-r from-status-approved via-secondary to-secondary-container h-full rounded-full transition-all duration-700"
                 style={{ width: appData?.status === "APPROVED" ? "100%" : "88%" }}
               />
             </div>
-          </div>
+          </motion.div>
 
-          {/* 3 TAHAP PIPELINE CARDS (Dynamic & Non-overlapping z-10) */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-space-xl">
+          {/* 3 TAHAP PIPELINE CARDS (Dynamic & Non-overlapping z-10 + Framer Motion Stagger) */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-space-xl">
             {/* TAHAP 1: OCR KK */}
-            <div className="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.35, delay: 0.05, ease: "easeOut" }}
+              className="bg-surface-canvas rounded-2xl border border-[#E2E8F0] shadow-md p-5 relative overflow-hidden flex flex-col justify-between"
+            >
               <div className="absolute top-0 right-0 w-20 h-20 bg-status-approved-bg/35 rounded-bl-full pointer-events-none z-0" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between gap-2 mb-space-sm">
-                  <span className="font-code-sm text-code-sm text-text-muted font-bold tracking-wider">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="font-code-sm text-xs text-[#475569] font-extrabold tracking-wider">
                     TAHAP 1 DARI 3
                   </span>
                   <span
-                    className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-md text-label-md font-semibold shadow-sm ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-code-sm text-[11px] font-bold shadow-sm ${
                       (appData?.ocr_confidence ?? 98.4) >= 80 && (appData?.kk_age_valid ?? true)
                         ? "bg-status-approved-bg text-status-approved"
                         : "bg-status-revision-bg text-status-revision"
@@ -417,21 +432,21 @@ export default function TrackPage({
                       : "ANOMALI / REVISI"}
                   </span>
                 </div>
-                <h3 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
-                  <span className="material-symbols-outlined text-status-approved text-[22px]">
+                <h3 className="text-base font-extrabold text-[#1E293B] flex items-center gap-2 mb-1.5">
+                  <span className="material-symbols-outlined text-status-approved text-[21px]">
                     document_scanner
                   </span>
-                  Penalaran Dokumen KK
+                  <span>Penalaran Dokumen KK</span>
                 </h3>
-                <p className="font-body-sm text-body-sm text-text-muted mb-space-sm">
-                  Ekstraksi multimodal Gemini 3 Flash untuk nomor KK, masa domisili, dan relasi siswa.
+                <p className="text-xs text-[#475569] leading-relaxed mb-4">
+                  Ekstraksi multimodal Gemini Vision untuk nomor KK, masa domisili, dan relasi siswa.
                 </p>
               </div>
-              <div className="relative z-10 bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Tgl Lahir &amp; Usia SMA:</span>
+              <div className="relative z-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3.5 space-y-1.5 font-code-sm text-xs">
+                <div className="flex justify-between items-center py-0.5 gap-2">
+                  <span className="text-[#475569]">Tgl Lahir &amp; Usia SMA:</span>
                   <span
-                    className={`font-bold ${
+                    className={`font-bold text-right ${
                       (appData?.student_age_valid ?? true) ? "text-status-approved" : "text-status-fraud"
                     }`}
                   >
@@ -439,53 +454,60 @@ export default function TrackPage({
                     {(appData?.student_age_valid ?? true) ? "✓ 15–17 Thn" : "✗ Anomali"})
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Tgl Terbit KK:</span>
-                  <span className="font-semibold text-text-heading">
+                <div className="flex justify-between items-center py-0.5 gap-2">
+                  <span className="text-[#475569]">Tgl Terbit KK:</span>
+                  <span className="font-semibold text-[#1E293B]">
                     {appData?.kk_issue_date || "-"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Masa Domisili:</span>
+                <div className="flex justify-between items-center py-0.5 gap-2">
+                  <span className="text-[#475569]">Masa Domisili:</span>
                   <span
-                    className={`font-bold ${
+                    className={`font-bold text-right ${
                       (appData?.kk_age_valid ?? true) ? "text-status-approved" : "text-status-fraud"
                     }`}
                   >
                     {appData?.kk_age_label || "-"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Relasi Siswa:</span>
-                  <span className="text-text-heading font-medium">
+                <div className="flex justify-between items-center py-0.5 gap-2">
+                  <span className="text-[#475569]">Relasi Siswa:</span>
+                  <span className="text-[#1E293B] font-semibold text-right">
                     {(appData?.family_relation_valid ?? true)
                       ? "Anak Kandung (Sah)"
-                      : "Famili Lain / Masked (Anomali)"}
+                      : "Famili Lain / Masked"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pt-1">
-                  <span className="text-text-muted">OCR Confidence:</span>
+                <div className="flex justify-between items-center pt-1.5 border-t border-[#E2E8F0] gap-2">
+                  <span className="text-[#475569]">OCR Confidence:</span>
                   <span
-                    className={`font-semibold ${
-                      (appData?.ocr_confidence ?? 98.4) >= 80 ? "text-secondary" : "text-status-revision"
+                    className={`font-bold ${
+                      (appData?.ocr_confidence ?? 98.4) >= 80 ? "text-[#1E3A8A]" : "text-status-revision"
                     }`}
                   >
-                    {appData?.ocr_confidence ?? 98.4}% ({(appData?.ocr_confidence ?? 98.4) >= 80 ? "Tinggi" : "Rendah / Dummy"})
+                    {appData?.ocr_confidence ?? 98.4}% ({(appData?.ocr_confidence ?? 98.4) >= 80 ? "Tinggi" : "Rendah"})
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* TAHAP 2: GEOSPATIAL POSTGIS */}
-            <div className="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.35, delay: 0.12, ease: "easeOut" }}
+              className="bg-surface-canvas rounded-2xl border border-[#E2E8F0] shadow-md p-5 relative overflow-hidden flex flex-col justify-between"
+            >
               <div className="absolute top-0 right-0 w-20 h-20 bg-status-approved-bg/35 rounded-bl-full pointer-events-none z-0" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between gap-2 mb-space-sm">
-                  <span className="font-code-sm text-code-sm text-text-muted font-bold tracking-wider">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="font-code-sm text-xs text-[#475569] font-extrabold tracking-wider">
                     TAHAP 2 DARI 3
                   </span>
                   <span
-                    className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full font-label-md text-label-md font-semibold shadow-sm ${
+                    className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-code-sm text-[11px] font-bold shadow-sm ${
                       (appData?.real_route_distance_meters ?? 820) <= 1200
                         ? "bg-status-approved-bg text-status-approved"
                         : "bg-status-revision-bg text-status-revision"
@@ -495,35 +517,35 @@ export default function TrackPage({
                     {(appData?.real_route_distance_meters ?? 820) <= 1200 ? "SELESAI / VALID" : "LUAR RADIUS"}
                   </span>
                 </div>
-                <h3 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
-                  <span className="material-symbols-outlined text-status-approved text-[22px]">
+                <h3 className="text-base font-extrabold text-[#1E293B] flex items-center gap-2 mb-1.5">
+                  <span className="material-symbols-outlined text-status-approved text-[21px]">
                     route
                   </span>
-                  Kalkulasi Jarak Darat Riil
+                  <span>Kalkulasi Jarak Darat Riil</span>
                 </h3>
-                <p className="font-body-sm text-body-sm text-text-muted mb-space-sm">
-                  Komparasi jarak garis lurus PostGIS (ST_Distance) terhadap rute jalan darat aktual.
+                <p className="text-xs text-[#475569] leading-relaxed mb-4">
+                  Komparasi jarak garis lurus PostGIS (ST_Distance) terhadap rute jalan darat aktual OSRM.
                 </p>
               </div>
-              <div className="relative z-10 bg-surface-slate rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Rute Darat Aktual:</span>
-                  <span className="font-bold text-status-approved text-[13px]">
+              <div className="relative z-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3.5 space-y-1.5 font-code-sm text-xs">
+                <div className="flex justify-between items-center py-0.5">
+                  <span className="text-[#475569]">Rute Darat Aktual:</span>
+                  <span className="font-bold text-status-approved">
                     {appData?.real_route_distance_meters ?? 820} Meter
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Garis Lurus Euclidean:</span>
-                  <span className="text-text-heading font-medium">
+                <div className="flex justify-between items-center py-0.5">
+                  <span className="text-[#475569]">Garis Lurus Euclidean:</span>
+                  <span className="text-[#1E293B] font-semibold">
                     {appData?.straight_line_distance_meters ?? 540} Meter
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Ambang Batas Zonasi:</span>
-                  <span className="text-text-muted font-medium">Maksimal 1.200 Meter</span>
+                <div className="flex justify-between items-center py-0.5">
+                  <span className="text-[#475569]">Ambang Batas Zonasi:</span>
+                  <span className="text-[#475569] font-medium">Maksimal 1.200 Meter</span>
                 </div>
-                <div className="flex justify-between items-center pt-1">
-                  <span className="text-text-muted">Status Validasi Zonasi:</span>
+                <div className="flex justify-between items-center pt-1.5 border-t border-[#E2E8F0]">
+                  <span className="text-[#475569]">Status Validasi Zonasi:</span>
                   <span className="font-bold text-status-approved">
                     {(appData?.real_route_distance_meters ?? 820) <= 1200
                       ? "LOLOS ZONA UTAMA"
@@ -531,18 +553,25 @@ export default function TrackPage({
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* TAHAP 3: VISION TATA RUANG */}
-            <div className="bg-surface-canvas rounded-xl shadow-md p-space-md relative overflow-hidden flex flex-col justify-between">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.35, delay: 0.19, ease: "easeOut" }}
+              className="bg-surface-canvas rounded-2xl border border-[#E2E8F0] shadow-md p-5 relative overflow-hidden flex flex-col justify-between"
+            >
               <div className="absolute top-0 right-0 w-20 h-20 bg-surface-tint-blue/40 rounded-bl-full pointer-events-none z-0" />
               <div className="relative z-10">
-                <div className="flex items-center justify-between gap-2 mb-space-sm">
-                  <span className="font-code-sm text-code-sm text-secondary font-bold tracking-wider">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="font-code-sm text-xs text-[#1E3A8A] font-extrabold tracking-wider">
                     TAHAP 3 DARI 3
                   </span>
                   <span
-                    className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-label-md text-label-md font-semibold shadow-sm ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-code-sm text-[11px] font-bold shadow-sm ${
                       appData?.detected_building === "COMMERCIAL" || appData?.detected_building === "EMPTY_LAND"
                         ? "bg-status-fraud-bg text-status-fraud"
                         : appData?.detected_building === "NO_STREET_VIEW"
@@ -564,52 +593,58 @@ export default function TrackPage({
                       : "SELESAI / HUNIAN"}
                   </span>
                 </div>
-                <h3 className="font-headline-sm text-headline-sm text-text-heading flex items-center gap-2 mb-space-xs">
-                  <span className="material-symbols-outlined text-secondary text-[22px]">
+                <h3 className="text-base font-extrabold text-[#1E293B] flex items-center gap-2 mb-1.5">
+                  <span className="material-symbols-outlined text-[#1E3A8A] text-[21px]">
                     satellite_alt
                   </span>
-                  Audit Visual Tata Ruang
+                  <span>Audit Visual Tata Ruang</span>
                 </h3>
-                <p className="font-body-sm text-body-sm text-text-muted mb-space-sm">
+                <p className="text-xs text-[#475569] leading-relaxed mb-4">
                   Verifikasi fasad hunian fisik via Vision AI (mencegah manipulasi ruko atau lahan kosong).
                 </p>
               </div>
-              <div className="relative z-10 bg-surface-tint-blue/40 rounded-lg p-space-sm space-y-space-xs font-code-sm text-code-sm">
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Target Geospasial:</span>
-                  <span className="font-mono text-secondary font-semibold">
+              <div className="relative z-10 bg-[#EFF6FF]/60 border border-[#DBEAFE] rounded-xl p-3.5 space-y-1.5 font-code-sm text-xs">
+                <div className="flex justify-between items-center py-0.5">
+                  <span className="text-[#475569]">Target Geospasial:</span>
+                  <span className="font-mono text-[#1E3A8A] font-bold">
                     {appData
                       ? `${appData.home_lat.toFixed(5)}, ${appData.home_lng.toFixed(5)}`
-                      : "-6.23827, 106.85194"}
+                      : "-7.24680, 112.63580"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Mesin Klasifikasi:</span>
-                  <span className="font-semibold text-text-heading">Gemini 3 Flash Vision</span>
+                <div className="flex justify-between items-center py-0.5">
+                  <span className="text-[#475569]">Mesin Klasifikasi:</span>
+                  <span className="font-semibold text-[#1E293B]">Gemini Vision AI</span>
                 </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-text-muted">Deteksi Eksterior:</span>
-                  <span className="text-secondary font-medium">
+                <div className="flex justify-between items-center py-0.5">
+                  <span className="text-[#475569]">Deteksi Eksterior:</span>
+                  <span className="text-[#1E3A8A] font-semibold text-right">
                     {appData?.detected_building === "COMMERCIAL"
                       ? "Ruko / Bangunan Komersial"
                       : appData?.detected_building === "NO_STREET_VIEW"
-                      ? "Gang Sempit (Butuh Foto Geotag)"
+                      ? "Gang Sempit (Foto Geotag)"
                       : "Rumah Tinggal / Permukiman"}
                   </span>
                 </div>
-                <div className="flex justify-between items-center pt-1">
-                  <span className="text-text-muted">Keputusan Akhir:</span>
-                  <span className="font-bold text-secondary">
+                <div className="flex justify-between items-center pt-1.5 border-t border-[#DBEAFE]">
+                  <span className="text-[#475569]">Keputusan Akhir:</span>
+                  <span className="font-bold text-[#1E3A8A]">
                     {appData?.status || "APPROVED"}
                   </span>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-space-xl items-start">
-            <div className="lg:col-span-7 bg-surface-canvas rounded-xl shadow-xl overflow-hidden flex flex-col">
-              <div className="p-space-md bg-surface-slate flex flex-wrap items-center justify-between gap-2">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-space-xl items-stretch">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="lg:col-span-7 bg-surface-canvas rounded-2xl border border-[#E2E8F0] shadow-xl overflow-hidden flex flex-col"
+            >
+              <div className="p-4 bg-[#F8FAFC] border-b border-[#E2E8F0] flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-space-xs">
                   <span className="material-symbols-outlined text-secondary text-[20px]">
                     preview
@@ -859,9 +894,15 @@ export default function TrackPage({
                   Periksa Metrik Audit →
                 </a>
               </div>
-            </div>
-            <div className="lg:col-span-5 bg-surface-canvas rounded-xl shadow-xl flex flex-col h-full overflow-hidden">
-              <div className="p-space-md bg-inverse-surface text-inverse-on-surface flex items-center justify-between">
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.15 }}
+              transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
+              className="lg:col-span-5 bg-surface-canvas rounded-2xl border border-[#E2E8F0] shadow-xl flex flex-col h-full overflow-hidden"
+            >
+              <div className="p-4 bg-[#1E3A8A] text-white flex items-center justify-between">
                 <div className="flex items-center gap-space-xs">
                   <span className="w-2.5 h-2.5 rounded-full bg-status-approved animate-pulse" />
                   <h2 className="font-headline-sm text-headline-sm text-inverse-on-surface font-semibold">
@@ -1020,7 +1061,7 @@ export default function TrackPage({
                   Bersihkan Tampilan
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>
           <div className="space-y-space-md mb-space-xl">
             <div className="flex items-center justify-between">

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import gsap from "gsap";
 import { KKScannerPanel } from "@/components/forms/KKScannerPanel";
 import { useApplications } from "@/hooks/useApplications";
@@ -530,8 +531,13 @@ export default function PublicTrackingPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           {VERIFICATION_STEPS.map((item, idx) => (
-            <div
+            <motion.div
               key={item.step}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              whileHover={{ y: -4 }}
+              transition={{ duration: 0.35, delay: idx * 0.06, ease: "easeOut" }}
               className="relative bg-[#FFFFFF] rounded-xl border border-[#E2E8F0] p-5 shadow-sm hover:shadow-md hover:border-[#1E3A8A]/40 transition-all flex flex-col justify-between"
             >
               <div>
@@ -558,7 +564,7 @@ export default function PublicTrackingPage() {
                   arrow_forward
                 </span>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
@@ -604,8 +610,13 @@ export default function PublicTrackingPage() {
               const isNearFull = fillRatio >= 85;
 
               return (
-                <div
+                <motion.div
                   key={path.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
                   className="rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-5 shadow-sm hover:shadow-md hover:border-[#1E3A8A] transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-3">
@@ -645,11 +656,14 @@ export default function PublicTrackingPage() {
 
                     {/* Progress Bar */}
                     <div className="w-full h-2.5 rounded-full bg-[#E2E8F0] overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${fillRatio}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.7, ease: "easeOut" }}
+                        className={`h-full rounded-full ${
                           isNearFull ? "bg-[#F59E0B]" : "bg-[#16A34A]"
                         }`}
-                        style={{ width: `${fillRatio}%` }}
                       />
                     </div>
 
@@ -663,7 +677,7 @@ export default function PublicTrackingPage() {
                       </a>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -952,15 +966,29 @@ export default function PublicTrackingPage() {
                   <span className="text-sm sm:text-base font-extrabold text-[#1E293B]">
                     {item.q}
                   </span>
-                  <span className="material-symbols-outlined text-[#1E3A8A]">
-                    {isOpen ? "expand_less" : "expand_more"}
-                  </span>
+                  <motion.span
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="material-symbols-outlined text-[#1E3A8A]"
+                  >
+                    expand_more
+                  </motion.span>
                 </button>
-                {isOpen && (
-                  <div className="px-5 pb-4 pt-1 text-xs sm:text-sm text-[#475569] leading-relaxed border-t border-[#F1F5F9]">
-                    {item.a}
-                  </div>
-                )}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.24, ease: "easeOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-5 pb-4 pt-1 text-xs sm:text-sm text-[#475569] leading-relaxed border-t border-[#F1F5F9]">
+                        {item.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
