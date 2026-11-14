@@ -21,7 +21,7 @@
 
 ## Demo
 
-(http://localhost:3000)
+[https://zonasi-agent.vercel.app](zonasi-agent.vercel.app])
 
 ---
 
