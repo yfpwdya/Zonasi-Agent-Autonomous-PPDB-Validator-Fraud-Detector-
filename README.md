@@ -18,8 +18,10 @@
 | 4 | **Muhammad Daffa Raditya** | QA Engineer |
 
 ---
+
 ## Demo
-zonasi-agent.vercel.app
+
+(http://localhost:3000)
 
 ---
 
