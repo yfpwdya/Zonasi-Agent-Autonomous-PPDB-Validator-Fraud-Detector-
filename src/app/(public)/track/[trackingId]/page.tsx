@@ -1267,6 +1267,13 @@ export default function TrackPage({
                     {showFasadGuide ? "Tutup Panduan" : "Syarat Pindah & Fasad"}
                   </button>
                 </div>
+                {appData?.status !== "APPROVED" && (geoStatus || appData?.rejection_reason) && (
+                  <div className="mt-space-sm rounded-lg border border-status-revision-border bg-status-revision-bg p-3 text-sm text-text-heading" role="alert">
+                    <p className="font-label-md font-bold text-status-revision">Foto belum dapat disetujui</p>
+                    <p className="mt-1 font-body-sm text-text-body">{appData?.rejection_reason || geoStatus}</p>
+                    <p className="mt-1 font-body-sm text-text-muted">Periksa GPS EXIF, kesesuaian lokasi dengan alamat KK, dan pastikan foto menampilkan fasad rumah hunian.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
