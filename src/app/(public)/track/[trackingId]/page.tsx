@@ -206,35 +206,39 @@ export default function TrackPage({
   const [condDocNumber, setCondDocNumber] = useState("");
   const [condNote, setCondNote] = useState("");
 
-  const handleGeoCamera = async (fileName?: string) => {
+  const handleGeoCamera = async (file: File) => {
     const lat = appData?.home_lat ?? -7.2489;
     const lng = appData?.home_lng ?? 112.6382;
-    const label = fileName || "fasad_rumah_dan_skpwni_geotag.jpg";
-    setGeoStatus(`Memverifikasi ${condDocType} & EXIF GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})...`);
+    setGeoStatus("Memeriksa GPS EXIF dan kesesuaian fasad rumah...");
     try {
+      const imageBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error("Foto tidak dapat dibaca."));
+        reader.readAsDataURL(file);
+      });
       const res = await verifyPhoto.mutateAsync({
         tracking_id: trackingId,
         lat,
         lng,
-        photo_name: label,
+        photo_name: file.name,
         doc_type: condDocType,
-        doc_number: condDocNumber || "470/SKPWNI-SBY/2026",
-        note: condNote || "Pindah rumah 1 keluarga penuh tervalidasi sah",
+        doc_number: condDocNumber,
+        note: condNote,
+        image_base64: imageBase64,
       });
       if (res?.application) setAppData(res.application);
-      const now = new Date().toTimeString().slice(0, 8);
-      setExtraLogs((prev) => [
-        ...prev,
-        {
-          time: now,
-          agent: "GEOTAG-FIELD-VERIFIER",
-          color: "text-emerald-400",
-          msg: `Bukti ${label} tervalidasi di (${lat.toFixed(5)}, ${lng.toFixed(5)}). Pindah rumah 1 keluarga (SKPWNI / SK Pindah Ortu) & fasad hunian sah -> STATUS: APPROVED.`,
-        },
-      ]);
-      setGeoStatus(`Terverifikasi: ${label} (Status -> APPROVED) ✓`);
+      const result = res?.application;
+      const approved = result?.status === "APPROVED";
+      setExtraLogs((prev) => [...prev, {
+        time: new Date().toTimeString().slice(0, 8),
+        agent: "GEOTAG-FIELD-VERIFIER",
+        color: approved ? "text-emerald-400" : "text-amber-400",
+        msg: result?.ai_reasoning_summary || "Foto memerlukan pemeriksaan ulang.",
+      }]);
+      setGeoStatus(approved ? `Foto ${file.name} tervalidasi ✓` : result?.rejection_reason || "Foto perlu diunggah ulang.");
     } catch {
-      setGeoStatus("Verifikasi Geotag Gagal — coba lagi");
+      setGeoStatus("Verifikasi geotag gagal — pilih foto fasad JPG dengan GPS aktif.");
     }
   };
 
@@ -1232,11 +1236,12 @@ export default function TrackPage({
                 <input
                   ref={geoInputRef}
                   type="file"
-                  accept="image/*,.pdf"
+                  accept="image/jpeg,image/jpg"
+                  capture="environment"
                   className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
-                    if (f) void handleGeoCamera(f.name);
+                    if (f) void handleGeoCamera(f);
                   }}
                 />
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-space-sm pt-space-xs">
@@ -1253,13 +1258,6 @@ export default function TrackPage({
                     <span>
                       {geoStatus || "Unggah Foto Geotag / SKPWNI Pindah Rumah"}
                     </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleGeoCamera("Simulasi_Geotag_SKPWNI_Sememi.jpg")}
-                    className="px-space-md py-space-sm rounded-lg bg-status-approved-bg border border-status-approved-border text-status-approved font-label-md text-label-md font-bold transition-all"
-                  >
-                    Simulasi Verifikasi Cepat
                   </button>
                   <button
                     type="button"

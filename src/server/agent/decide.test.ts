@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { decideVerificationStatus } from "./orchestrator.ts";
 import { resolveBirthDateAndAge, selectBestStudentCandidate } from "./ocr-kk-tool.ts";
+import { decideGeoPhotoStatus, extractGpsCoordinates } from "./geo-photo-tool.ts";
 
 test("decideVerificationStatus: APPROVED when all checks pass (including SMA age 15-17 yrs)", () => {
   const res = decideVerificationStatus({
@@ -108,4 +109,33 @@ test("selectBestStudentCandidate: picks the sibling whose age is closest to SMA 
   ];
   const picked16 = selectBestStudentCandidate(familyWith16, "MAJID PUTRA WIDYA");
   assert.equal(picked16?.name, "ADIK PUTRA WIDYA");
+});
+
+test("geo photo: arbitrary image and forged form coordinates must never be approved", async () => {
+  const noGps = extractGpsCoordinates(new Uint8Array([0xff, 0xd8, 0xff, 0xd9]));
+  assert.equal(noGps, null);
+
+  const result = await decideGeoPhotoStatus({
+    imageBase64: "data:image/jpeg;base64,/9j/2Q==",
+    claimedLat: -7.2489,
+    claimedLng: 112.6382,
+    expectedLat: -7.2489,
+    expectedLng: 112.6382,
+  });
+  assert.equal(result.status, "NEEDS_REVISION");
+  assert.match(result.reason, /GPS EXIF/i);
+});
+
+test("geo photo: AI-detected non-residential facade is rejected", async () => {
+  const result = await decideGeoPhotoStatus({
+    imageBase64: "data:image/jpeg;base64,/9j/2Q==",
+    claimedLat: -7.2489,
+    claimedLng: 112.6382,
+    expectedLat: -7.2489,
+    expectedLng: 112.6382,
+    extractedGps: { lat: -7.2489, lng: 112.6382 },
+    analyzeImage: async () => ({ isHouseFacade: false, confidence: 98, reason: "Gambar adalah poster, bukan fasad rumah." }),
+  });
+  assert.equal(result.status, "REJECTED");
+  assert.match(result.reason, /bukan fasad rumah/i);
 });
