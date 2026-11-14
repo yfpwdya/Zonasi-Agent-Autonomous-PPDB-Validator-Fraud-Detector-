@@ -36,9 +36,8 @@ export default function PanitiaLoginPage() {
           ? "Registrasi Akun Panitia Berhasil! Mengalihkan ke Dashboard..."
           : "Login Berhasil! Mengalihkan ke Dashboard Pengawas...",
       );
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 600);
+      // ponytail: hard navigation ensures Next.js proxy middleware immediately reads the newly set zonasi_session HttpOnly cookie without RSC cache bounce
+      window.location.assign("/dashboard");
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.data?.error) {
         setError(String(err.response.data.error));

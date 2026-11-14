@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px;
+  }
   html,
   body {
     margin: 0;
@@ -10,6 +14,10 @@
   }
   body {
     overscroll-behavior: none;
+  }
+  section[id],
+  div[id="scanner-kk"] {
+    scroll-margin-top: 88px;
   }
   main > :first-child {
     margin-top: 0 !important;

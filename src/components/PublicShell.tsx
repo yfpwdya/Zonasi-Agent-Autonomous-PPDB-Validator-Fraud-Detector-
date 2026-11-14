@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { clearPanitiaSession, usePanitiaSession } from "@/hooks/useAuth";
 
-// ponytail: animasi Framer Motion terpusat di shell navigasi tanpa menambah library baru
+// ponytail: animasi Framer Motion + smooth scroll in-page terpusat di shell navigasi tanpa menambah library baru
 export function PublicShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isTrack = pathname.startsWith("/track");
@@ -34,6 +34,23 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       window.removeEventListener("storage", syncMyTrackId);
     };
   }, [pathname]);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    const hashIdx = href.indexOf("#");
+    if (hashIdx === -1) return;
+    const hash = href.slice(hashIdx + 1);
+    if (pathname === "/" && hash) {
+      const target = document.getElementById(hash);
+      if (target) {
+        e.preventDefault();
+        setMobileMenuOpen(false);
+        const headerOffset = 84;
+        const y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        window.history.replaceState(null, "", `/#${hash}`);
+      }
+    }
+  };
 
   const navLinks = [
     { href: "/#beranda", label: "Beranda" },
@@ -85,7 +102,11 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[72px] flex items-center justify-between gap-3">
           {/* Left: Logo & Nama Sistem Zonasi-Agent */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <Link
+            href="/#beranda"
+            onClick={(e) => handleNavClick(e, "/#beranda")}
+            className="flex items-center gap-3 group shrink-0"
+          >
             <motion.div
               whileHover={{ scale: 1.05, rotate: -2 }}
               whileTap={{ scale: 0.96 }}
@@ -110,7 +131,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
 
-          {/* Center: Menu Navigasi Satu Baris Rapi */}
+          {/* Center: Menu Navigasi Satu Baris Rapi + Smooth Scroll */}
           <nav
             aria-label="Navigasi Utama"
             className="hidden lg:flex items-center gap-0.5 xl:gap-1 shrink-0"
@@ -119,6 +140,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
                 className="px-2.5 xl:px-3 py-2 rounded-lg text-xs xl:text-sm font-semibold text-[#475569] hover:text-[#1E3A8A] hover:bg-[#EFF6FF]/70 transition-colors whitespace-nowrap"
               >
                 {item.label}
@@ -172,6 +194,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
             <motion.div whileHover={{ y: -1, scale: 1.01 }} whileTap={{ scale: 0.98 }}>
               <Link
                 href="/#scanner-kk"
+                onClick={(e) => handleNavClick(e, "/#scanner-kk")}
                 className="px-3.5 sm:px-4 py-2 rounded-xl bg-[#F59E0B] hover:bg-[#D97706] text-[#1E293B] text-xs font-extrabold shadow-sm hover:shadow transition-all inline-flex items-center gap-1.5 whitespace-nowrap"
               >
                 <span className="material-symbols-outlined text-[17px]">document_scanner</span>
@@ -209,7 +232,10 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={(e) => {
+                        handleNavClick(e, item.href);
+                        setMobileMenuOpen(false);
+                      }}
                       className="px-3 py-2.5 rounded-xl bg-[#F8FAFC] hover:bg-[#EFF6FF] text-xs font-semibold text-[#1E293B] hover:text-[#1E3A8A] border border-[#E2E8F0]"
                     >
                       {item.label}
@@ -279,17 +305,29 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
               </h4>
               <ul className="space-y-2 text-xs text-white/85">
                 <li>
-                  <Link href="/#scanner-kk" className="hover:text-[#F59E0B] transition-colors">
+                  <Link
+                    href="/#scanner-kk"
+                    onClick={(e) => handleNavClick(e, "/#scanner-kk")}
+                    className="hover:text-[#F59E0B] transition-colors"
+                  >
                     → AI KK Forensic Scanner (1x Single-Pass)
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#cek-status-cepat" className="hover:text-[#F59E0B] transition-colors">
+                  <Link
+                    href="/#cek-status-cepat"
+                    onClick={(e) => handleNavClick(e, "/#cek-status-cepat")}
+                    className="hover:text-[#F59E0B] transition-colors"
+                  >
                     → Lacak Nomor Berkas / Inspeksi 3 Pilar
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#alur-verifikasi" className="hover:text-[#F59E0B] transition-colors">
+                  <Link
+                    href="/#alur-verifikasi"
+                    onClick={(e) => handleNavClick(e, "/#alur-verifikasi")}
+                    className="hover:text-[#F59E0B] transition-colors"
+                  >
                     → 5 Tahap Pipeline Audit Otonom
                   </Link>
                 </li>
@@ -306,10 +344,10 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
 
-            {/* Kolom 3: Dukungan Teknis & Posko Verifikator */}
+            {/* Kolom 3: Dukungan Teknis Sistem Audit */}
             <div className="space-y-2.5">
               <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#F59E0B]">
-                Dukungan Teknis &amp; Posko Audit
+                Dukungan Teknis Verifikator
               </h4>
               <div className="space-y-2.5 text-xs text-white/85">
                 <p className="flex items-start gap-2.5">
@@ -326,7 +364,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     schedule
                   </span>
                   <span>
-                    Operasional Server AI: <strong>24 Jam Real-Time</strong> (Posko Fisik: 07.30 – 16.00 WIB)
+                    Operasional Server AI: <strong>24 Jam Real-Time Otomatis</strong>
                   </span>
                 </p>
                 <p className="flex items-start gap-2.5">

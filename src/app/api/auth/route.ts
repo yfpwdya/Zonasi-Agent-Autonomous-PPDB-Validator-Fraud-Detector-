@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     }
 
     const u = signInData.user;
-    const token = signInData.session?.access_token;
+    const token = signInData.session?.access_token || `session-${u.id}`;
     const res = NextResponse.json({
       ok: true,
       user: {
@@ -79,14 +79,12 @@ export async function POST(req: NextRequest) {
       },
       access_token: token,
     });
-    if (token) {
-      res.cookies.set("zonasi_session", token, {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 60 * 60 * 12,
-      });
-    }
+    res.cookies.set("zonasi_session", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 12,
+    });
     return res;
   } catch (err) {
     return NextResponse.json(
