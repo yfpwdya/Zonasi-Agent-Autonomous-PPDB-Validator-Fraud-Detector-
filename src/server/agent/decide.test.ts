@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { decideVerificationStatus } from "./orchestrator.ts";
 import { resolveBirthDateAndAge, selectBestStudentCandidate } from "./ocr-kk-tool.ts";
-import { decideGeoPhotoStatus, extractGpsCoordinates } from "./geo-photo-tool.ts";
+import { decideGeoPhotoStatus, extractGpsCoordinates, validateConditionalEligibility } from "./geo-photo-tool.ts";
 
 test("decideVerificationStatus: APPROVED when all checks pass (including SMA age 15-17 yrs)", () => {
   const res = decideVerificationStatus({
@@ -124,6 +124,12 @@ test("geo photo: arbitrary image and forged form coordinates must never be appro
   });
   assert.equal(result.status, "NEEDS_REVISION");
   assert.match(result.reason, /GPS EXIF/i);
+});
+
+test("conditional evidence: age anomaly must never be approved", () => {
+  const result = validateConditionalEligibility({ studentAgeValid: false, studentAgeYears: 14.2, studentBirthDate: "2012-04-10" });
+  assert.equal(result.allowed, false);
+  assert.match(result.reason, /usia/i);
 });
 
 test("geo photo: AI-detected non-residential facade is rejected", async () => {

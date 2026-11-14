@@ -545,7 +545,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
               </div>
 
               {/* Form Upload Berkas Bersyarat (Pindah Rumah Sah < 1 Thn / SKPWNI / SK Tugas / Foto Geotag) */}
-              {auditResult.status !== "APPROVED" && (
+              {auditResult.status !== "APPROVED" && (auditResult.student_age_valid ?? true) && (
                 <div className="rounded-xl bg-white/10 border border-amber-400/40 p-4 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
@@ -647,21 +647,15 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                           note: condNote || "Pindah rumah 1 keluarga penuh terverifikasi sah oleh Panitia",
                         });
                         if (res?.application) {
-                          setAuditResult({
-                            ...auditResult,
-                            ...res.application,
-                            status: "APPROVED",
-                            rejection_reason: null,
-                          });
+                          setAuditResult({ ...auditResult, ...res.application });
+                          setCondStatusMsg(
+                            res.application.status === "APPROVED"
+                              ? "Berkas bersyarat tervalidasi ✓"
+                              : res.application.rejection_reason || "Berkas memerlukan pemeriksaan ulang.",
+                          );
                         } else {
-                          setAuditResult({
-                            ...auditResult,
-                            status: "APPROVED",
-                            rejection_reason: null,
-                            ai_reasoning_summary: `Verifikasi Berkas Bersyarat (${condDocType}) disetujui Panitia.`,
-                          });
+                          setCondStatusMsg("Berkas tidak dapat diverifikasi.");
                         }
-                        setCondStatusMsg("Berkas Bersyarat Tervalidasi -> Status Diubah Menjadi APPROVED ✓");
                       }}
                       className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-label-md text-xs font-bold shadow transition-all disabled:opacity-50"
                     >

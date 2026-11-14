@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { decideGeoPhotoStatus } from "@/server/agent/geo-photo-tool";
+import { decideGeoPhotoStatus, validateConditionalEligibility } from "@/server/agent/geo-photo-tool";
 import { readApplications, writeApplications } from "@/server/store";
 import { getSupabaseServer, hasSupabaseConfig } from "@/server/supabase";
 
@@ -16,17 +16,24 @@ export async function POST(request: Request) {
   if (idx < 0) return NextResponse.json({ ok: false, error: "Data pendaftaran tidak ditemukan." }, { status: 404 });
 
   const app = rows[idx];
-  const verification = await decideGeoPhotoStatus({
-    imageBase64,
-    claimedLat: Number(body.lat),
-    claimedLng: Number(body.lng),
-    expectedLat: app.home_lat ?? app.latitude,
-    expectedLng: app.home_lng ?? app.longitude,
-  }).catch((error) => ({
-    status: "NEEDS_REVISION" as const,
-    building: "NO_STREET_VIEW" as const,
-    reason: error instanceof Error ? error.message : "Foto tidak dapat dianalisis.",
-  }));
+  const eligibility = validateConditionalEligibility({
+    studentAgeValid: app.student_age_valid,
+    studentAgeYears: app.student_age_years,
+    studentBirthDate: app.student_birth_date,
+  });
+  const verification = !eligibility.allowed
+    ? { status: "REJECTED" as const, building: app.detected_building, reason: eligibility.reason }
+    : await decideGeoPhotoStatus({
+        imageBase64,
+        claimedLat: Number(body.lat),
+        claimedLng: Number(body.lng),
+        expectedLat: app.home_lat ?? app.latitude,
+        expectedLng: app.home_lng ?? app.longitude,
+      }).catch((error) => ({
+        status: "NEEDS_REVISION" as const,
+        building: "NO_STREET_VIEW" as const,
+        reason: error instanceof Error ? error.message : "Foto tidak dapat dianalisis.",
+      }));
 
   const photo_name = String(body.photo_name || "foto_fasad_geotag.jpg");
   const status = verification.status;

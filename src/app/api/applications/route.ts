@@ -53,9 +53,13 @@ function mapDbRowToRecord(
   const rel = String(
     row.family_relation ?? fallback?.family_relation ?? (relValid ? "ANAK_KANDUNG" : "FAMILI_LAIN"),
   );
-  const status = (row.status as ApplicationRecord["status"]) ?? fallback?.status ?? "APPROVED";
   const nikStr = String(row.student_nik ?? fallback?.student_nik ?? "");
-  const birthCalc = resolveBirthDateAndAge(fallback?.student_birth_date, nikStr);
+  const storedBirthDate = String(row.student_birth_date ?? fallback?.student_birth_date ?? "");
+  const birthCalc = resolveBirthDateAndAge(storedBirthDate, nikStr);
+  const studentAgeValid = birthCalc.ageValid;
+  const requestedStatus = (row.status as ApplicationRecord["status"]) ?? fallback?.status ?? "NEEDS_REVISION";
+  // A persisted/legacy approval cannot override the hard age rule.
+  const status = !studentAgeValid && requestedStatus === "APPROVED" ? "REJECTED" : requestedStatus;
 
   return {
     id: String(row.id ?? fallback?.id ?? crypto.randomUUID()),
@@ -95,9 +99,9 @@ function mapDbRowToRecord(
     kk_age_valid: Boolean(row.kk_age_valid ?? ageYears >= 1),
     family_relation_valid: relValid,
     family_relation: rel,
-    student_birth_date: fallback?.student_birth_date ?? birthCalc.birthDate,
-    student_age_years: fallback?.student_age_years ?? birthCalc.ageYears,
-    student_age_valid: fallback?.student_age_valid ?? birthCalc.ageValid,
+    student_birth_date: storedBirthDate || birthCalc.birthDate,
+    student_age_years: birthCalc.ageYears,
+    student_age_valid: studentAgeValid,
     head_of_family: fallback?.head_of_family ?? "-",
     family_members: fallback?.family_members ?? [],
     model_used: fallback?.model_used ?? "gemini-vision-single-pass",

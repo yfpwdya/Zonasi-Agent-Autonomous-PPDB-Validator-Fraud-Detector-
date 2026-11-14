@@ -5,6 +5,16 @@ type ImageAnalysis = { isHouseFacade: boolean; confidence: number; reason: strin
 
 const GPS_TOLERANCE_METERS = 75;
 
+export function validateConditionalEligibility(input: { studentAgeValid?: boolean; studentAgeYears?: number; studentBirthDate?: string }) {
+  if (input.studentAgeValid === false) {
+    return {
+      allowed: false,
+      reason: `Bukti tambahan tidak dapat mengesampingkan anomali usia: ${Math.floor(input.studentAgeYears ?? 0)} tahun (tanggal lahir ${input.studentBirthDate || "tidak terbaca"}). Syarat usia SMA adalah 15–17 tahun.`,
+    };
+  }
+  return { allowed: true, reason: "Syarat usia terpenuhi." };
+}
+
 function u16(bytes: Uint8Array, offset: number, little: boolean) {
   return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint16(offset, little);
 }
