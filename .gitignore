@@ -12,3 +12,7 @@ next-env.d.ts
 
 AGENTS.md
 .hermes-tmp*
+
+# Local code-quality tool configuration
+.vibecleanrc.json
+spesifikasi_teknis.md
