@@ -68,9 +68,9 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
   const navLinks = [
     { href: "/#beranda", label: "Beranda" },
     { href: "/#alur-verifikasi", label: "Alur Verifikasi" },
-    { href: "/#kuota-jalur", label: "Kuota" },
+    { href: "/#kuota-jalur", label: "Kuota Zonasi" },
     { href: "/#syarat-berkas", label: "Aturan KK" },
-    { href: "/#jadwal-verifikasi", label: "Jadwal" },
+    { href: "/#jadwal-verifikasi", label: "Tahapan" },
     { href: "/#faq-panitia", label: "FAQ" },
   ];
 

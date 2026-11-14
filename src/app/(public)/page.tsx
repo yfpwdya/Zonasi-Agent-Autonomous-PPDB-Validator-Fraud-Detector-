@@ -56,65 +56,45 @@ const PPDB_QUOTA_PATHS = [
     quota: 160,
     filledBase: 142,
     icon: "my_location",
-    badge: "Prioritas Audit Geospasial",
-    desc: "Verifikasi otomatis radius ≤ 1.200 m dari lokasi sekolah tujuan (SMAN 12 Surabaya), masa terbit KK minimal 1 tahun, & status hubungan keluarga.",
-  },
-  {
-    id: "prestasi",
-    name: "Jalur Prestasi Akademik & Lomba",
-    pct: 30,
-    quota: 96,
-    filledBase: 81,
-    icon: "workspace_premium",
-    badge: "30% Kuota Sekolah",
-    desc: "Verifikasi keaslian identitas KK, kesesuaian usia masuk SMA (15–17 tahun), serta validasi nilai rapor dan sertifikat kejuaraan.",
-  },
-  {
-    id: "afirmasi",
-    name: "Jalur Afirmasi (KIP / DTKS)",
-    pct: 15,
-    quota: 48,
-    filledBase: 39,
-    icon: "volunteer_activism",
-    badge: "15% Kuota Sekolah",
-    desc: "Validasi sinkronisasi NIK & Nomor KK terhadap kepesertaan DTKS/KIP/PKH serta verifikasi titik koordinat tempat tinggal.",
+    badge: "Prioritas Verifikasi Zonasi",
+    desc: "Verifikasi otomatis radius ≤ 1.200 m dari lokasi sekolah tujuan (SMAN 12 Surabaya), masa terbit KK minimal 1 tahun, & status hubungan keluarga Anak Kandung.",
   },
   {
     id: "perpindahan",
-    name: "Perpindahan Tugas Orang Tua",
+    name: "Perpindahan Domisili / Tugas Orang Tua (Terkait KK < 1 Tahun)",
     pct: 5,
     quota: 16,
     filledBase: 11,
     icon: "transfer_within_a_station",
-    badge: "5% Kuota Sekolah",
-    desc: "Validasi berkas bersyarat SK Pindah Tugas Orang Tua + SKPWNI Dukcapil bagi KK yang terbit kurang dari 1 tahun.",
+    badge: "Verifikasi Berkas Bersyarat",
+    desc: "Validasi berkas bersyarat SKPWNI Dukcapil / SK Pindah Tugas Orang Tua bagi pendaftar zonasi yang Kartu Keluarganya terbit kurang dari 1 tahun.",
   },
 ];
 
 const AUDIT_TIMELINE = [
   {
     phase: "Tahap 1 • Penetapan Wilayah & Aturan Zonasi",
-    date: "01 – 15 Mei 2026",
+    actor: "Sistem & Konfigurasi",
     desc: "Penetapan koordinat lokasi sekolah tujuan (SMAN 12 Surabaya: -7.2468, 112.6358), batas radius 1.200 m, dan syarat usia SMA (15–17 tahun).",
     status: "SELESAI",
   },
   {
     phase: "Tahap 2 • Pemindaian KK & Verifikasi Domisili Otomatis",
-    date: "16 Mei – 25 November 2026",
-    desc: "Pembacaan otomatis berkas KK, perhitungan jarak rute jalan darat, deteksi indikasi titip KK, dan verifikasi berkas bersyarat SKPWNI.",
+    actor: "Zonasi-Agent Otomatis",
+    desc: "Pembacaan otomatis berkas KK, perhitungan jarak rute jalan darat, deteksi indikasi titip KK, dan pemeriksaan berkas bersyarat SKPWNI.",
     status: "BERLANGSUNG",
   },
   {
     phase: "Tahap 3 • Peninjauan Berkas & Keputusan Panitia",
-    date: "26 – 28 November 2026",
+    actor: "Verifikator Panitia PPDB",
     desc: "Pemeriksaan berkas yang memerlukan revisi atau terindikasi kecurangan pada Dashboard Panitia serta peninjauan bukti foto rumah ber-geotag.",
-    status: "AKAN_DATANG",
+    status: "BERLANGSUNG",
   },
   {
     phase: "Tahap 4 • Ekspor Berita Acara & Penetapan Final",
-    date: "30 November 2026 (08.00 WIB)",
+    actor: "Ketua Verifikator Panitia",
     desc: "Penguncian hasil verifikasi dan pengunduhan Berita Acara resmi (CSV/Excel) oleh Ketua Verifikator Panitia PPDB.",
-    status: "AKAN_DATANG",
+    status: "SIAP_EKSPOR",
   },
 ];
 
@@ -579,13 +559,13 @@ export default function PublicTrackingPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-2">
               <span className="inline-block px-3 py-1 rounded-full bg-[#FEF3C7] text-[#D97706] text-xs font-extrabold uppercase tracking-wider">
-                Informasi Daya Tampung &amp; Kuota Jalur PPDB
+                Informasi Daya Tampung &amp; Kuota Zonasi PPDB
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1E293B]">
-                Kuota Jalur PPDB SMA Negeri 12 Surabaya
+                Kuota &amp; Cakupan Verifikasi Zonasi SMA Negeri 12 Surabaya
               </h2>
               <p className="text-sm text-[#475569] max-w-2xl">
-                Distribusi daya tampung resmi <strong>320 siswa</strong> berdasarkan regulasi Permendikbudristek untuk memantau keterisian kuota dan prioritas verifikasi zonasi.
+                Fokus utama <strong>Zonasi-Agent</strong> adalah memverifikasi berkas <strong>Jalur Zonasi</strong> serta berkas bersyarat perpindahan domisili (SKPWNI / Pindah Tugas) secara akurat dan transparan.
               </p>
             </div>
             <div className="flex items-center gap-3 text-xs font-semibold">
@@ -600,7 +580,7 @@ export default function PublicTrackingPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {PPDB_QUOTA_PATHS.map((path) => {
               const dynamicFilled =
                 path.id === "zonasi"
@@ -855,7 +835,7 @@ export default function PublicTrackingPage() {
         </div>
       </section>
 
-      {/* 7. SEKSI JADWAL PENTING VERIFIKASI (Timeline Table dengan Lencana Hijau Berkedip "Sedang Berlangsung") */}
+      {/* 7. SEKSI ALUR TAHAPAN OPERASIONAL VERIFIKASI PANITIA (Tanpa Tanggal) */}
       <section
         id="jadwal-verifikasi"
         data-gsap="home-section"
@@ -865,13 +845,13 @@ export default function PublicTrackingPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-2">
               <span className="inline-block px-3 py-1 rounded-full bg-[#EFF6FF] text-[#1E3A8A] text-xs font-extrabold uppercase tracking-wider">
-                Agenda Operasional Panitia PPDB 2026/2027
+                Alur Operasional Panitia PPDB
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1E293B]">
-                Jadwal Tahapan Pemindaian &amp; Verifikasi Berkas
+                Alur Tahapan Pemindaian &amp; Verifikasi Berkas
               </h2>
               <p className="text-sm text-[#475569]">
-                Timeline operasional sistem Zonasi-Agent untuk memastikan seluruh berkas Kartu Keluarga diaudit tepat waktu sebelum penguncian Berita Acara.
+                Urutan kerja operasional sistem Zonasi-Agent mulai dari penetapan wilayah zonasi, pemindaian Kartu Keluarga otomatis, hingga penguncian Berita Acara panitia.
               </p>
             </div>
           </div>
@@ -880,10 +860,10 @@ export default function PublicTrackingPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#1E3A8A] text-white text-xs font-extrabold uppercase tracking-wider">
-                  <th className="py-4 px-5">Tahapan Operasional</th>
-                  <th className="py-4 px-5">Rentang Tanggal</th>
-                  <th className="py-4 px-5 hidden md:table-cell">Keterangan Teknis</th>
-                  <th className="py-4 px-5 text-right">Status Tahapan</th>
+                  <th className="py-4 px-5">Tahapan Alur Verifikasi</th>
+                  <th className="py-4 px-5">Pelaksana / Modul</th>
+                  <th className="py-4 px-5 hidden md:table-cell">Rincian Proses Verifikasi</th>
+                  <th className="py-4 px-5 text-right">Status Sistem</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2E8F0] bg-[#FFFFFF] text-sm">
@@ -896,7 +876,7 @@ export default function PublicTrackingPage() {
                       </div>
                     </td>
                     <td className="py-4 px-5 font-code-sm text-xs sm:text-sm font-bold text-[#1E3A8A] whitespace-nowrap">
-                      {row.date}
+                      {row.actor}
                     </td>
                     <td className="py-4 px-5 text-xs sm:text-sm text-[#475569] hidden md:table-cell">
                       {row.desc}
@@ -908,19 +888,19 @@ export default function PublicTrackingPage() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#16A34A] opacity-75" />
                             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#16A34A]" />
                           </span>
-                          Sedang Berlangsung
+                          Aktif Berjalan
                         </span>
                       ) : row.status === "SELESAI" ? (
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EFF6FF] text-[#1E3A8A] text-xs font-bold">
                           <span className="material-symbols-outlined text-[15px]">
                             check_circle
                           </span>
-                          Selesai
+                          Terkonfigurasi
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F1F5F9] text-[#475569] text-xs font-semibold">
-                          <span className="material-symbols-outlined text-[15px]">schedule</span>
-                          Akan Datang
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FEF3C7] text-[#D97706] text-xs font-semibold">
+                          <span className="material-symbols-outlined text-[15px]">fact_check</span>
+                          Siap Diekspor
                         </span>
                       )}
                     </td>
