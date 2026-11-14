@@ -21,7 +21,7 @@
 
 ## Demo
 
-[https://zonasi-agent.vercel.app](zonasi-agent.vercel.app])
+[zonasi-agent.vercel.app](https://zonasi-agent.vercel.app])
 
 ---
 
