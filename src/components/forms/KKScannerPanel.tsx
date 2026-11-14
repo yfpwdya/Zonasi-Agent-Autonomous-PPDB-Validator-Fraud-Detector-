@@ -72,9 +72,9 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
   const verifyCondMutation = useVerifyLivePhoto();
 
   const [fileName, setFileName] = useState<string | null>(null);
-  const [condDocType, setCondDocType] = useState<string>("SKPWNI_DUKCAPIL");
   const [condDocNumber, setCondDocNumber] = useState<string>("");
   const [condFileName, setCondFileName] = useState<string>("");
+  const [condFileBase64, setCondFileBase64] = useState<string>("");
   const [condNote, setCondNote] = useState<string>("");
   const [condStatusMsg, setCondStatusMsg] = useState<string>("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -545,42 +545,22 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
               </div>
 
               {/* Form Upload Berkas Bersyarat (Pindah Rumah Sah < 1 Thn / SKPWNI / SK Tugas / Foto Geotag) */}
-              {auditResult.status !== "APPROVED" && (auditResult.student_age_valid ?? true) && (
+              {!auditResult.kk_age_valid && (auditResult.student_age_valid ?? true) && (
                 <div className="rounded-xl bg-white/10 border border-amber-400/40 p-4 space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <span className="font-code-sm text-[11px] text-amber-300 uppercase font-bold block">
-                        FORM UPLOAD BERKAS BERSYARAT (VERIFIKASI PINDAH RUMAH SAH / GANG SEMPIT)
+                        UNGGAH BERKAS KEPINDAHAN RESMI (KK TERBIT KURANG DARI 1 TAHUN)
                       </span>
                       <p className="font-body-sm text-xs text-slate-200">
-                        Jika peserta benar-benar pindah rumah 1 keluarga (&lt; 1 tahun) atau terkendala Street View, unggah dokumen pembuktian resmi di bawah untuk meloloskan berkas:
+                        Jika KK terbit kurang dari satu tahun, unggah SKPWNI Dukcapil atau surat pindah tugas resmi. Berkas masuk pemeriksaan panitia, bukan persetujuan otomatis.
                       </p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <label className="font-code-sm text-[11px] text-slate-300 block mb-1">
-                        Jenis Surat Pembuktian Resmi
-                      </label>
-                      <select
-                        value={condDocType}
-                        onChange={(e) => setCondDocType(e.target.value)}
-                        className="w-full rounded-lg bg-slate-900 border border-white/20 px-3 py-2 text-white font-body-sm text-xs"
-                      >
-                        <option value="SKPWNI_DUKCAPIL">
-                          1. SKPWNI Dukcapil (Pindah Rumah 1 Keluarga Penuh)
-                        </option>
-                        <option value="SK_PINDAH_TUGAS_ORTU">
-                          2. SK Pindah Tugas / Mutasi Kerja Orang Tua + SKD RT/RW
-                        </option>
-                        <option value="SURAT_DOMISILI_BENCANA">
-                          3. Surat Keterangan Domisili Bencana Alam/Sosial (BPBD/Lurah)
-                        </option>
-                        <option value="FOTO_FASAD_GEOTAG">
-                          4. Foto Fasad Depan Rumah Ber-Geotag GPS (Mitigasi Gang Sempit)
-                        </option>
-                      </select>
+                    <div className="sm:col-span-2 rounded-lg bg-slate-900/70 border border-white/20 px-3 py-2 text-slate-200 font-body-sm text-xs">
+                      Dokumen diterima: SKPWNI Dukcapil atau surat pindah tugas resmi.
                     </div>
 
                     <div>
@@ -598,14 +578,18 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
 
                     <div>
                       <label className="font-code-sm text-[11px] text-slate-300 block mb-1">
-                        File Surat (SKPWNI / SK Tugas) &amp; Foto Rumah Geotag
+                        Berkas Kepindahan Resmi
                       </label>
                       <input
                         type="file"
                         accept=".pdf,.jpg,.jpeg,.png"
                         onChange={(e) => {
                           const f = e.target.files?.[0];
-                          if (f) setCondFileName(f.name);
+                          if (!f) return;
+                          setCondFileName(f.name);
+                          const reader = new FileReader();
+                          reader.onload = () => setCondFileBase64(String(reader.result));
+                          reader.readAsDataURL(f);
                         }}
                         className="w-full rounded-lg bg-slate-900 border border-white/20 px-2.5 py-1.5 text-slate-200 font-code-sm text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded file:border-0 file:bg-secondary file:text-white file:text-xs file:font-semibold"
                       />
@@ -641,10 +625,11 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                           tracking_id: auditResult.tracking_id,
                           lat: auditResult.latitude ?? auditResult.home_lat ?? -7.2489,
                           lng: auditResult.longitude ?? auditResult.home_lng ?? 112.6382,
-                          photo_name: condFileName || `${condDocType.toLowerCase()}_terverifikasi.pdf`,
-                          doc_type: condDocType,
-                          doc_number: condDocNumber || "470/SKPWNI-SBY/2026",
-                          note: condNote || "Pindah rumah 1 keluarga penuh terverifikasi sah oleh Panitia",
+                          photo_name: condFileName || "berkas_kepindahan_resmi.pdf",
+                          doc_type: "BERKAS_KEPINDAHAN_RESMI",
+                          doc_number: condDocNumber,
+                          note: condNote,
+                          image_base64: condFileBase64,
                         });
                         if (res?.application) {
                           setAuditResult({ ...auditResult, ...res.application });

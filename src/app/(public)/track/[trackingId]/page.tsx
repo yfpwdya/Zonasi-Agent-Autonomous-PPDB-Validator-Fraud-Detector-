@@ -209,7 +209,7 @@ export default function TrackPage({
   const handleGeoCamera = async (file: File) => {
     const lat = appData?.home_lat ?? -7.2489;
     const lng = appData?.home_lng ?? 112.6382;
-    setGeoStatus("Memeriksa GPS EXIF dan kesesuaian fasad rumah...");
+    setGeoStatus("Mengirim berkas kepindahan resmi untuk pemeriksaan panitia...");
     try {
       const imageBase64 = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
@@ -1139,10 +1139,8 @@ export default function TrackPage({
                 <div>
                   <div className="flex items-center justify-between mb-space-sm">
                     <span className="px-space-xs py-0.5 rounded bg-surface-tint-blue text-secondary font-label-md text-label-md font-semibold flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">
-                        location_searching
-                      </span>
-                      {' '}Mitigasi Gang Sempit &amp; Pindah Rumah Sah (&lt; 1 Thn)
+                      <span className="material-symbols-outlined text-[16px]">description</span>
+                      {' '}Berkas Kepindahan Resmi
                     </span>
                     {' '}
                     <span className="font-code-sm text-code-sm text-text-muted">
@@ -1150,10 +1148,10 @@ export default function TrackPage({
                     </span>
                   </div>
                   <h3 className="font-headline-sm text-headline-sm text-text-heading mb-space-xs">
-                    Verifikasi Mandiri Foto Ber-Geotag &amp; Bukti Pindah Keluarga
+                    Unggah Berkas Kepindahan Resmi
                   </h3>
                   <p className="font-body-sm text-body-sm text-text-muted mb-space-md">
-                    Untuk rumah di gang sempit yang terhalang Street View <strong>ATAU</strong> keluarga yang benar-benar pindah rumah (&lt; 1 tahun) bersama seluruh anggota keluarga: unggah <strong>Foto Depan Rumah Ber-Geotag GPS</strong> beserta <strong>SKPWNI (Surat Pindah Dukcapil) / SK Pindah Tugas Orang Tua</strong>.
+                    Jika Kartu Keluarga terbit kurang dari satu tahun, unggah satu berkas kepindahan resmi. Berkas akan diperiksa oleh panitia sebelum keputusan akhir dibuat.
                   </p>
                   <div className="bg-surface-slate rounded-xl p-space-md space-y-space-sm mb-space-md">
                     <div className="flex items-center gap-space-sm">
@@ -1164,37 +1162,22 @@ export default function TrackPage({
                       </div>
                       <div>
                         <h4 className="font-label-lg text-label-lg text-text-heading">
-                          Kamera Geotagging &amp; Lampiran SKPWNI / Surat Tugas
+                        Lampiran Berkas Kepindahan Resmi
                         </h4>
                         <p className="font-body-sm text-body-sm text-text-muted">
-                          Mencocokkan koordinat EXIF foto rumah &amp; memvalidasi kepindahan seluruh keluarga (bukan titip KK anak).
+                        Panitia memeriksa keabsahan dokumen dan kesesuaian kepindahan seluruh keluarga.
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 p-2 bg-surface-canvas rounded-lg text-text-heading font-code-sm text-code-sm">
-                      <span className="material-symbols-outlined text-status-approved text-[18px]">
-                        gps_fixed
-                      </span>
-                      {' '}
-                      <span>
-                        Target GPS KK: ({(appData?.home_lat ?? -7.2489).toFixed(4)}, {(appData?.home_lng ?? 112.6382).toFixed(4)}) • Akurasi ±3.2m
-                      </span>
+                      <span className="material-symbols-outlined text-secondary text-[18px]">description</span>
+                      <span>Dokumen yang diterima: SKPWNI Dukcapil atau surat pindah tugas resmi.</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                      <div>
-                        <label className="font-code-sm text-[11px] text-text-muted block mb-1">
-                          Jenis Surat Pembuktian Pindah / Domisili
-                        </label>
-                        <select
-                          value={condDocType}
-                          onChange={(e) => setCondDocType(e.target.value)}
-                          className="w-full rounded-lg bg-surface-canvas border border-border-slate px-2.5 py-2 text-text-heading font-body-sm text-xs"
-                        >
-                          <option value="SKPWNI_DUKCAPIL">1. SKPWNI Dukcapil (Pindah 1 Keluarga Penuh)</option>
-                          <option value="SK_PINDAH_TUGAS_ORTU">2. SK Pindah Tugas / Mutasi Kerja Ortu + SKD</option>
-                          <option value="SURAT_DOMISILI_BENCANA">3. Surat Domisili Bencana Alam/Sosial (BPBD)</option>
-                          <option value="FOTO_FASAD_GEOTAG">4. Foto Fasad Rumah Geotag (Gang Sempit)</option>
-                        </select>
+                      <div className="sm:col-span-2">
+                        <p className="font-code-sm text-[11px] text-text-muted">
+                          Unggah SKPWNI Dukcapil atau surat pindah tugas resmi dalam satu file PDF/JPG/PNG.
+                        </p>
                       </div>
                       <div>
                         <label className="font-code-sm text-[11px] text-text-muted block mb-1">
@@ -1227,7 +1210,7 @@ export default function TrackPage({
                         <ul className="list-disc pl-4 space-y-0.5 text-text-body">
                           <li><strong>Pindah 1 Keluarga Penuh:</strong> Wajib melampirkan <strong>SKPWNI</strong> (Surat Keterangan Pindah WNI dari Dukcapil) yang membuktikan orang tua &amp; anak ikut pindah bersama (bukan hanya menumpang/titip anak ke KK kerabat).</li>
                           <li><strong>Mutasi Kerja/Dinas:</strong> Lampirkan <strong>SK Pindah Tugas</strong> orang tua/wali dari instansi/perusahaan + Surat Keterangan Domisili RT/RW setempat.</li>
-                          <li><strong>Bukti Fisik Hunian:</strong> Foto depan rumah menampilkan nomor rumah &amp; jalan lingkungan dengan GPS aktif.</li>
+                          <li><strong>Dokumen Resmi:</strong> Unggah SKPWNI Dukcapil atau surat pindah tugas resmi yang terbaca lengkap.</li>
                         </ul>
                       </div>
                     )}
@@ -1236,8 +1219,7 @@ export default function TrackPage({
                 <input
                   ref={geoInputRef}
                   type="file"
-                  accept="image/jpeg,image/jpg"
-                  capture="environment"
+                  accept="application/pdf,image/jpeg,image/png"
                   className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
@@ -1256,7 +1238,7 @@ export default function TrackPage({
                     </span>
                     {' '}
                     <span>
-                      {geoStatus || "Unggah Foto Geotag / SKPWNI Pindah Rumah"}
+                      {geoStatus || "Unggah Berkas Kepindahan Resmi"}
                     </span>
                   </button>
                   <button
@@ -1264,14 +1246,14 @@ export default function TrackPage({
                     onClick={() => setShowFasadGuide((v) => !v)}
                     className="px-space-md py-space-sm rounded-lg bg-surface-slate hover:bg-surface-container text-text-body font-label-md text-label-md transition-all"
                   >
-                    {showFasadGuide ? "Tutup Panduan" : "Syarat Pindah & Fasad"}
+                    {showFasadGuide ? "Tutup Panduan" : "Syarat Berkas Pindah"}
                   </button>
                 </div>
                 {appData?.status !== "APPROVED" && (geoStatus || appData?.rejection_reason) && (
                   <div className="mt-space-sm rounded-lg border border-status-revision-border bg-status-revision-bg p-3 text-sm text-text-heading" role="alert">
-                    <p className="font-label-md font-bold text-status-revision">Foto belum dapat disetujui</p>
+                    <p className="font-label-md font-bold text-status-revision">Berkas belum dapat disetujui</p>
                     <p className="mt-1 font-body-sm text-text-body">{appData?.rejection_reason || geoStatus}</p>
-                    <p className="mt-1 font-body-sm text-text-muted">Periksa GPS EXIF, kesesuaian lokasi dengan alamat KK, dan pastikan foto menampilkan fasad rumah hunian.</p>
+                    <p className="mt-1 font-body-sm text-text-muted">Unggah SKPWNI Dukcapil atau surat pindah tugas resmi yang dapat diperiksa panitia.</p>
                   </div>
                 )}
               </div>
