@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [notifiedIds, setNotifiedIds] = useState<Record<string, boolean>>({});
   const [exportLabel, setExportLabel] = useState("Ekspor Berita Acara (CSV/Excel)");
-  const [syncLabel, setSyncLabel] = useState("Sinkronisasi Data Dukcapil & Supabase");
+  const [syncLabel, setSyncLabel] = useState("Sinkronisasi Data Dukcapil & Server");
   const [currentPage, setCurrentPage] = useState(1);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser>({
@@ -165,8 +165,8 @@ export default function DashboardPage() {
   const handleSyncDukcapil = async () => {
     setSyncLabel(`Menyinkronkan ${applications.length} Berkas...`);
     const r = await refetch();
-    setSyncLabel(`Tersinkronisasi Supabase (${r.data?.applications.length ?? 0} Berkas) ✓`);
-    showToast("Data antrean berhasil disinkronkan langsung dengan Supabase PostgreSQL.");
+    setSyncLabel(`Tersinkronisasi (${r.data?.applications.length ?? 0} Berkas) ✓`);
+    showToast("Data antrean berhasil disinkronkan dengan server.");
   };
 
   const handleUpdateStatus = async (
@@ -227,7 +227,7 @@ export default function DashboardPage() {
               Zonasi-Agent
             </span>
             <span className="font-code-sm text-[11px] text-[#F59E0B] font-bold mt-1">
-              COMMAND CENTER PANITIA
+              PORTAL PENGAWAS PANITIA
             </span>
           </div>
         </div>
@@ -251,7 +251,7 @@ export default function DashboardPage() {
               href={`/track/${encodeURIComponent(activeCase.tracking_id)}`}
             >
               <span className="material-symbols-outlined text-[20px] text-[#F59E0B]">history_edu</span>
-              <span>Inspeksi 3 Pilar ({activeCase.tracking_id})</span>
+              <span>Detail Verifikasi ({activeCase.tracking_id})</span>
             </Link>
           )}
           <Link
@@ -259,20 +259,20 @@ export default function DashboardPage() {
             href="/"
           >
             <span className="material-symbols-outlined text-[20px] text-[#F59E0B]">document_scanner</span>
-            <span>Buka Pemindai KK (AI)</span>
+            <span>Buka Halaman Pindai KK</span>
           </Link>
         </nav>
         <div className="px-4 pt-4 mt-auto flex flex-col gap-2.5 border-t border-white/15">
           <div className="p-3.5 rounded-xl bg-white/10 border border-white/15 flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="font-code-sm text-[11px] text-white/75">Mesin Geospasial</span>
+              <span className="font-code-sm text-[11px] text-white/75">Status Server Data</span>
               <span className="w-2 h-2 rounded-full bg-[#4ADE80] animate-pulse" />
             </div>
             <span className="font-code-sm text-xs text-white font-bold">
-              {dataSource === "supabase" ? "Supabase PostGIS Cloud" : "Local Fallback Store"}
+              {dataSource === "supabase" ? "Server Data Terhubung" : "Penyimpanan Lokal"}
             </span>
             <span className="text-[10px] text-[#F59E0B] font-semibold">
-              Tolak Ukur: SMAN 12 Sby (1.200m)
+              SMA Negeri 12 Sby (Radius 1.200m)
             </span>
           </div>
           <div className="flex items-center gap-2 pt-1">
@@ -310,12 +310,12 @@ export default function DashboardPage() {
               </span>
             </button>
             <span className="font-headline-sm text-headline-sm text-[#1E3A8A] font-extrabold truncate">
-              Zonasi-Agent • Konsol Otoritas Verifikator Panitia
+              Zonasi-Agent • Dashboard Pengawas Panitia PPDB
             </span>
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-status-approved-bg border border-status-approved-border shrink-0">
               <span className="w-2 h-2 rounded-full bg-status-approved animate-pulse" />
               <span className="font-code-sm text-code-sm text-status-approved font-semibold">
-                Supabase Realtime: Terhubung ({totalCount} Berkas)
+                Status Server: Terhubung ({totalCount} Berkas)
               </span>
             </div>
           </div>
@@ -325,7 +325,7 @@ export default function DashboardPage() {
               className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-slate hover:bg-surface-container text-secondary font-label-md text-label-md transition-colors"
             >
               <span className="material-symbols-outlined text-[16px]">verified_user</span>
-              <span>Auth Panitia</span>
+              <span>Akun Panitia</span>
             </Link>
             <div className="flex items-center gap-2.5 pl-2 border-l border-border-slate">
               <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 text-on-primary font-bold text-xs">
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-text-heading hover:bg-surface-slate font-label-lg text-sm"
               >
                 <span className="material-symbols-outlined text-[18px]">history_edu</span>
-                <span>Log Forensik Dokumen ({activeCase.tracking_id})</span>
+                <span>Detail Verifikasi Berkas ({activeCase.tracking_id})</span>
               </Link>
             )}
             <Link
@@ -400,18 +400,18 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-1.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="px-3 py-1 rounded-full bg-[#F59E0B] font-code-sm text-xs text-[#1E293B] font-extrabold">
-                    Zonasi-Agent Command Center v3.4
+                    Panel Pengawas Panitia PPDB
                   </span>
                   <span className="flex items-center gap-1 font-body-sm text-xs sm:text-sm text-white/85">
                     <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">my_location</span>
-                    Tolak Ukur Geospasial Aktif: SMA Negeri 12 Surabaya (-7.2468, 112.6358 • Radius 1.200m)
+                    Sekolah Tujuan: SMA Negeri 12 Surabaya (-7.2468, 112.6358 • Radius 1.200m)
                   </span>
                 </div>
                 <h1 className="font-headline-md text-xl sm:text-2xl text-white font-extrabold">
-                  Zonasi-Agent — Dashboard Otoritas Verifikator &amp; Audit Fraud PPDB
+                  Zonasi-Agent — Dashboard Verifikasi Berkas &amp; Pengawasan Zonasi PPDB
                 </h1>
                 <p className="font-body-sm text-xs sm:text-sm text-white/80">
-                  Tools otonom Panitia PPDB untuk memantau antrean ekstraksi Kartu Keluarga (Gemini Vision), memvalidasi jarak OSRM + PostGIS, dan meng-override keputusan berkas.
+                  Panel kerja Panitia PPDB untuk memantau antrean verifikasi Kartu Keluarga (KK), memeriksa jarak rute jalan darat menuju sekolah, dan memperbarui status kelulusan berkas.
                 </p>
               </div>
 
@@ -427,7 +427,7 @@ export default function DashboardPage() {
                   <div className="text-lg text-[#1E293B] font-extrabold">
                     {approvedCount}{" "}
                     <span className="text-xs text-[#475569] font-normal">
-                      / {totalCount} Berkas Diaudit
+                      / {totalCount} Berkas Diperiksa
                     </span>
                   </div>
                   <div className="w-full bg-[#E2E8F0] h-2 rounded-full mt-2 overflow-hidden">
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <span className="font-code-sm text-xs text-[#DC2626] font-bold block mt-2">
-                    {fraudCount} Fraud Kritis • {revisionCount} Revisi Berkas
+                    {fraudCount} Ditolak • {revisionCount} Perlu Revisi
                   </span>
                 </div>
               </div>
@@ -477,12 +477,12 @@ export default function DashboardPage() {
                     {totalCount}
                   </div>
                   <span className="font-body-sm text-body-sm text-text-muted">
-                    Berkas tersimpan di PostGIS layer
+                    Total berkas pendaftaran masuk
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-status-approved font-code-sm text-code-sm">
                   <span className="material-symbols-outlined text-[16px]">cloud_done</span>
-                  <span>Sinkron dengan Supabase Cloud</span>
+                  <span>Tersinkronisasi dengan Server</span>
                 </div>
               </div>
 
@@ -544,7 +544,7 @@ export default function DashboardPage() {
               >
                 <div className="flex items-center justify-between">
                   <span className="font-label-md text-label-md text-status-fraud uppercase tracking-wider">
-                    Anomali / Fraud
+                    Ditolak / Tidak Memenuhi Syarat
                   </span>
                   <div className="w-9 h-9 rounded-lg bg-status-fraud-bg flex items-center justify-center text-status-fraud">
                     <span className="material-symbols-outlined text-[20px]">gpp_maybe</span>
@@ -572,10 +572,10 @@ export default function DashboardPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="font-headline-sm text-headline-sm text-text-heading font-bold">
-                      Peta Interaktif OpenStreetMap &amp; Rute OSRM (Radius Zonasi 1.200m)
+                      Peta Lokasi Domisili &amp; Jarak Rute Jalan Darat (Radius Zonasi 1.200m)
                     </h2>
                     <span className="font-body-sm text-body-sm text-text-muted">
-                      Titik Acuan: <strong>SMA Negeri 12 Surabaya</strong> (-7.2468, 112.6358) • Klik pendaftar di bawah untuk memindahkan pin peta
+                      Lokasi Sekolah: <strong>SMA Negeri 12 Surabaya</strong> (-7.2468, 112.6358) • Klik nama pendaftar untuk melihat titik rumah
                     </span>
                   </div>
                   <a
@@ -613,7 +613,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="flex items-center gap-2 font-code-sm text-xs">
                               <span className="px-2 py-0.5 rounded bg-secondary text-on-secondary font-bold">
-                                Rute OSRM ke SMAN 12: {activeCase.real_route_distance_meters}m
+                                Jarak Rute ke SMAN 12: {activeCase.real_route_distance_meters}m
                               </span>
                               <span className="px-2 py-0.5 rounded bg-emerald-600 text-white font-bold">
                                 Fasad: {activeCase.detected_building || "RESIDENTIAL"}
@@ -622,7 +622,7 @@ export default function DashboardPage() {
                           </>
                         ) : (
                           <div className="font-code-sm text-xs text-slate-300">
-                            <span className="text-cyan-400 font-bold">Titik Acuan Sekolah:</span> SMA Negeri 12 Surabaya, Jl. Sememi Kidul No.1, Benowo (-7.24680, 112.63580) • Belum ada berkas KK yang diunggah.
+                            <span className="text-cyan-400 font-bold">Lokasi Sekolah:</span> SMA Negeri 12 Surabaya, Jl. Sememi Kidul No.1, Benowo (-7.24680, 112.63580) • Belum ada berkas KK yang diunggah.
                           </div>
                         )}
                       </div>
@@ -700,7 +700,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <p className="font-body-sm text-body-sm text-text-muted mb-4">
-                        Klik baris pada tabel atau pin peta untuk menginspeksi bukti forensik berkas.
+                        Klik baris pada tabel atau nama pendaftar di peta untuk memeriksa rincian berkas.
                       </p>
 
                       {/* Selected Case Card */}
@@ -830,10 +830,10 @@ export default function DashboardPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <h2 className="font-headline-sm text-headline-sm text-text-heading font-bold">
-                      Antrean Triage Validasi AI & Verifikasi Berkas
+                      Daftar Antrean Verifikasi Berkas Pendaftar
                     </h2>
                     <span className="font-body-sm text-body-sm text-text-muted">
-                      Daftar pendaftar diurutkan berdasarkan pembaruan terbaru dari Supabase PostgreSQL
+                      Daftar berkas pendaftar diurutkan berdasarkan waktu pendaftaran terbaru
                     </span>
                   </div>
                   {/* Search Input */}
@@ -886,7 +886,7 @@ export default function DashboardPage() {
                           : "px-3 py-1.5 rounded-lg font-label-md text-label-md text-text-muted hover:text-status-fraud transition-all flex items-center gap-1.5"
                       }
                     >
-                      <span>🚨 Kritis / Fraud</span>
+                      <span>🚨 Ditolak</span>
                       <span className="px-1.5 py-0.5 rounded-full bg-status-fraud-bg text-status-fraud font-code-sm text-code-sm font-semibold">
                         {fraudCount}
                       </span>
@@ -951,7 +951,7 @@ export default function DashboardPage() {
                       <th className="py-3.5 px-4">Jarak Rute</th>
                       <th className="py-3.5 px-4">Usia KK</th>
                       <th className="py-3.5 px-4">Deteksi Bangunan</th>
-                      <th className="py-3.5 px-4">Status AI</th>
+                      <th className="py-3.5 px-4">Status Verifikasi</th>
                       <th className="py-3.5 px-4 text-right">Tindakan Panitia</th>
                     </tr>
                   </thead>
@@ -1055,7 +1055,7 @@ export default function DashboardPage() {
                             {isFraud ? (
                               <span className="px-2.5 py-1 rounded-full bg-status-fraud-bg text-status-fraud font-label-md text-xs font-bold inline-flex items-center gap-1">
                                 <span className="material-symbols-outlined text-[14px]">dangerous</span>
-                                REJECTED - FRAUD
+                                DITOLAK (REJECTED)
                               </span>
                             ) : isRev ? (
                               <span className="px-2.5 py-1 rounded-full bg-status-revision-bg text-status-revision font-label-md text-xs font-semibold inline-flex items-center gap-1">
@@ -1175,7 +1175,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="font-headline-sm text-headline-sm text-text-heading font-bold">
-                    Aksi Otoritas & Integritas Panitia
+                    Tindakan Verifikasi & Unduh Laporan Panitia
                   </h3>
                   <p className="font-body-sm text-body-sm text-text-muted">
                     Unduh Berita Acara seluruh pendaftar (CSV/Excel) atau lakukan override keputusan berkas terpilih.
@@ -1278,7 +1278,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex-1">
                   <h4 className="font-label-lg text-label-lg text-text-heading font-bold">
-                    Ringkasan Analisis Autonomous AI (Gemini 3 Flash)
+                    Ringkasan Analisis Verifikasi Sistem
                   </h4>
                   <p className="font-body-sm text-body-sm text-text-body mt-0.5">
                     {activeCase.ai_reasoning_summary}
@@ -1292,7 +1292,7 @@ export default function DashboardPage() {
                 <div className="bg-surface-slate rounded-xl p-4 border border-border-slate flex flex-col justify-between">
                   <div className="flex flex-col gap-2">
                     <span className="font-label-md text-xs text-secondary font-bold uppercase tracking-wider">
-                      Bukti 1 • Peta Domisili KK (OpenStreetMap)
+                      Bukti 1 • Peta Lokasi Domisili KK
                     </span>
                     {(() => {
                       const lat = activeCase.latitude ?? activeCase.home_lat ?? -7.2489;
@@ -1361,11 +1361,11 @@ export default function DashboardPage() {
                 <div className="bg-surface-slate rounded-xl p-4 border border-border-slate flex flex-col justify-between">
                   <div className="flex flex-col gap-2">
                     <span className="font-label-md text-xs text-secondary font-bold uppercase tracking-wider">
-                      Bukti 3 • Geospasial PostGIS
+                      Bukti 3 • Perhitungan Jarak Zonasi
                     </span>
                     <div className="bg-surface-canvas rounded-lg p-3 border border-border-slate flex flex-col gap-2 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="text-text-muted">Garis Lurus (Euclidean):</span>
+                        <span className="text-text-muted">Jarak Garis Lurus:</span>
                         <span className="font-code-sm text-text-heading font-bold">
                           {(activeCase.straight_distance_meters ?? activeCase.straight_line_distance_meters ?? 0)} meter
                         </span>

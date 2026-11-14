@@ -20,31 +20,31 @@ const VERIFICATION_STEPS = [
     step: "01",
     icon: "upload_file",
     title: "Input / Unggah KK",
-    desc: "Panitia atau pendaftar mengunggah foto/scan Kartu Keluarga (JPG/PNG) atau memilih preset sampel uji audit.",
+    desc: "Panitia atau pendaftar mengunggah foto/scan Kartu Keluarga (JPG/PNG) atau memilih skenario sampel uji berkas.",
   },
   {
     step: "02",
     icon: "document_scanner",
-    title: "Ekstraksi Vision AI",
-    desc: "Gemini Vision mengekstrak seluruh tabel anggota keluarga, NIK, tanggal terbit KK, dan memilih kandidat usia SMA (15–17 tahun).",
+    title: "Pembacaan Data KK Otomatis",
+    desc: "Sistem membaca seluruh tabel anggota keluarga, NIK, tanggal terbit KK, dan memilih kandidat usia SMA (15–17 tahun).",
   },
   {
     step: "03",
     icon: "route",
-    title: "Geokoding & Rute OSRM",
-    desc: "Koordinat alamat KK dihitung terhadap titik tolak ukur sekolah menggunakan PostGIS Euclidean & rute jalan aktual OSRM.",
+    title: "Perhitungan Jarak & Rute Jalan",
+    desc: "Koordinat alamat KK dihitung terhadap lokasi sekolah tujuan menggunakan pengukuran garis lurus dan rute jalan darat aktual.",
   },
   {
     step: "04",
     icon: "policy",
-    title: "Deteksi Fraud & Titip KK",
-    desc: "Mesin mengevaluasi usia domisili KK (<1 tahun), status hubungan keluarga (Anak Kandung vs Famili Lain), dan fasad bangunan.",
+    title: "Deteksi Kecurangan & Titip KK",
+    desc: "Sistem mengevaluasi usia domisili KK (<1 tahun), status hubungan keluarga (Anak Kandung vs Famili Lain), dan jenis bangunan tempat tinggal.",
   },
   {
     step: "05",
     icon: "gavel",
-    title: "Keputusan & Override Panitia",
-    desc: "Status berkas (APPROVED, NEEDS_REVISION, REJECTED) terbit otomatis dan dapat di-override melalui Dashboard Pengawas Panitia.",
+    title: "Keputusan & Peninjauan Panitia",
+    desc: "Status kelayakan berkas terbit otomatis dan dapat ditinjau atau ditetapkan ulang melalui Dashboard Pengawas Panitia.",
   },
 ];
 
@@ -57,7 +57,7 @@ const PPDB_QUOTA_PATHS = [
     filledBase: 142,
     icon: "my_location",
     badge: "Prioritas Audit Geospasial",
-    desc: "Audit otomatis radius ≤ 1.200 m dari titik ukur sekolah (SMAN 12 Surabaya), masa terbit KK minimal 1 tahun, & status hubungan keluarga.",
+    desc: "Verifikasi otomatis radius ≤ 1.200 m dari lokasi sekolah tujuan (SMAN 12 Surabaya), masa terbit KK minimal 1 tahun, & status hubungan keluarga.",
   },
   {
     id: "prestasi",
@@ -66,7 +66,7 @@ const PPDB_QUOTA_PATHS = [
     quota: 96,
     filledBase: 81,
     icon: "workspace_premium",
-    badge: "30% Kuota Acuan",
+    badge: "30% Kuota Sekolah",
     desc: "Verifikasi keaslian identitas KK, kesesuaian usia masuk SMA (15–17 tahun), serta validasi nilai rapor dan sertifikat kejuaraan.",
   },
   {
@@ -76,7 +76,7 @@ const PPDB_QUOTA_PATHS = [
     quota: 48,
     filledBase: 39,
     icon: "volunteer_activism",
-    badge: "15% Kuota Acuan",
+    badge: "15% Kuota Sekolah",
     desc: "Validasi sinkronisasi NIK & Nomor KK terhadap kepesertaan DTKS/KIP/PKH serta verifikasi titik koordinat tempat tinggal.",
   },
   {
@@ -86,28 +86,28 @@ const PPDB_QUOTA_PATHS = [
     quota: 16,
     filledBase: 11,
     icon: "transfer_within_a_station",
-    badge: "5% Kuota Acuan",
+    badge: "5% Kuota Sekolah",
     desc: "Validasi berkas bersyarat SK Pindah Tugas Orang Tua + SKPWNI Dukcapil bagi KK yang terbit kurang dari 1 tahun.",
   },
 ];
 
 const AUDIT_TIMELINE = [
   {
-    phase: "Tahap 1 • Kalibrasi Titik Ukur & Aturan Zonasi",
+    phase: "Tahap 1 • Penetapan Wilayah & Aturan Zonasi",
     date: "01 – 15 Mei 2026",
-    desc: "Penetapan koordinat titik ukur sekolah (SMAN 12 Surabaya: -7.2468, 112.6358), batas radius 1.200 m, dan batas usia SMA (15–17 tahun).",
+    desc: "Penetapan koordinat lokasi sekolah tujuan (SMAN 12 Surabaya: -7.2468, 112.6358), batas radius 1.200 m, dan syarat usia SMA (15–17 tahun).",
     status: "SELESAI",
   },
   {
-    phase: "Tahap 2 • Pemindaian KK & Audit Forensik Otonom",
+    phase: "Tahap 2 • Pemindaian KK & Verifikasi Domisili Otomatis",
     date: "16 Mei – 25 November 2026",
-    desc: "Ekstraksi 1x Single-Pass Vision AI, kalkulasi jarak darat OSRM + PostGIS, deteksi anomali titip KK, dan verifikasi berkas bersyarat SKPWNI.",
+    desc: "Pembacaan otomatis berkas KK, perhitungan jarak rute jalan darat, deteksi indikasi titip KK, dan verifikasi berkas bersyarat SKPWNI.",
     status: "BERLANGSUNG",
   },
   {
-    phase: "Tahap 3 • Investigasi Lapangan & Override Panitia",
+    phase: "Tahap 3 • Peninjauan Berkas & Keputusan Panitia",
     date: "26 – 28 November 2026",
-    desc: "Pemeriksaan silang berkas berstatus NEEDS_REVISION / REJECTED pada Dashboard Panitia serta peninjauan bukti foto fasad geotag.",
+    desc: "Pemeriksaan berkas yang memerlukan revisi atau terindikasi kecurangan pada Dashboard Panitia serta peninjauan bukti foto rumah ber-geotag.",
     status: "AKAN_DATANG",
   },
   {
@@ -121,19 +121,19 @@ const AUDIT_TIMELINE = [
 const FAQ_ITEMS = [
   {
     q: "Apa fungsi utama Zonasi-Agent bagi Panitia PPDB?",
-    a: "Zonasi-Agent adalah sistem verifikasi otonom (Autonomous PPDB Validator & Fraud Detector) yang membantu panitia memindai Kartu Keluarga (KK) dalam 1x klik, memilih otomatis anggota keluarga usia SMA (15–17 tahun), menghitung jarak rute jalan darat (OSRM), dan mendeteksi indikasi kecurangan 'titip KK'.",
+    a: "Zonasi-Agent adalah sistem verifikasi dan deteksi kecurangan PPDB yang membantu panitia memindai Kartu Keluarga (KK) secara instan, memilih otomatis anggota keluarga usia SMA (15–17 tahun), menghitung jarak rute jalan darat ke sekolah tujuan, dan mendeteksi indikasi kecurangan 'titip KK'.",
   },
   {
-    q: "Mengapa SMA Negeri 12 Surabaya digunakan pada peta sistem ini?",
-    a: "SMA Negeri 12 Surabaya (-7.2468, 112.6358 dengan radius zonasi 1.200 meter) digunakan sebagai titik tolak ukur geospasial referensi agar kalkulasi jarak garis lurus PostGIS dan rute jalan aktual OSRM bekerja secara nyata dan presisi.",
+    q: "Bagaimana perhitungan jarak domisili ke SMA Negeri 12 Surabaya dilakukan?",
+    a: "Alamat pada Kartu Keluarga dipetakan secara otomatis terhadap titik koordinat SMA Negeri 12 Surabaya (-7.2468, 112.6358 dengan batas radius zonasi 1.200 meter) untuk menghitung jarak garis lurus sekaligus jarak rute jalan darat secara presisi.",
   },
   {
     q: "Bagaimana jika KK baru diterbitkan kurang dari 1 tahun karena pindah rumah satu keluarga yang sah?",
-    a: "Zonasi-Agent akan menandai berkas sebagai NEEDS_REVISION (Perlu Verifikasi Berkas Bersyarat) dan membuka formulir unggah dokumen resmi seperti SKPWNI Dukcapil, SK Pindah Tugas Orang Tua, atau Foto Rumah Geotag untuk disetujui panitia.",
+    a: "Sistem akan menandai berkas sebagai Perlu Revisi / Verifikasi Berkas Bersyarat dan membuka formulir unggah dokumen resmi seperti SKPWNI Dukcapil, SK Pindah Tugas Orang Tua, atau Foto Rumah Geotag untuk disetujui panitia.",
   },
   {
     q: "Apakah riwayat pemindaian KK pengguna lain dapat dilihat oleh publik?",
-    a: "Tidak. Tabel riwayat di halaman depan diisolasi hanya untuk sesi browser saat ini dan seluruh digit tengah NIK serta Nomor KK disensor otomatis (contoh: 357806******0004). Seluruh antrean lengkap hanya dapat diakses oleh Panitia resmi di halaman Dashboard.",
+    a: "Tidak. Tabel riwayat di halaman depan diisolasi hanya untuk sesi perangkat saat ini dan seluruh digit tengah NIK serta Nomor KK disensor otomatis (contoh: 357806******0004). Seluruh antrean lengkap hanya dapat diakses oleh Panitia resmi di halaman Dashboard.",
   },
 ];
 
@@ -239,22 +239,22 @@ export default function PublicTrackingPage() {
 
   const handleDownloadSOP = () => {
     const guideContent = [
-      "DOKUMEN SOP TEKNIS PANITIA — ZONASI-AGENT (AUTONOMOUS PPDB VALIDATOR & FRAUD DETECTOR)",
+      "DOKUMEN SOP TEKNIS PANITIA — ZONASI-AGENT (SISTEM VERIFIKASI & DETEKSI KECURANGAN PPDB)",
       "=======================================================================================",
-      "1. TITIK TOLAK UKUR GEOSPASIAL REFERENSI:",
-      "   - Sekolah Patokan Ukur : SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Kec. Benowo)",
-      "   - Koordinat Titik Nol  : -7.2468, 112.6358",
-      "   - Radius Zonasi Acuan  : Maksimal 1.200 Meter",
+      "1. LOKASI SEKOLAH TUJUAN ZONASI:",
+      "   - Sekolah Tujuan       : SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Kec. Benowo)",
+      "   - Koordinat Sekolah    : -7.2468, 112.6358",
+      "   - Radius Zonasi Resmi  : Maksimal 1.200 Meter",
       "",
-      "2. PARAMETER VALIDASI OTONOM (1x SINGLE-PASS AI):",
-      "   - Usia Calon Siswa SMA : 15 s.d. 17 Tahun (otomatis memilih kandidat ANAK_KANDUNG yang memenuhi usia)",
+      "2. PARAMETER VERIFIKASI OTOMATIS:",
+      "   - Usia Calon Siswa SMA : 15 s.d. 17 Tahun (otomatis memilih kandidat Anak Kandung yang memenuhi usia)",
       "   - Masa Terbit KK       : Minimal 1 tahun sebelum pendaftaran",
-      "   - Hubungan Keluarga    : ANAK_KANDUNG (status FAMILI_LAIN dengan KK baru ditandai sebagai anomali)",
-      "   - Validasi Fasad       : Residensial vs Komersial/Ruko",
+      "   - Hubungan Keluarga    : Anak Kandung (status Famili Lain dengan KK baru ditandai sebagai indikasi titip KK)",
+      "   - Validasi Tempat Tinggal: Rumah Tinggal vs Bangunan Komersial/Ruko",
       "",
-      "3. PROSEDUR PENANGANAN BERKAS BERSYARAT (NEEDS_REVISION):",
+      "3. PROSEDUR PENANGANAN BERKAS BERSYARAT (PERLU REVISI):",
       "   - Untuk pindah rumah satu keluarga sah (< 1 tahun), unggah SKPWNI Dukcapil / SK Pindah Tugas Orang Tua.",
-      "   - Panitia melakukan verifikasi akhir atau override keputusan di halaman /dashboard.",
+      "   - Panitia melakukan verifikasi akhir atau keputusan di halaman /dashboard.",
     ].join("\n");
     const blob = new Blob([guideContent], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -285,17 +285,17 @@ export default function PublicTrackingPage() {
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B] animate-ping" />
                 <span className="text-xs sm:text-sm font-bold tracking-wide text-white">
-                  Zonasi-Agent v2.6 • Mesin Verifikasi &amp; Audit Panitia PPDB Aktif
+                  Zonasi-Agent • Sistem Verifikasi &amp; Audit Panitia PPDB Aktif
                 </span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold tracking-tight text-white leading-[1.18]">
-                Autonomous PPDB Validator &amp;{" "}
-                <span className="text-[#F59E0B]">Fraud Detector</span> Berbasis Vision AI &amp; PostGIS
+                Sistem Verifikasi Berkas &amp;{" "}
+                <span className="text-[#F59E0B]">Deteksi Kecurangan</span> Zonasi PPDB Otomatis
               </h1>
 
               <p className="text-sm sm:text-base lg:text-lg text-white/85 leading-relaxed max-w-2xl">
-                Tools asisten otonom bagi <strong>Panitia Verifikator PPDB</strong> untuk memindai Kartu Keluarga (KK), memvalidasi usia masuk SMA (<strong>15–17 tahun</strong>), mengukur rute jalan aktual OSRM, serta mendeteksi anomali <em>titip KK</em> secara instan dengan titik tolak ukur geospasial <strong>SMA Negeri 12 Surabaya (Radius 1.200 m)</strong>.
+                Alat bantu resmi bagi <strong>Panitia Verifikator PPDB</strong> untuk memindai Kartu Keluarga (KK), memvalidasi usia masuk SMA (<strong>15–17 tahun</strong>), menghitung jarak rute jalan darat secara presisi, serta mendeteksi indikasi <em>titip KK</em> di wilayah zonasi <strong>SMA Negeri 12 Surabaya (Radius 1.200 m)</strong>.
               </p>
 
               {/* CTA Buttons */}
@@ -330,11 +330,11 @@ export default function PublicTrackingPage() {
               <div className="pt-4 grid grid-cols-3 gap-3 border-t border-white/15 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#F59E0B] text-[20px]">bolt</span>
-                  <span className="text-white/90 font-medium">1x Single-Pass AI OCR</span>
+                  <span className="text-white/90 font-medium">Pemindaian KK Otomatis</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#F59E0B] text-[20px]">route</span>
-                  <span className="text-white/90 font-medium">PostGIS + Rute OSRM</span>
+                  <span className="text-white/90 font-medium">Peta &amp; Jarak Rute Jalan</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#F59E0B] text-[20px]">gpp_maybe</span>
@@ -354,15 +354,15 @@ export default function PublicTrackingPage() {
                     </div>
                     <div>
                       <div className="text-xs font-extrabold uppercase tracking-wider text-white">
-                        Telemetry Engine Zonasi-Agent
+                        Panel Pemantauan Zonasi-Agent
                       </div>
                       <div className="text-[11px] text-white/75">
-                        Tolak Ukur Aktif: SMAN 12 Surabaya (-7.2468, 112.6358)
+                        Sekolah Tujuan: SMAN 12 Surabaya (Radius Zonasi 1.200 m)
                       </div>
                     </div>
                   </div>
                   <span className="px-2.5 py-1 rounded-full bg-[#16A34A] text-white text-[10px] font-extrabold uppercase tracking-wider">
-                    ONLINE
+                    AKTIF
                   </span>
                 </div>
 
@@ -371,19 +371,19 @@ export default function PublicTrackingPage() {
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/80 font-medium flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">person_check</span>
-                      Filter Kandidat Usia SMA
+                      Seleksi Usia Calon Siswa SMA
                     </span>
                     <span className="font-code-sm text-xs font-bold text-[#4ADE80]">
-                      15 – 17 Tahun (Auto-Select)
+                      15 – 17 Tahun (Otomatis)
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-white/80 font-medium flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">straighten</span>
-                      Radius Zonasi Tolak Ukur
+                      Batas Radius Zonasi Sekolah
                     </span>
                     <span className="font-code-sm text-xs font-bold text-white">
-                      ≤ 1.200 Meter (OSRM Road)
+                      ≤ 1.200 Meter (Rute Jalan)
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
@@ -407,7 +407,7 @@ export default function PublicTrackingPage() {
                       <div className="text-base font-extrabold text-[#FBBF24]">{revisionCount}</div>
                     </div>
                     <div className="p-2 rounded-lg bg-white/5">
-                      <div className="text-[10px] text-white/70 uppercase font-bold">Indikasi Fraud</div>
+                      <div className="text-[10px] text-white/70 uppercase font-bold">Indikasi Kecurangan</div>
                       <div className="text-base font-extrabold text-[#F87171]">{rejectedCount}</div>
                     </div>
                   </div>
@@ -421,13 +421,13 @@ export default function PublicTrackingPage() {
                     </div>
                     <div>
                       <div className="text-[11px] font-bold uppercase tracking-wider text-[#475569]">
-                        Kuota Acuan Sekolah
+                        Daya Tampung Sekolah
                       </div>
                       <div className="text-base font-extrabold text-[#1E293B]">
                         Total Kuota: 320 Siswa
                       </div>
                       <div className="text-[11px] text-[#16A34A] font-semibold">
-                        {apps.length} Berkas Telah Diaudit AI
+                        {apps.length} Berkas Telah Diverifikasi
                       </div>
                     </div>
                   </div>
@@ -519,10 +519,10 @@ export default function PublicTrackingPage() {
       >
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 space-y-2">
           <span className="inline-block px-3 py-1 rounded-full bg-[#EFF6FF] text-[#1E3A8A] text-xs font-extrabold uppercase tracking-wider">
-            Pipeline Verifikasi Otonom
+            Alur Verifikasi Otomatis
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1E293B]">
-            5 Tahap Alur Kerja Verifikasi &amp; Deteksi Fraud Zonasi-Agent
+            5 Tahap Alur Kerja Verifikasi &amp; Deteksi Kecurangan Zonasi-Agent
           </h2>
           <p className="text-sm text-[#475569]">
             Dirancang agar Panitia PPDB maupun orang tua siswa dapat menguji kelayakan berkas Kartu Keluarga secara transparan, objektif, dan bebas manipulasi.
@@ -579,13 +579,13 @@ export default function PublicTrackingPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-2">
               <span className="inline-block px-3 py-1 rounded-full bg-[#FEF3C7] text-[#D97706] text-xs font-extrabold uppercase tracking-wider">
-                Parameter Kuota &amp; Tolak Ukur Sekolah
+                Informasi Daya Tampung &amp; Kuota Jalur PPDB
               </span>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1E293B]">
-                Simulasi Kuota Jalur PPDB (Acuan: SMAN 12 Surabaya)
+                Kuota Jalur PPDB SMA Negeri 12 Surabaya
               </h2>
               <p className="text-sm text-[#475569] max-w-2xl">
-                Distribusi daya tampung acuan <strong>320 siswa</strong> berdasarkan regulasi resmi Permendikbudristek untuk memantau keterisian kuota dan prioritas audit zonasi.
+                Distribusi daya tampung resmi <strong>320 siswa</strong> berdasarkan regulasi Permendikbudristek untuk memantau keterisian kuota dan prioritas verifikasi zonasi.
               </p>
             </div>
             <div className="flex items-center gap-3 text-xs font-semibold">
@@ -698,12 +698,12 @@ export default function PublicTrackingPage() {
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-extrabold text-[#1E293B]">
-                Parameter Validasi &amp; Pemindaian Berkas Kartu Keluarga (AI Single-Pass)
+                Parameter Validasi &amp; Pemindaian Berkas Kartu Keluarga Otomatis
               </h2>
               <p className="text-xs sm:text-sm text-[#475569] mt-0.5">
-                Unggah dokumen Kartu Keluarga (JPG/PNG) di bawah ini. Mesin AI Zonasi-Agent otomatis memverifikasi{" "}
+                Unggah dokumen Kartu Keluarga (JPG/PNG) di bawah ini. Sistem Zonasi-Agent otomatis memverifikasi{" "}
                 <strong>Usia Masuk SMA (15–17 Tahun)</strong>, <strong>Masa Terbit KK (≥ 1 Tahun)</strong>,{" "}
-                <strong>Status Anak Kandung</strong>, dan <strong>Jarak Rute Darat OSRM ≤ 1.200 m dari titik ukur SMAN 12 Surabaya</strong>.
+                <strong>Status Anak Kandung</strong>, dan <strong>Jarak Rute Jalan Darat ≤ 1.200 m ke SMA Negeri 12 Surabaya</strong>.
               </p>
             </div>
           </div>
@@ -766,8 +766,8 @@ export default function PublicTrackingPage() {
                   <th className="py-3.5 px-4">No. Pendaftaran</th>
                   <th className="py-3.5 px-4">Nama Calon Siswa</th>
                   <th className="py-3.5 px-4">NIK &amp; No. KK (Disensor)</th>
-                  <th className="py-3.5 px-4">Rute Aktual (OSRM)</th>
-                  <th className="py-3.5 px-4">Usia KK &amp; Fasad</th>
+                  <th className="py-3.5 px-4">Jarak Rute Jalan</th>
+                  <th className="py-3.5 px-4">Usia KK &amp; Bangunan</th>
                   <th className="py-3.5 px-4">Status Verifikasi</th>
                   <th className="py-3.5 px-4 text-right">Aksi</th>
                 </tr>
@@ -946,7 +946,7 @@ export default function PublicTrackingPage() {
             Pertanyaan yang Sering Diajukan (FAQ)
           </h2>
           <p className="text-sm text-[#475569]">
-            Panduan singkat mengenai mekanisme kerja Zonasi-Agent, titik tolak ukur SMAN 12 Surabaya, dan prosedur verifikasi panitia.
+            Panduan singkat mengenai mekanisme kerja Zonasi-Agent, ketentuan radius zonasi SMA Negeri 12 Surabaya, dan prosedur verifikasi panitia.
           </p>
         </div>
 

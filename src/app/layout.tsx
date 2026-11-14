@@ -3,9 +3,9 @@ import "./globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
 
 export const metadata: Metadata = {
-  title: "Zonasi-Agent - Autonomous PPDB Validator & Fraud Detector",
+  title: "Zonasi-Agent - Sistem Verifikasi & Deteksi Kecurangan PPDB",
   description:
-    "Sistem Verifikasi Berbasis Multi-Agent Geospasial PPDB Mandiri (OCR KK, PostGIS Rute Darat, Vision AI Street View).",
+    "Sistem Verifikasi Berkas Kartu Keluarga (KK), Perhitungan Jarak Rute Jalan Darat, dan Deteksi Kecurangan Domisili PPDB.",
 };
 
 export default function RootLayout({

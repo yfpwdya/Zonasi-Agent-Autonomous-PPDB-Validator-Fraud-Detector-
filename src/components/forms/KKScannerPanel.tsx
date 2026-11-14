@@ -84,7 +84,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
   const [familyMembers, setFamilyMembers] = useState<KKMemberExtracted[]>([]);
   const [headOfFamily, setHeadOfFamily] = useState<string>("-");
   const [ocrNotes, setOcrNotes] = useState<string>("");
-  const [modelUsed, setModelUsed] = useState<string>("gemini-3.5-flash");
+  const [modelUsed, setModelUsed] = useState<string>("Pemindai Dokumen Otomatis");
 
   // ponytail: 1x Single-Pass Input — langsung memanggil createAppMutation tanpa previewOcr terpisah agar tidak generate AI 2x!
   const processKKDataUrl = async (name: string, mimeType: string, dataUrl: string) => {
@@ -109,7 +109,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
       setFamilyMembers(created.family_members || []);
       setHeadOfFamily(created.head_of_family || "-");
       setOcrNotes("");
-      setModelUsed(created.model_used || "gemini-3.5-flash (1x Single-Pass)");
+      setModelUsed("Pemindai Dokumen Otomatis");
       setAuditResult(created);
       setScanningState("DONE");
       // ponytail: simpan tracking_id milik sesi user ini di sessionStorage agar riwayat di halaman publik hanya menampilkan berkas milik user sendiri
@@ -183,19 +183,19 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
       <div className="space-y-3 pb-4 border-b border-slate-200">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-[#1E3A8A] font-code-sm text-xs font-extrabold border border-blue-200">
           <span className="material-symbols-outlined text-[16px] text-[#F59E0B]">document_scanner</span>
-          <span>FORMULIR UNGGAH BERKAS KK (1X SINGLE-PASS AI) • SMAN 12 SURABAYA</span>
+          <span>FORMULIR UNGGAH BERKAS KK OTOMATIS • SMAN 12 SURABAYA</span>
         </div>
         <h2 className="font-headline-md text-headline-md text-[#1E293B] font-extrabold">
           Unggah File Kartu Keluarga (KK) — Deteksi Anomali, Usia Siswa (15–17 Thn) &amp; Jarak Otomatis
         </h2>
         <p className="font-body-sm text-body-sm text-text-muted leading-relaxed">
-          Titik Acuan Sekolah:{" "}
+          Sekolah Tujuan Zonasi:{" "}
           <strong className="text-text-heading">
             SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Sememi, Kec. Benowo, Surabaya 60198)
           </strong>
-          . Cukup unggah foto/scan Kartu Keluarga — <strong>Gemini Vision AI</strong> otomatis membaca{" "}
-          <strong>Nomor KK, memilih Anak Usia SMA (15–17 Thn), NIK, Alamat, Tanggal Terbit KK, Status Hubungan Keluarga</strong>, menghitung jarak ke{" "}
-          <strong>SMAN 12 Surabaya</strong> via <strong>OpenStreetMap / OSRM</strong>, dan mendeteksi indikasi kecurangan zonasi.
+          . Cukup unggah foto/scan Kartu Keluarga — sistem otomatis membaca{" "}
+          <strong>Nomor KK, memilih Anak Usia SMA (15–17 Thn), NIK, Alamat, Tanggal Terbit KK, Status Hubungan Keluarga</strong>, menghitung jarak rute jalan ke{" "}
+          <strong>SMAN 12 Surabaya</strong>, dan mendeteksi indikasi kecurangan zonasi.
         </p>
       </div>
 
@@ -227,7 +227,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
             disabled={scanningState === "SCANNING"}
             className="px-3 py-1.5 rounded-lg bg-status-fraud-bg border border-status-fraud-border text-status-fraud font-code-sm text-xs font-bold hover:opacity-90 transition-all disabled:opacity-50"
           >
-            + KK Fraud (Titip KK &amp; Ruko)
+            + KK Indikasi Kecurangan (Titip KK &amp; Ruko)
           </button>
           <button
             type="button"
@@ -235,7 +235,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
             disabled={scanningState === "SCANNING"}
             className="px-3 py-1.5 rounded-lg bg-status-revision-bg border border-status-revision-border text-status-revision font-code-sm text-xs font-bold hover:opacity-90 transition-all disabled:opacity-50"
           >
-            + KK Dummy / Disensor (XXXXX)
+            + KK Contoh / Disensor (XXXXX)
           </button>
         </div>
       </div>
@@ -273,7 +273,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
             <div className="space-y-1">
               <span className="font-headline-sm text-headline-sm text-text-heading font-bold block">
                 {scanningState === "SCANNING"
-                  ? `Memindai "${fileName}" dengan Gemini Vision...`
+                  ? `Memindai "${fileName}" secara otomatis...`
                   : fileName
                   ? `Berkas Aktif: ${fileName} (Klik untuk Ganti File KK)`
                   : "Klik atau Seret File Kartu Keluarga (JPG / PNG) ke Sini"}
@@ -328,10 +328,10 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                 </span>
                 <div>
                   <h3 className="font-headline-sm text-headline-sm font-bold">
-                    AI Sedang Membaca Isi Dokumen KK ({fileName})...
+                    Sistem Sedang Membaca Isi Dokumen KK ({fileName})...
                   </h3>
                   <p className="font-code-sm text-xs text-slate-300">
-                    Mengekstrak Nomor KK, NIK, Nama Anak, Alamat, Tanggal Terbit, dan memetakan koordinat PostGIS...
+                    Mengekstrak Nomor KK, NIK, Nama Anak, Alamat, Tanggal Terbit, dan memetakan koordinat lokasi...
                   </p>
                 </div>
               </div>
@@ -357,7 +357,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
               <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-white/15">
                 <div className="space-y-0.5">
                   <span className="font-code-sm text-[11px] text-primary-fixed uppercase tracking-wider block">
-                    HASIL DETEKSI FILE: {fileName} • ENGINE: {modelUsed.toUpperCase()}
+                    HASIL DETEKSI FILE: {fileName} • METODE: {modelUsed.toUpperCase()}
                   </span>
                   <h3 className="font-headline-sm text-lg font-bold text-white">
                     {auditResult.student_name}{" "}
@@ -376,9 +376,9 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
                   }`}
                 >
                   {auditResult.status === "APPROVED"
-                    ? "LOLOS VERIFIKASI ZONASI (APPROVED)"
+                    ? "LOLOS VERIFIKASI ZONASI (DISETUJUI)"
                     : auditResult.status === "REJECTED"
-                    ? "TERINDIKASI ANOMALI / FRAUD (REJECTED)"
+                    ? "TERINDIKASI ANOMALI / KECURANGAN (DITOLAK)"
                     : `PERLU TINJAUAN (${auditResult.status})`}
                 </span>
               </div>
@@ -536,7 +536,7 @@ export function KKScannerPanel({ onAuditCompleted, compact = false }: Props) {
               {/* Kesimpulan Forensik AI */}
               <div className="rounded-lg bg-black/30 p-3 border border-white/10 space-y-1">
                 <span className="font-code-sm text-[11px] text-amber-300 uppercase tracking-wider block">
-                  Ringkasan Forensik AI &amp; Deteksi Anomali:
+                  Ringkasan Pemeriksaan &amp; Deteksi Anomali:
                 </span>
                 <p className="font-code-sm text-xs text-slate-200 leading-relaxed">
                   {ocrNotes ? `${ocrNotes} — ` : ""}

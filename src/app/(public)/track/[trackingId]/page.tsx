@@ -8,24 +8,24 @@ import { usePanitiaSession } from "@/hooks/useAuth";
 
 const FEED_LOGS = [
   {
-    agent: "VISION-LLM-AUDITOR",
+    agent: "PEMERIKSA-HUNIAN",
     color: "text-purple-400",
-    msg: "Analisis segmentasi citra: Pagar terdeteksi, jalan lingkungan selebar 4 meter cocok dengan peta kadastral.",
+    msg: "Analisis kondisi bangunan: Pagar rumah tinggal terdeteksi, jalan lingkungan selebar 4 meter sesuai dengan peta wilayah.",
   },
   {
-    agent: "AGENT-COORDINATOR",
+    agent: "VERIFIKATOR-SISTEM",
     color: "text-cyan-400",
-    msg: "Memvalidasi hash sertifikat digital Disdukcapil DKI Jakarta... Match confirmed.",
+    msg: "Memvalidasi keaslian dokumen Kartu Keluarga Dukcapil Kota Surabaya... Data terkonfirmasi.",
   },
   {
-    agent: "ANTIFRAUD-ENGINE",
+    agent: "DETEKSI-KECURANGAN",
     color: "text-emerald-400",
-    msg: "Zero fraud flags detected (Risk Score: 0.02 / Low Risk).",
+    msg: "Tidak ditemukan indikasi kecurangan titip KK (Tingkat Risiko: 0.02 / Risiko Rendah).",
   },
   {
-    agent: "DECISION-REGISTRY",
+    agent: "KEPUTUSAN-VERIFIKASI",
     color: "text-blue-400",
-    msg: "Menyiapkan approval block untuk penandatanganan panitia PPDB otomatis.",
+    msg: "Menyiapkan ringkasan verifikasi untuk pengesahan panitia PPDB.",
   },
 ];
 
@@ -67,34 +67,34 @@ export default function TrackPage({
           setExtraLogs([
             {
               time: now,
-              agent: "OCR-VISION-GEMINI",
+              agent: "PEMINDAI-DOKUMEN-KK",
               color: app.ocr_confidence >= 80 ? "text-emerald-400" : "text-amber-400",
-              msg: `Confidence OCR: ${app.ocr_confidence}% | No. KK: ${app.kk_number} | Terbit: ${app.kk_issue_date} (${app.kk_age_label})`,
+              msg: `Tingkat Akurasi Baca: ${app.ocr_confidence}% | No. KK: ${app.kk_number} | Terbit: ${app.kk_issue_date} (${app.kk_age_label})`,
             },
             {
               time: now,
-              agent: "POSTGIS-GEOROUTE",
+              agent: "PENGUKUR-JARAK-ZONASI",
               color: "text-blue-400",
-              msg: `Garis lurus Euclidean: ${app.straight_line_distance_meters}m | Rute darat aktual: ${app.real_route_distance_meters}m (${app.real_route_distance_meters <= 1200 ? "LOLOS ZONA" : "MELEBIHI BATAS"})`,
+              msg: `Jarak garis lurus: ${app.straight_line_distance_meters}m | Jarak rute jalan darat: ${app.real_route_distance_meters}m (${app.real_route_distance_meters <= 1200 ? "LOLOS ZONA" : "MELEBIHI BATAS"})`,
             },
             {
               time: now,
-              agent: "STREETVIEW-AUDITOR",
+              agent: "PEMERIKSA-HUNIAN",
               color: app.detected_building === "RESIDENTIAL" ? "text-purple-400" : "text-rose-400",
-              msg: `Koordinat (${app.home_lat.toFixed(5)}, ${app.home_lng.toFixed(5)}) -> Klasifikasi: ${app.detected_building}`,
+              msg: `Koordinat (${app.home_lat.toFixed(5)}, ${app.home_lng.toFixed(5)}) -> Klasifikasi: ${app.detected_building === "RESIDENTIAL" ? "Rumah Tinggal" : app.detected_building}`,
             },
             {
               time: now,
-              agent: "GEMINI-3-FLASH",
+              agent: "KEPUTUSAN-SISTEM",
               color: app.status === "APPROVED" ? "text-emerald-400" : "text-amber-300",
-              msg: `${app.ai_reasoning_summary} [STATUS: ${app.status}]`,
+              msg: `${app.ai_reasoning_summary} [STATUS: ${app.status === "APPROVED" ? "DISETUJUI" : app.status === "REJECTED" ? "DITOLAK" : "PERLU REVISI"}]`,
             },
           ]);
         }
   }, [fetchedApp]);
 
   const handleLiveReuploadKK = (file: File) => {
-    setReuploadStatus(`Memindai ${file.name} dengan Gemini 3 Flash...`);
+    setReuploadStatus(`Memindai berkas ${file.name} secara otomatis...`);
     setScanningOcr(true);
     const reader = new FileReader();
     reader.onload = async () => {
@@ -169,7 +169,7 @@ export default function TrackPage({
     const content = [
       "============================================================",
       "        BUKTI TANDA TERIMA PENDAFTARAN PPDB ZONASI 2026     ",
-      "           ZONASI-AGENT • AUTONOMOUS AI AUDITOR             ",
+      "     ZONASI-AGENT • SISTEM VERIFIKASI & DETEKSI KECURANGAN  ",
       "============================================================",
       `Tracking ID        : ${trackingId}`,
       `Nama Calon Siswa   : ${appData?.student_name || studentName}`,
@@ -178,12 +178,12 @@ export default function TrackPage({
       `Sekolah Pilihan    : ${appData?.school_name || "SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Benowo)"}`,
       `Alamat Domisili    : ${appData?.address || "Jl. Sememi Jaya IV No. 14, Sememi, Kec. Benowo, Surabaya"}`,
       `Jarak Garis Lurus  : ${appData?.straight_line_distance_meters ?? 540} meter`,
-      `Jarak Rute Darat   : ${appData?.real_route_distance_meters ?? 820} meter (Maks 1.200m)`,
+      `Jarak Rute Jalan   : ${appData?.real_route_distance_meters ?? 820} meter (Maks 1.200m)`,
       `Usia Terbit KK     : ${appData?.kk_issue_date || "2018-02-12"} (${appData?.kk_age_label || "Valid"})`,
-      `Confidence OCR     : ${appData?.ocr_confidence ?? 98.4}%`,
+      `Tingkat Akurasi    : ${appData?.ocr_confidence ?? 98.4}%`,
       `Deteksi Bangunan   : ${appData?.detected_building || "RESIDENTIAL"}`,
       `Status Verifikasi  : ${appData?.status || "APPROVED"}`,
-      `Ringkasan Audit AI : ${appData?.ai_reasoning_summary || "Memenuhi syarat zonasi."}`,
+      `Ringkasan Hasil    : ${appData?.ai_reasoning_summary || "Memenuhi syarat zonasi."}`,
       `Waktu Cetak        : ${new Date().toLocaleString("id-ID")}`,
       "============================================================",
       `URL Pelacakan Live : ${typeof window !== "undefined" ? window.location.href : `/track/${trackingId}`}`,
@@ -276,11 +276,11 @@ export default function TrackPage({
               </span>
               {' '}
               <span className="font-code-sm text-code-sm text-text-heading font-medium">
-                Supabase Realtime:
+                Status Server:
               </span>
               {' '}
               <span className="font-code-sm text-code-sm text-status-approved font-semibold">
-                Terhubung (24ms)
+                Terhubung (Real-Time)
               </span>
             </div>
           </div>
@@ -319,16 +319,16 @@ export default function TrackPage({
                     </span>
                     <span>
                       {scanningOcr
-                        ? "MEMINDAI ULANG BERKAS KK DENGAN GEMINI VISION..."
+                        ? "MEMINDAI ULANG BERKAS KK SECARA OTOMATIS..."
                         : appData?.status === "APPROVED"
-                        ? "LOLOS VERIFIKASI ZONASI OTOMATIS (APPROVED)"
+                        ? "LOLOS VERIFIKASI ZONASI OTOMATIS (DISETUJUI)"
                         : appData?.status === "REJECTED"
-                        ? "DITOLAK OTOMATIS — INDIKASI ANOMALI / FRAUD"
+                        ? "DITOLAK OTOMATIS — INDIKASI ANOMALI / KECURANGAN"
                         : appData?.status === "NEEDS_REVISION"
-                        ? "BUTUH REVISI DOKUMEN KK (NEEDS_REVISION)"
+                        ? "BUTUH REVISI DOKUMEN KK (PERLU REVISI)"
                         : appData?.status === "NEEDS_LIVE_PHOTO"
-                        ? "BUTUH FOTO FASAD BER-GEOTAG (NEEDS_LIVE_PHOTO)"
-                        : "SEDANG DIPROSES OLEH AGENTIC AI (Tahap 3/3)"}
+                        ? "BUTUH FOTO RUMAH BER-GEOTAG"
+                        : "SEDANG DIPROSES OLEH SISTEM VERIFIKASI (Tahap 3/3)"}
                     </span>
                   </div>
                 </div>
@@ -348,7 +348,7 @@ export default function TrackPage({
                     <span className="material-symbols-outlined text-[#1E3A8A] text-[17px]">
                       school
                     </span>
-                    <span className="text-[#475569]">Patokan Ukur:</span>
+                    <span className="text-[#475569]">Sekolah Tujuan:</span>
                     <span className="font-bold text-[#1E293B]">
                       {appData?.school_name || "SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Benowo)"}
                     </span>
@@ -436,10 +436,10 @@ export default function TrackPage({
                   <span className="material-symbols-outlined text-status-approved text-[21px]">
                     document_scanner
                   </span>
-                  <span>Penalaran Dokumen KK</span>
+                  <span>Pemeriksaan Dokumen KK</span>
                 </h3>
                 <p className="text-xs text-[#475569] leading-relaxed mb-4">
-                  Ekstraksi multimodal Gemini Vision untuk nomor KK, masa domisili, dan relasi siswa.
+                  Pembacaan otomatis untuk nomor KK, masa domisili, dan hubungan keluarga calon siswa.
                 </p>
               </div>
               <div className="relative z-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3.5 space-y-1.5 font-code-sm text-xs">
@@ -475,11 +475,11 @@ export default function TrackPage({
                   <span className="text-[#1E293B] font-semibold text-right">
                     {(appData?.family_relation_valid ?? true)
                       ? "Anak Kandung (Sah)"
-                      : "Famili Lain / Masked"}
+                      : "Famili Lain / Disensor"}
                   </span>
                 </div>
                 <div className="flex justify-between items-center pt-1.5 border-t border-[#E2E8F0] gap-2">
-                  <span className="text-[#475569]">OCR Confidence:</span>
+                  <span className="text-[#475569]">Akurasi Pembacaan:</span>
                   <span
                     className={`font-bold ${
                       (appData?.ocr_confidence ?? 98.4) >= 80 ? "text-[#1E3A8A]" : "text-status-revision"
@@ -521,21 +521,21 @@ export default function TrackPage({
                   <span className="material-symbols-outlined text-status-approved text-[21px]">
                     route
                   </span>
-                  <span>Kalkulasi Jarak Darat Riil</span>
+                  <span>Perhitungan Jarak Rute Jalan</span>
                 </h3>
                 <p className="text-xs text-[#475569] leading-relaxed mb-4">
-                  Komparasi jarak garis lurus PostGIS (ST_Distance) terhadap rute jalan darat aktual OSRM.
+                  Perbandingan jarak garis lurus terhadap jarak rute jalan darat menuju sekolah tujuan.
                 </p>
               </div>
               <div className="relative z-10 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-3.5 space-y-1.5 font-code-sm text-xs">
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="text-[#475569]">Rute Darat Aktual:</span>
+                  <span className="text-[#475569]">Jarak Rute Jalan:</span>
                   <span className="font-bold text-status-approved">
                     {appData?.real_route_distance_meters ?? 820} Meter
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="text-[#475569]">Garis Lurus Euclidean:</span>
+                  <span className="text-[#475569]">Jarak Garis Lurus:</span>
                   <span className="text-[#1E293B] font-semibold">
                     {appData?.straight_line_distance_meters ?? 540} Meter
                   </span>
@@ -589,7 +589,7 @@ export default function TrackPage({
                     {appData?.detected_building === "COMMERCIAL"
                       ? "ANOMALI RUKO"
                       : appData?.detected_building === "NO_STREET_VIEW"
-                      ? "BLIND SPOT GANG"
+                      ? "GANG SEMPIT"
                       : "SELESAI / HUNIAN"}
                   </span>
                 </div>
@@ -597,15 +597,15 @@ export default function TrackPage({
                   <span className="material-symbols-outlined text-[#1E3A8A] text-[21px]">
                     satellite_alt
                   </span>
-                  <span>Audit Visual Tata Ruang</span>
+                  <span>Pemeriksaan Lokasi &amp; Bangunan</span>
                 </h3>
                 <p className="text-xs text-[#475569] leading-relaxed mb-4">
-                  Verifikasi fasad hunian fisik via Vision AI (mencegah manipulasi ruko atau lahan kosong).
+                  Pemeriksaan kelayakan bangunan tempat tinggal (mencegah manipulasi ruko atau lahan kosong).
                 </p>
               </div>
               <div className="relative z-10 bg-[#EFF6FF]/60 border border-[#DBEAFE] rounded-xl p-3.5 space-y-1.5 font-code-sm text-xs">
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="text-[#475569]">Target Geospasial:</span>
+                  <span className="text-[#475569]">Koordinat Rumah:</span>
                   <span className="font-mono text-[#1E3A8A] font-bold">
                     {appData
                       ? `${appData.home_lat.toFixed(5)}, ${appData.home_lng.toFixed(5)}`
@@ -613,11 +613,11 @@ export default function TrackPage({
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="text-[#475569]">Mesin Klasifikasi:</span>
-                  <span className="font-semibold text-[#1E293B]">Gemini Vision AI</span>
+                  <span className="text-[#475569]">Metode Pemeriksaan:</span>
+                  <span className="font-semibold text-[#1E293B]">Verifikasi Peta &amp; Citra</span>
                 </div>
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="text-[#475569]">Deteksi Eksterior:</span>
+                  <span className="text-[#475569]">Jenis Bangunan:</span>
                   <span className="text-[#1E3A8A] font-semibold text-right">
                     {appData?.detected_building === "COMMERCIAL"
                       ? "Ruko / Bangunan Komersial"
@@ -629,7 +629,13 @@ export default function TrackPage({
                 <div className="flex justify-between items-center pt-1.5 border-t border-[#DBEAFE]">
                   <span className="text-[#475569]">Keputusan Akhir:</span>
                   <span className="font-bold text-[#1E3A8A]">
-                    {appData?.status || "APPROVED"}
+                    {appData?.status === "APPROVED"
+                      ? "DISETUJUI"
+                      : appData?.status === "REJECTED"
+                      ? "DITOLAK"
+                      : appData?.status === "NEEDS_REVISION"
+                      ? "PERLU REVISI"
+                      : appData?.status || "DISETUJUI"}
                   </span>
                 </div>
               </div>
@@ -708,7 +714,7 @@ export default function TrackPage({
                       className="max-h-[290px] w-auto object-contain rounded-lg border-2 border-cyan-400/60 shadow-2xl bg-white"
                     />
                     <div className="mt-2 px-3 py-1 rounded bg-slate-950/90 text-cyan-300 font-code-sm text-[11px] border border-cyan-500/30">
-                      Sumber Storage: {appData?.kk_image_url?.startsWith("http") ? "Supabase Storage (ppdb-documents)" : appData?.kk_image_url}
+                      Status Berkas: {appData?.kk_image_url?.startsWith("http") ? "Tersimpan di Penyimpanan Dokumen Resmi" : appData?.kk_image_url}
                     </div>
                   </div>
                 ) : appData ? (
@@ -872,12 +878,12 @@ export default function TrackPage({
                   </span>
                   <span className="leading-relaxed break-words text-slate-200">
                     {scanningOcr
-                      ? "Memindai Piksel Dokumen KK dengan Gemini Vision..."
-                      : appData?.ai_reasoning_summary || "Gemini Vision OCR Ready"}
+                      ? "Memindai Dokumen Kartu Keluarga secara otomatis..."
+                      : appData?.ai_reasoning_summary || "Pemindai Dokumen KK Siap"}
                   </span>
                 </div>
                 <span className="px-2.5 py-1 rounded bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 font-bold shrink-0 self-start sm:self-center">
-                  Confidence: {appData?.ocr_confidence ?? 98.4}%
+                  Akurasi: {appData?.ocr_confidence ?? 98.4}%
                 </span>
               </div>
               <div className="p-space-sm bg-surface-slate flex flex-wrap items-center justify-between gap-space-xs text-text-muted font-body-sm text-body-sm">
@@ -887,11 +893,11 @@ export default function TrackPage({
                   </span>
                   {' '}
                   <span>
-                    Dokumen diverifikasi secara desentralisasi tanpa manipulasi manual petugas.
+                    Dokumen diverifikasi secara objektif dan transparan sesuai ketentuan PPDB.
                   </span>
                 </div>
                 <a className="text-secondary font-label-md text-label-md hover:underline" href="#">
-                  Periksa Metrik Audit →
+                  Periksa Rincian Verifikasi →
                 </a>
               </div>
             </motion.div>
@@ -906,25 +912,25 @@ export default function TrackPage({
                 <div className="flex items-center gap-space-xs">
                   <span className="w-2.5 h-2.5 rounded-full bg-status-approved animate-pulse" />
                   <h2 className="font-headline-sm text-headline-sm text-inverse-on-surface font-semibold">
-                    Live Agent Reasoning Feed
+                    Riwayat Proses Verifikasi Berkas
                   </h2>
                 </div>
-                <span className="font-code-sm text-code-sm text-slate-400">
-                  Terminal Log v2.4
+                <span className="font-code-sm text-code-sm text-slate-300">
+                  Log Pemeriksaan Otomatis
                 </span>
               </div>
-              <div className="p-space-md bg-slate-950 text-slate-200 font-code-sm text-code-sm flex-1 space-y-space-sm overflow-y-auto max-h-[380px] leading-relaxed" id="reasoningTerminal">{logCleared ? (<div className="text-slate-500 font-mono text-[12px] italic">Tampilan log dibersihkan. Memantau sinyal WebSocket baru...</div>) : (<>
+              <div className="p-space-md bg-slate-950 text-slate-200 font-code-sm text-code-sm flex-1 space-y-space-sm overflow-y-auto max-h-[380px] leading-relaxed" id="reasoningTerminal">{logCleared ? (<div className="text-slate-500 font-mono text-[12px] italic">Tampilan log dibersihkan. Memantau pembaruan status...</div>) : (<>
                 <div className="flex items-start gap-2">
                   <span className="text-slate-500 font-mono select-none">
                     14:02:11
                   </span>
                   <div>
                     <span className="text-cyan-400 font-semibold">
-                      [AGENT-COORDINATOR]
+                      [SISTEM-VERIFIKASI]
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Pipeline inisialisasi verifikasi untuk pendaftar:
+                      Memulai pemeriksaan berkas untuk nomor pendaftaran:
                     </span>
                     {' '}
                     <span className="text-amber-300">
@@ -938,11 +944,11 @@ export default function TrackPage({
                   </span>
                   <div>
                     <span className="text-emerald-400 font-semibold">
-                      [OCR-ENGINE-TESS]
+                      [PEMINDAI-DOKUMEN]
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Memuat scan KK. Resolusi 300DPI terverifikasi. Ekstraksi bounding boxes selesai.
+                      Memuat berkas Kartu Keluarga. Resolusi gambar jelas dan seluruh kolom terbaca.
                     </span>
                   </div>
                 </div>
@@ -952,7 +958,7 @@ export default function TrackPage({
                   </span>
                   <div>
                     <span className="text-emerald-400 font-semibold">
-                      [REASONING-AGENT]
+                      [VALIDASI-IDENTITAS]
                     </span>
                     {' '}
                     <span className="text-slate-300">
@@ -970,11 +976,11 @@ export default function TrackPage({
                   </span>
                   <div>
                     <span className="text-blue-400 font-semibold">
-                      [POSTGIS-GEOROUTE]
+                      [PENGUKUR-JARAK]
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Jarak garis lurus: {appData?.straight_line_distance_meters ?? 540}m • Jarak rute darat riil:
+                      Jarak garis lurus: {appData?.straight_line_distance_meters ?? 540}m • Jarak rute jalan darat:
                     </span>
                     {' '}
                     <span className="text-cyan-300 font-bold">
@@ -986,7 +992,7 @@ export default function TrackPage({
                     </span>
                     {' '}
                     <span className={(appData?.real_route_distance_meters ?? 820) <= 1200 ? "text-emerald-300 font-bold" : "text-rose-400 font-bold"}>
-                      → {(appData?.real_route_distance_meters ?? 820) <= 1200 ? "DALAM JANGKAUAN" : "LUAR ZONASI"}
+                      → {(appData?.real_route_distance_meters ?? 820) <= 1200 ? "DALAM ZONASI" : "LUAR ZONASI"}
                     </span>
                   </div>
                 </div>
@@ -996,15 +1002,15 @@ export default function TrackPage({
                   </span>
                   <div>
                     <span className="text-purple-400 font-semibold">
-                      [VISION-LLM-AUDITOR]
+                      [PEMERIKSA-LOKASI]
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Fetching Street View frame koordinat
+                      Memeriksa titik koordinat rumah pendaftar
                     </span>
                     {' '}
                     <span className="text-slate-400">
-                      (-6.21462, 106.84513)...
+                      ({(appData?.home_lat ?? -7.2489).toFixed(5)}, {(appData?.home_lng ?? 112.6382).toFixed(5)})...
                     </span>
                   </div>
                 </div>
@@ -1014,29 +1020,29 @@ export default function TrackPage({
                   </span>
                   <div>
                     <span className="text-purple-400 font-semibold">
-                      [VISION-LLM-AUDITOR]
+                      [PEMERIKSA-HUNIAN]
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Gemini 1.5 Pro: Memeriksa fasad properti... Bukan lahan komersial/lahan kosong. Indikasi hunian permanen:
+                      Pemeriksaan jenis bangunan selesai: Bukan ruko komersial atau lahan kosong. Terkonfirmasi rumah tinggal:
                     </span>
                     {' '}
                     <span className="text-emerald-400 font-bold">
-                      94.2% Positif
+                      Sesuai Ketentuan
                     </span>
                   </div>
                 </div>
-                <div className="flex items-start gap-2 animate-pulse">
+                <div className="flex items-start gap-2">
                   <span className="text-slate-500 font-mono select-none">
                     14:02:41
                   </span>
                   <div>
                     <span className="text-amber-400 font-semibold">
-                      [CONSENSUS-AGGREGATOR]
+                      [KESIMPULAN-VERIFIKASI]
                     </span>
                     {' '}
                     <span className="text-slate-300">
-                      Menyatukan seluruh skor pembobotan kepatuhan zonasi... Menunggu finalisasi enkripsi payload.
+                      Seluruh pemeriksaan kepatuhan zonasi selesai dan siap ditinjau oleh Panitia PPDB.
                     </span>
                   </div>
                 </div>

@@ -35,6 +35,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
     };
   }, [pathname]);
 
+  // ponytail: smooth scroll berbasis requestAnimationFrame (easeInOutCubic) agar pergerakan turun/naik saat klik menu navbar benar-benar halus
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     const hashIdx = href.indexOf("#");
     if (hashIdx === -1) return;
@@ -45,8 +46,20 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
         e.preventDefault();
         setMobileMenuOpen(false);
         const headerOffset = 84;
-        const y = target.getBoundingClientRect().top + window.scrollY - headerOffset;
-        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        const startY = window.scrollY;
+        const targetY = Math.max(0, target.getBoundingClientRect().top + startY - headerOffset);
+        const diff = targetY - startY;
+        const duration = 650;
+        let startTime: number | null = null;
+        const easeInOutCubic = (t: number) =>
+          t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        const step = (ts: number) => {
+          if (startTime === null) startTime = ts;
+          const p = Math.min(1, (ts - startTime) / duration);
+          window.scrollTo(0, startY + diff * easeInOutCubic(p));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
         window.history.replaceState(null, "", `/#${hash}`);
       }
     }
@@ -54,7 +67,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
 
   const navLinks = [
     { href: "/#beranda", label: "Beranda" },
-    { href: "/#alur-verifikasi", label: "Alur AI" },
+    { href: "/#alur-verifikasi", label: "Alur Verifikasi" },
     { href: "/#kuota-jalur", label: "Kuota" },
     { href: "/#syarat-berkas", label: "Aturan KK" },
     { href: "/#jadwal-verifikasi", label: "Jadwal" },
@@ -69,16 +82,16 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2.5 font-medium min-w-0">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#F59E0B] text-[#1E293B] font-extrabold text-[11px] shrink-0 shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-[#1E293B] animate-pulse" />
-              AI VALIDATOR ONLINE
+              VALIDATOR AKTIF
             </span>
             <span className="hidden md:inline text-white/90 truncate">
-              Zonasi-Agent v2.6 • Mesin Verifikasi Berkas &amp; Deteksi Kecurangan KK Panitia PPDB
+              Zonasi-Agent • Sistem Verifikasi Berkas &amp; Deteksi Kecurangan KK Panitia PPDB
             </span>
           </div>
           <div className="flex items-center gap-3 text-white/90 font-code-sm text-[11px] shrink-0">
             <span className="hidden sm:inline-flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[15px] text-[#F59E0B]">my_location</span>
-              <span>Tolak Ukur: SMAN 12 Surabaya (-7.2468, 112.6358 • Radius 1.200 m)</span>
+              <span>Sekolah Tujuan: SMAN 12 Surabaya (Radius Zonasi 1.200 m)</span>
             </span>
             {recentTrackId && (
               <Link
@@ -126,7 +139,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                 </span>
               </div>
               <p className="text-[11px] text-[#475569] font-medium mt-0.5 truncate max-w-[200px] sm:max-w-none">
-                Autonomous PPDB Validator &amp; Fraud Detector
+                Sistem Verifikasi &amp; Deteksi Kecurangan PPDB
               </p>
             </div>
           </Link>
@@ -270,7 +283,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">{children}</div>
 
-      {/* Footer Resmi — Zonasi-Agent Autonomous PPDB Validator & Fraud Detector */}
+      {/* Footer Resmi — Zonasi-Agent Sistem Verifikasi & Deteksi Kecurangan PPDB */}
       <footer className="bg-[#1E3A8A] text-white mt-auto border-t-4 border-[#F59E0B]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-white/15">
@@ -285,16 +298,16 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     Zonasi-Agent
                   </h3>
                   <p className="text-xs text-white/80">
-                    Autonomous PPDB Validator &amp; Fraud Detector
+                    Sistem Verifikasi &amp; Deteksi Kecurangan PPDB
                   </p>
                 </div>
               </div>
               <p className="text-xs text-white/80 leading-relaxed">
-                Sistem bantu verifikasi otonom untuk Panitia PPDB dalam mengaudit keaslian Kartu Keluarga (KK), memvalidasi usia calon siswa (15–17 tahun), menghitung jarak rute darat OSRM + PostGIS, serta mendeteksi anomali titip KK.
+                Sistem bantu verifikasi otomatis untuk Panitia PPDB dalam mengaudit keaslian Kartu Keluarga (KK), memvalidasi usia calon siswa (15–17 tahun), menghitung jarak rute darat ke sekolah tujuan, serta mendeteksi indikasi titip KK.
               </p>
               <div className="pt-1 flex items-center gap-2 text-[11px] font-code-sm text-[#F59E0B]">
                 <span className="material-symbols-outlined text-[16px]">verified</span>
-                <span>Single-Pass Gemini Vision + PostGIS + OSRM</span>
+                <span>Pemindaian Dokumen Otomatis &amp; Peta Jarak Rute Jalan</span>
               </div>
             </div>
 
@@ -310,7 +323,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     onClick={(e) => handleNavClick(e, "/#scanner-kk")}
                     className="hover:text-[#F59E0B] transition-colors"
                   >
-                    → AI KK Forensic Scanner (1x Single-Pass)
+                    → Pemindai Berkas Kartu Keluarga (KK)
                   </Link>
                 </li>
                 <li>
@@ -319,7 +332,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     onClick={(e) => handleNavClick(e, "/#cek-status-cepat")}
                     className="hover:text-[#F59E0B] transition-colors"
                   >
-                    → Lacak Nomor Berkas / Inspeksi 3 Pilar
+                    → Lacak Nomor Berkas / Inspeksi Status
                   </Link>
                 </li>
                 <li>
@@ -328,17 +341,17 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     onClick={(e) => handleNavClick(e, "/#alur-verifikasi")}
                     className="hover:text-[#F59E0B] transition-colors"
                   >
-                    → 5 Tahap Pipeline Audit Otonom
+                    → 5 Tahap Alur Verifikasi Berkas
                   </Link>
                 </li>
                 <li>
                   <Link href="/dashboard" className="hover:text-[#F59E0B] transition-colors">
-                    → Dashboard Pengawas &amp; Override Panitia
+                    → Dashboard Pengawas &amp; Keputusan Panitia
                   </Link>
                 </li>
                 <li>
                   <Link href="/login" className="hover:text-[#F59E0B] transition-colors">
-                    → Portal Autentikasi Panitia Verifikator
+                    → Portal Masuk Panitia Verifikator
                   </Link>
                 </li>
               </ul>
@@ -355,7 +368,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     support_agent
                   </span>
                   <span>
-                    Helpdesk Tim Verifikator:{" "}
+                    Layanan Bantuan Verifikator:{" "}
                     <strong className="text-white">+62 811-3400-1200</strong>
                   </span>
                 </p>
@@ -364,7 +377,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                     schedule
                   </span>
                   <span>
-                    Operasional Server AI: <strong>24 Jam Real-Time Otomatis</strong>
+                    Layanan Verifikasi Online: <strong>24 Jam Otomatis</strong>
                   </span>
                 </p>
                 <p className="flex items-start gap-2.5">
@@ -376,22 +389,22 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            {/* Kolom 4: Titik Tolak Ukur Geospasial Saat Ini */}
+            {/* Kolom 4: Lokasi Sekolah Tujuan Zonasi */}
             <div className="space-y-2.5">
               <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#F59E0B]">
-                Titik Tolak Ukur Geospasial Aktif
+                Lokasi Sekolah Tujuan Zonasi
               </h4>
               <p className="text-xs text-white/85 leading-relaxed">
-                <strong>Patokan Sekolah Uji:</strong> SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Kec. Benowo, Surabaya 60198)
+                <strong>Sekolah Tujuan:</strong> SMA Negeri 12 Surabaya (Jl. Sememi Kidul No.1, Kec. Benowo, Surabaya 60198)
               </p>
               <div className="p-3 rounded-xl bg-white/10 border border-white/15 space-y-1.5 text-[11px]">
                 <div className="flex items-center justify-between">
-                  <span className="text-white/75">Koordinat Titik Nol:</span>
+                  <span className="text-white/75">Koordinat Sekolah:</span>
                   <span className="font-code-sm font-bold text-[#F59E0B]">-7.2468, 112.6358</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/75">Batas Radius Zonasi:</span>
-                  <span className="font-code-sm font-bold text-white">1.200 Meter</span>
+                  <span className="font-code-sm font-bold text-white">Maksimal 1.200 Meter</span>
                 </div>
                 <a
                   href="https://www.openstreetmap.org/?mlat=-7.2468&mlon=112.6358#map=16/-7.2468/112.6358"
@@ -400,7 +413,7 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
                   className="mt-2 inline-flex items-center gap-1 text-[#F59E0B] hover:underline font-bold"
                 >
                   <span className="material-symbols-outlined text-[14px]">map</span>
-                  <span>Buka Titik Ukur di OpenStreetMap ↗</span>
+                  <span>Lihat Lokasi Sekolah di Peta ↗</span>
                 </a>
               </div>
             </div>
@@ -408,14 +421,14 @@ export function PublicShell({ children }: { children: React.ReactNode }) {
 
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/75">
             <p>
-              © 2026 <strong className="text-white">Zonasi-Agent</strong> — Autonomous PPDB Validator &amp; Fraud Detector. Digunakan untuk Otomasi Verifikasi &amp; Audit Panitia PPDB.
+              © 2026 <strong className="text-white">Zonasi-Agent</strong> — Sistem Verifikasi &amp; Deteksi Kecurangan PPDB. Digunakan untuk Otomasi Verifikasi &amp; Audit Panitia PPDB.
             </p>
             <div className="flex items-center gap-3 font-code-sm text-[11px]">
               <span className="px-2.5 py-1 rounded bg-white/10 text-white">
-                WCAG AA Compliant
+                Standar Aksesibilitas Resmi
               </span>
               <span className="px-2.5 py-1 rounded bg-white/10 text-[#F59E0B]">
-                PostGIS + OSRM Active
+                Peta &amp; Rute Zonasi Aktif
               </span>
             </div>
           </div>

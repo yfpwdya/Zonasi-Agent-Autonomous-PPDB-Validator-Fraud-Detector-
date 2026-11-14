@@ -186,7 +186,7 @@ export async function runZonasiAgentPipeline(params: {
   });
 
   if (ocr.ocrNotes) {
-    decision.aiReasoningSummary = `[${ocr.modelUsed || "Gemini-Vision"}] ${ocr.ocrNotes} — ${decision.aiReasoningSummary}`;
+    decision.aiReasoningSummary = `${ocr.ocrNotes} — ${decision.aiReasoningSummary}`;
   }
 
   return {

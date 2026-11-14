@@ -14,7 +14,7 @@ export default function PanitiaLoginPage() {
   const [fullName, setFullName] = useState("");
   const [nip, setNip] = useState("");
   const [roleTitle, setRoleTitle] = useState("AUDITOR_FORENSIK");
-  const [schoolName, setSchoolName] = useState("SMA Negeri 12 Surabaya (Tolak Ukur)");
+  const [schoolName, setSchoolName] = useState("SMA Negeri 12 Surabaya");
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -68,10 +68,10 @@ export default function PanitiaLoginPage() {
 
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-snug">
-                Zonasi-Agent <span className="text-[#F59E0B]">Command Center</span>
+                Zonasi-Agent <span className="text-[#F59E0B]">Portal Panitia</span>
               </h1>
               <p className="text-xs sm:text-sm text-white/85 mt-2 leading-relaxed">
-                Akses khusus <strong>Panitia Verifikator &amp; Pengawas PPDB</strong> untuk mengaudit hasil pemindaian AI Kartu Keluarga, memantau peta radius geospasial, melakukan <em>override</em> keputusan berkas, serta mengunduh Berita Acara resmi.
+                Akses khusus <strong>Panitia Verifikator &amp; Pengawas PPDB</strong> untuk memeriksa hasil pemindaian Kartu Keluarga, memantau peta radius zonasi, menetapkan keputusan berkas, serta mengunduh Berita Acara resmi.
               </p>
             </div>
 
@@ -81,9 +81,9 @@ export default function PanitiaLoginPage() {
                   fact_check
                 </span>
                 <div className="text-xs">
-                  <div className="font-bold text-white">Audit 3 Pilar &amp; Override Real-Time</div>
+                  <div className="font-bold text-white">Pemeriksaan 3 Tahap &amp; Keputusan Panitia</div>
                   <div className="text-white/75">
-                    Setujui berkas bersyarat (SKPWNI) atau diskualifikasi anomali titip KK langsung ke Supabase.
+                    Setujui berkas bersyarat (SKPWNI) atau tolak berkas yang terindikasi titip KK secara langsung.
                   </div>
                 </div>
               </div>
@@ -93,7 +93,7 @@ export default function PanitiaLoginPage() {
                   my_location
                 </span>
                 <div className="text-xs">
-                  <div className="font-bold text-white">Titik Tolak Ukur Geospasial Aktif</div>
+                  <div className="font-bold text-white">Sekolah Tujuan Zonasi</div>
                   <div className="text-white/75">
                     SMA Negeri 12 Surabaya (-7.2468, 112.6358 • Radius Zonasi 1.200 m).
                   </div>
@@ -103,9 +103,9 @@ export default function PanitiaLoginPage() {
           </div>
 
           <div className="pt-6 mt-6 border-t border-white/15 flex items-center justify-between text-[11px] text-white/80 relative z-10">
-            <span>Supabase Auth + HttpOnly Cookie</span>
+            <span>Akses Resmi Panitia Verifikator</span>
             <span className="px-2 py-0.5 rounded bg-[#F59E0B] text-[#1E293B] font-bold">
-              PRO MAX SECURITY
+              PORTAL TERPROTEKSI
             </span>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function PanitiaLoginPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-extrabold text-[#1E293B] mb-1.5">
-                      Instansi / Sekolah Tolak Ukur
+                      Instansi / Sekolah Tujuan
                     </label>
                     <input
                       type="text"

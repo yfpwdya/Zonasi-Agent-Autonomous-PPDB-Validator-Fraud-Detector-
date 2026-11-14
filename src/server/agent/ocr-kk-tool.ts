@@ -392,7 +392,7 @@ Aturan Penting Pemilihan Calon Siswa di Tabel KK:
 
   if (!isPresetSample && params.kkImageBase64) {
     throw new Error(
-      "Layanan AI OCR sedang sibuk atau koneksi ke Gemini Vision terputus. Silakan klik Pindai Ulang agar data KK asli Anda diekstrak secara akurat.",
+      "Layanan pemindaian dokumen sedang sibuk atau koneksi terputus. Silakan klik Pindai Ulang agar data Kartu Keluarga Anda dibaca kembali secara akurat.",
     );
   }
 
