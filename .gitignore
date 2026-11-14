@@ -1,10 +1,14 @@
 node_modules
 .next
-.env*.local
+
+# Environment variables & credentials (commit .env.example only)
+.env
+.env.*
+!.env.example
+
 .zonasi-store.json
 next-env.d.ts
 *.tsbuildinfo
 
 AGENTS.md
 .hermes-tmp*
-.zonasi-store.json
